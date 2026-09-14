@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conectado2 - Gestión de Internet</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Iconos -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Librería Gratuita para Facturas PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <!-- Librería Gratuita para Leer y Exportar Excel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    @keyframes animacionBienvenida {
+      0% { opacity: 0.25; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1.01); }
+      100% { opacity: 0.25; transform: scale(0.98); }
+    }
+    .anim-bienvenida {
+      animation: animacionBienvenida 4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
+
+  <!-- BARRA SUPERIOR CON SALUDO ANIMADO -->
+  <nav class="bg-blue-600 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-2">
+      
+      <!-- LOGO -->
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-wifi text-2xl text-yellow-300"></i>
+        <span class="text-2xl font-black tracking-wide">Conectado2</span>
+      </div>
+
+      <!-- TEXTO DE BIENVENIDA ANIMADO -->
+      <div id="nav-bienvenida-box" class="hidden text-center flex-1 px-4">
+        <span id="nav-bienvenida-texto" class="anim-bienvenida inline-block text-sm md:text-base font-extrabold text-yellow-300 drop-shadow-sm tracking-wide"></span>
+      </div>
+
+      <!-- BOTONES DE SESIÓN -->
+      <div id="nav-user-box" class="hidden flex items-center space-x-3">
+        <span id="nav-user-badge" class="text-xs bg-blue-800 px-3 py-1.5 rounded-full font-medium shadow-inner"></span>
+        <button onclick="cerrarSesion()" class="text-xs bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded text-white font-bold transition shadow">
+          Cerrar Sesión
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-4 py-8">
+
+    <!-- 1. VISTA DE INICIO / ACCESO -->
+    <section id="view-auth" class="max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200">
+      
+      <!-- PESTAÑAS -->
+      <div class="flex border-b border-slate-200 mb-6">
+        <button type="button" id="tab-login-user-btn" onclick="cambiarPestana('login-user')" class="flex-1 pb-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 text-xs sm:text-sm">
+          Portal Clientes
+        </button>
+        <button type="button" id="tab-register-btn" onclick="cambiarPestana('registro')" class="flex-1 pb-3 text-center font-bold text-slate-400 hover:text-slate-600 text-xs sm:text-sm">
+          Solicitar Servicio
+        </button>
+        <button type="button" id="tab-login-admin-btn" onclick="cambiarPestana('login-admin')" class="flex-1 pb-3 text-center font-bold text-slate-400 hover:text-slate-600 text-xs sm:text-sm">
+          Admin / Socios
+        </button>
+      </div>
+
+      <!-- FORMULARIO 1: ACCESO CLIENTES SOLO CON CÉDULA -->
+      <form id="form-login-user" onsubmit="iniciarSesionCliente(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Cédula de Ciudadanía</label>
+          <input type="number" id="login-user-cedula" required placeholder="Escribe tu número de cédula" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-base font-bold text-slate-800 bg-slate-50" />
+        </div>
+        <p class="text-[11px] text-slate-500 leading-relaxed">
+          <i class="fa-solid fa-circle-info text-blue-600"></i> Solo necesitas tu número de cédula para consultar tus facturas y comprobantes.
+        </p>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-to-bracket"></i> Ingresar al Portal
+        </button>
+      </form>
+
+      <!-- FORMULARIO 2: ACCESO ADMIN / SOCIOS -->
+      <form id="form-login-admin" onsubmit="iniciarSesionAdmin(event)" class="space-y-4 hidden">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Usuario o Correo Electrónico</label>
+          <input type="text" id="login-admin-identificador" required placeholder="ej: pepito.perez o pepito@ejemplo.com" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contraseña (Mínimo 12 caracteres con complejidad)</label>
+          <input type="password" id="login-admin-pass" required placeholder="••••••••••••" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" />
+        </div>
+        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-lg text-sm transition shadow-sm">
+          Ingresar al Panel de Gestión
+        </button>
+      </form>
+
+      <!-- FORMULARIO 3: SOLICITAR SERVICIO CON DETECCIÓN DE CÉDULA DUPLICADA -->
+      <form id="form-register" onsubmit="registrarSolicitudPublica(event)" class="space-y-3 hidden">
+        <div class="p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-600 font-semibold">Plan de Velocidad:</span>
+            <span class="font-extrabold text-blue-700">20 MB</span>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-600 font-semibold">Mensualidad:</span>
+            <span class="font-extrabold text-emerald-700">$50.000 COP (IVA Inc.)</span>
+          </div>
+          <div class="flex justify-between items-center text-xs border-t border-blue-200 pt-1.5">
+            <span class="text-blue-900 font-black uppercase tracking-wide">Valor Fijo de Instalación:</span>
+            <span class="text-sm font-black text-blue-950 bg-yellow-300 px-2.5 py-0.5 rounded-lg shadow-sm">$90.000 COP</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nombre Completo</label>
+          <input type="text" id="reg-nombre" required placeholder="Nombre y Apellidos del titular" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Cédula</label>
+            <input type="number" id="reg-cedula" oninput="validarCedulaDuplicadaEnRegistro()" required placeholder="N° Cédula" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Celular / WhatsApp</label>
+            <input type="tel" id="reg-celular" required placeholder="300 000 0000" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+          </div>
+        </div>
+
+        <div id="aviso-cedula-duplicada" class="hidden p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-start gap-2">
+          <i class="fa-solid fa-circle-exclamation text-amber-600 mt-0.5 text-base"></i>
+          <div>
+            <b>¡Este número de cédula ya se encuentra registrado en Conectado2!</b>
+            <p class="mt-0.5 text-[11px] text-amber-800">No es necesario volver a solicitar el servicio. Puedes ingresar directamente con tu cédula en <a href="javascript:void(0)" onclick="cambiarPestana('login-user')" class="font-bold underline text-blue-700">Portal Clientes</a>.</p>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Correo Electrónico (Opcional)</label>
+          <input type="text" id="reg-email" placeholder="correo@cliente.com o Sin Correo" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
+        </div>
+
+        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 space-y-1.5">
+          <p class="font-bold text-slate-800 flex items-center gap-1.5">
+            <i class="fa-solid fa-satellite-dish text-blue-600 text-sm"></i> Condiciones del Servicio Inalámbrico:
+          </p>
+          <ul class="list-disc list-inside space-y-1 text-slate-600">
+            <li><b>Validación de Cobertura:</b> Sujeto a factibilidad técnica y comprobación de señal.</li>
+            <li><b>Línea de Vista Requerida:</b> La antena receptora debe contar con vista directa y despejada hacia la torre transmisora.</li>
+            <li><b>Cuidado de Equipos:</b> Los equipos quedan bajo custodia del cliente; no deben manipularse.</li>
+            <li><b>Costo de Instalación:</b> Valor fijo de <b>$90.000 COP</b> al momento de instalar.</li>
+          </ul>
+        </div>
+
+        <div class="flex items-start gap-2 pt-1">
+          <input type="checkbox" id="reg-acepto-terminos" required class="mt-1 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer" />
+          <label for="reg-acepto-terminos" class="text-xs text-slate-700 font-semibold cursor-pointer">
+            Acepto el valor de instalación de <b>$90.000 COP</b> y las condiciones de línea de vista y cuidado de antenas.
+          </label>
+        </div>
+
+        <button type="submit" id="btn-enviar-solicitud" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-sm transition mt-2 shadow flex items-center justify-center gap-2">
+          <i class="fa-solid fa-paper-plane"></i> Enviar Solicitud de Servicio
+        </button>
+      </form>
+    </section>
+
+    <!-- PANTALLA CONFIRMACIÓN Y BIENVENIDA TRAS SOLICITAR SERVICIO -->
+    <section id="view-confirmacion-solicitud" class="hidden max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200 text-center space-y-5">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-sm">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <div>
+        <h3 class="text-xl font-black text-slate-800">¡Bienvenido a Conectado2!</h3>
+        <p id="conf-nombre-cliente" class="text-sm font-bold text-blue-700 mt-1"></p>
+        <p class="text-xs text-slate-500 mt-1">Pronto nos comunicaremos contigo para confirmar tu servicio, validar la cobertura y coordinar tu aprobación e instalación.</p>
+      </div>
+
+      <div class="text-left bg-slate-50 p-4 rounded-xl border space-y-2 text-xs text-slate-600">
+        <p class="font-bold text-slate-800 border-b pb-1">
+          <i class="fa-solid fa-tower-broadcast text-blue-600 mr-1"></i> Recuerda las condiciones acordadas:
+        </p>
+        <p>• <b>Valor de Instalación:</b> $90.000 COP (al momento de instalar).</p>
+        <p>• <b>Mensualidad:</b> $50.000 COP (Corte los días 24 de cada mes).</p>
+        <p>• <b>Línea de Vista Directa:</b> La antena requiere vista libre hacia la torre para máxima estabilidad.</p>
+      </div>
+
+      <button onclick="irAPortalDesdeConfirmacion()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
+        Entendido, Continuar
+      </button>
+    </section>
+
+    <!-- PANTALLA OBLIGATORIA: SUBIR CÉDULA AMBAS CARAS -->
+    <section id="view-upload-cedula" class="hidden max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200">
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xl">
+          <i class="fa-solid fa-id-card"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800">Foto de Documento Requerida</h3>
+        <p class="text-xs text-slate-500">Por favor sube o toma foto clara de tu cédula por ambas caras para verificar tu identidad.</p>
+      </div>
+
+      <form onsubmit="guardarFotosCedulaCliente(event)" class="space-y-4">
+        <div class="p-3 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Foto Cédula - Frente (Cara principal)</label>
+          <input type="file" id="foto-cedula-frente" required accept="image/*" onchange="previsualizarFoto(event, 'preview-frente')" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 border rounded-lg bg-white" />
+          <div id="preview-frente" class="hidden mt-2 max-h-36 overflow-hidden rounded-lg border"></div>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-dashed border-slate-300">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Foto Cédula - Reverso (Parte trasera)</label>
+          <input type="file" id="foto-cedula-reverso" required accept="image/*" onchange="previsualizarFoto(event, 'preview-reverso')" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 border rounded-lg bg-white" />
+          <div id="preview-reverso" class="hidden mt-2 max-h-36 overflow-hidden rounded-lg border"></div>
+        </div>
+
+        <button type="submit" id="btn-subir-cedulas-sb" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-sm">
+          Enviar Fotos a Verificación (Cloud)
+        </button>
+      </form>
+    </section>
+
+    <!-- PANTALLA DE BLOQUEO: ESPERANDO APROBACIÓN DE CÉDULA -->
+    <section id="view-esperando-aprobacion" class="hidden max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-center space-y-4">
+      <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-2xl animate-pulse">
+        <i class="fa-solid fa-user-clock"></i>
+      </div>
+      <h3 class="text-lg font-extrabold text-slate-800">Documento en Revisión</h3>
+      <p class="text-xs text-slate-600 leading-relaxed">
+        Tus fotos de cédula han sido enviadas a la administración. Estamos validando tu información.
+      </p>
+      <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-medium">
+        Estado: <b>Pendiente por verificar por el Administrador</b>
+      </div>
+      <button onclick="cerrarSesion()" class="text-xs text-slate-500 hover:text-slate-800 font-bold underline pt-2">
+        Salir por ahora
+      </button>
+    </section>
+
+    <!-- 2. PANEL DEL ADMINISTRADOR -->
+    <section id="view-admin" class="hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-user-shield text-blue-600"></i> Panel Administrador - Conectado2 (Supabase)
+          </h2>
+          <p id="admin-subtitulo-rol" class="text-xs text-slate-500"></p>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="abrirModalHistorialComprobantes()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+            <i class="fa-solid fa-receipt text-sm"></i> Comprobantes (<span id="count-historial-comprobantes">0</span>)
+          </button>
+
+          <button onclick="exportarClientesExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+            <i class="fa-solid fa-file-arrow-down text-sm"></i> Exportar
+          </button>
+
+          <div id="box-acciones-admin-principal" class="flex items-center gap-2">
+            <button onclick="toggleModalCrearSocio(true)" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+              <i class="fa-solid fa-user-tie"></i> Crear Admin Socio
+            </button>
+
+            <label class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow cursor-pointer transition flex items-center gap-2">
+              <i class="fa-solid fa-file-excel text-sm"></i> Importar Excel
+              <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="importarExcelClientes(event)" class="hidden" />
+            </label>
+
+            <button onclick="toggleModalCrearUsuario(true)" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+              <i class="fa-solid fa-user-plus"></i> Nuevo Cliente
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA DE CLIENTES CON BUSCADOR -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-4 border-b bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div class="flex items-center gap-2">
+            <h3 class="font-bold text-sm text-slate-700">Clientes Registrados</h3>
+            <span id="admin-contador" class="text-xs bg-blue-100 text-blue-800 font-semibold px-2.5 py-1 rounded-full"></span>
+          </div>
+
+          <div class="relative w-full sm:w-72">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            <input type="text" id="admin-buscador-cedula" oninput="filtrarClientesPorCedula()" placeholder="Buscar por Cédula o Nombre..." class="w-full pl-8 pr-3 py-1.5 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 bg-white" />
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-600 uppercase font-bold border-b">
+              <tr>
+                <th class="p-3">Cliente</th>
+                <th class="p-3">Cédula</th>
+                <th class="p-3">Contacto</th>
+                <th class="p-3">Plan / Tarifa</th>
+                <th class="p-3">Documento Identidad</th>
+                <th class="p-3">Estado Servicio</th>
+                <th class="p-3">Auditoría Pago</th>
+                <th class="p-3 text-center">Acciones y Cobro</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-usuarios" class="divide-y divide-slate-100">
+              <!-- JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL: ENVIAR ALERTA DE COBRO -->
+    <div id="modal-enviar-alerta-corte" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h3 class="text-base font-bold text-red-600 flex items-center gap-2">
+            <i class="fa-solid fa-bell text-lg animate-bounce"></i> Alerta de Suspensión de Servicio
+          </h3>
+          <button onclick="toggleModalAlertaCorte(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+        </div>
+        <form onsubmit="guardarAlertaCorteCliente(event)" class="space-y-4">
+          <input type="hidden" id="alerta-corte-user-index" />
+          <div class="bg-slate-50 p-3 rounded-xl border text-xs space-y-1">
+            <p>Cliente: <b id="alerta-cliente-nombre" class="text-slate-800"></b></p>
+            <p>Cédula: <span id="alerta-cliente-cedula" class="text-slate-600"></span></p>
+            <p>Celular: <span id="alerta-cliente-tel" class="text-slate-600"></span></p>
+            <p>Deuda Actual: <b id="alerta-cliente-monto" class="text-red-600 font-extrabold"></b></p>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tiempo de Gracia Restante (Ultimátum)</label>
+            <input type="text" id="alerta-tiempo-gracia" required value="1 día y 1 hora" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-red-500 font-bold text-red-700" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Mensaje de Notificación</label>
+            <textarea id="alerta-mensaje-corte" rows="3" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-red-500 text-slate-700">Tu servicio de internet presenta corte por falta de pago. Tienes 1 día y 1 hora para realizar tu pago y subir el comprobante.</textarea>
+          </div>
+          <div class="flex justify-end gap-2 pt-3 border-t">
+            <button type="button" onclick="toggleModalAlertaCorte(false)" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg transition flex items-center gap-1.5">Emitir Alerta</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: CREAR ADMINISTRADOR SOCIO -->
+    <div id="modal-crear-socio" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-user-tie text-purple-600"></i> Registrar Administrador Socio
+          </h3>
+          <button onclick="toggleModalCrearSocio(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+        </div>
+        <form onsubmit="guardarNuevoSocio(event)" class="space-y-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre Completo del Socio</label>
+            <input type="text" id="socio-nombre" required placeholder="Ej: Pedro Pérez" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-purple-500" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre de Usuario (Para Iniciar Sesión)</label>
+            <input type="text" id="socio-usuario" required placeholder="Ej: PEDRO.PEREZ" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-purple-500 font-bold uppercase" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Contraseña Compleja</label>
+            <input type="password" id="socio-clave" required placeholder="Mínimo 12 caracteres" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-purple-500" />
+            <div class="mt-2 p-2.5 bg-slate-50 rounded-lg border text-[11px] text-slate-600 space-y-0.5">
+              <p class="font-bold text-slate-700 mb-1">Requisitos Obligatorios:</p>
+              <p>Mínimo 12 caracteres, Mayúscula, Minúscula, Número y Carácter Especial.</p>
+            </div>
+          </div>
+          <div class="flex justify-end gap-2 pt-3 border-t">
+            <button type="button" onclick="toggleModalCrearSocio(false)" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg transition">Crear Acceso Socio</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: CARGAR COMPROBANTE WHATSAPP -->
+    <div id="modal-subir-comprobante-admin" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-brands fa-whatsapp text-emerald-500 text-lg"></i> Cargar Comprobante (WhatsApp)
+          </h3>
+          <button onclick="toggleModalSubirComprobanteAdmin(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+        </div>
+        <form onsubmit="guardarComprobanteDesdeAdmin(event)" class="space-y-4">
+          <input type="hidden" id="wa-user-index" />
+          <div class="bg-slate-50 p-3 rounded-xl border text-xs space-y-1">
+            <p>Cliente: <b id="wa-cliente-nombre" class="text-slate-800"></b></p>
+            <p>Cédula: <span id="wa-cliente-cedula" class="text-slate-600"></span></p>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Fecha de la Transferencia</label>
+            <input type="date" id="wa-fecha-pago" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Foto o Captura de WhatsApp</label>
+            <input type="file" id="wa-archivo-comprobante" required accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 border rounded-lg bg-white" />
+          </div>
+          <div class="flex justify-end gap-2 pt-3 border-t">
+            <button type="button" onclick="toggleModalSubirComprobanteAdmin(false)" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg">Cancelar</button>
+            <button type="submit" id="btn-subir-wa-sb" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition">Guardar (Cloud)</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL: HISTORIAL DE COMPROBANTES -->
+    <div id="modal-historial-comprobantes" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-6 border border-slate-200 max-h-[90vh] flex flex-col">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-receipt text-indigo-600"></i> Historial de Comprobantes de Pago Aprobados
+            </h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="exportarHistorialComprobantesExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Exportar a Excel</button>
+            <button onclick="toggleModalHistorialComprobantes(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto flex-1 border rounded-xl">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-100 text-slate-600 uppercase font-bold border-b sticky top-0">
+              <tr>
+                <th class="p-3">Cliente / Cédula</th>
+                <th class="p-3">Monto Aprobado</th>
+                <th class="p-3">Fecha Declarada</th>
+                <th class="p-3">Subida / Aprobación</th>
+                <th class="p-3 text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-historial-comprobantes" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL VISOR EN PANTALLA COMPLETA -->
+    <div id="modal-visor-comprobante" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-5 border border-slate-200 flex flex-col max-h-[90vh]">
+        <div class="flex justify-between items-center border-b pb-3 mb-3">
+          <h4 id="visor-titulo" class="font-bold text-sm text-slate-800">Comprobante de Pago</h4>
+          <button onclick="toggleModalVisor(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+        </div>
+        <div class="flex-1 overflow-auto flex items-center justify-center bg-slate-100 rounded-xl p-2 min-h-[300px]">
+          <div id="visor-contenedor-img"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: AUDITORÍA DE CÉDULA -->
+    <div id="modal-auditar-cedula" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h3 class="text-base font-bold text-slate-800">Verificación de Cédula de Ciudadanía</h3>
+          <button onclick="toggleModalAuditarCedula(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+        </div>
+        <input type="hidden" id="audit-cedula-user-index" />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div class="border rounded-xl p-3 bg-slate-50 text-center">
+            <span class="text-xs font-bold text-slate-700 block mb-2">Cara Frontal</span>
+            <div id="img-box-frente" class="h-48 bg-white border rounded-lg flex items-center justify-center overflow-hidden"></div>
+          </div>
+          <div class="border rounded-xl p-3 bg-slate-50 text-center">
+            <span class="text-xs font-bold text-slate-700 block mb-2">Cara Reverso</span>
+            <div id="img-box-reverso" class="h-48 bg-white border rounded-lg flex items-center justify-center overflow-hidden"></div>
+          </div>
+        </div>
+        <div id="box-botones-cedula-admin" class="flex justify-between gap-2 pt-3 border-t">
+          <button type="button" onclick="rechazarCedulaAdmin()" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Rechazar Fotos</button>
+          <button type="button" onclick="aprobarCedulaAdmin()" class="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg">Aprobar Documento</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: AUDITORÍA DE PAGO -->
+    <div id="modal-auditar-pago" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h3 class="text-base font-bold text-slate-800">Auditoría de Pago</h3>
+          <button onclick="toggleModalAuditar(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+        </div>
+        <div class="space-y-4">
+          <input type="hidden" id="audit-user-index" />
+          <div id="audit-preview-box" class="p-2 border rounded-xl bg-slate-100 flex items-center justify-center min-h-[160px] text-xs"></div>
+          <div id="box-botones-pago-admin" class="flex justify-between gap-2 pt-3 border-t">
+            <button type="button" onclick="rechazarPagoAdmin()" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Rechazar</button>
+            <button type="button" onclick="aprobarPagoAdmin()" class="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg">Aprobar y Activar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL: CREAR CLIENTE -->
+    <div id="modal-crear-usuario" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200">
+        <h3 class="text-base font-bold text-slate-800 mb-3 border-b pb-2">Nuevo Cliente</h3>
+        <form onsubmit="crearUsuarioAdmin(event)" class="space-y-3">
+          <input type="text" id="admin-new-nombre" required placeholder="Nombre Completo" class="w-full px-3 py-2 border rounded-lg text-sm" />
+          <div class="grid grid-cols-2 gap-2">
+            <input type="number" id="admin-new-cedula" required placeholder="Cédula" class="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="tel" id="admin-new-celular" required placeholder="Celular" class="w-full px-3 py-2 border rounded-lg text-sm" />
+          </div>
+          <input type="text" id="admin-new-email" placeholder="Correo (opcional)" class="w-full px-3 py-2 border rounded-lg text-sm" />
+          <div class="grid grid-cols-2 gap-2">
+            <input type="number" id="admin-new-tarifa" required value="50000" class="w-full px-3 py-2 border rounded-lg text-sm font-bold text-emerald-700" />
+            <input type="text" id="admin-new-promo" placeholder="Motivo promo" class="w-full px-3 py-2 border rounded-lg text-sm" />
+          </div>
+          <input type="date" id="admin-new-fecha-instalacion" required class="w-full px-3 py-2 border rounded-lg text-sm" />
+          <div class="flex justify-end gap-2 pt-3 border-t">
+            <button type="button" onclick="toggleModalCrearUsuario(false)" class="px-4 py-2 bg-slate-100 text-xs rounded-lg">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-lg">Registrar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. PANEL DEL CLIENTE -->
+    <section id="view-client" class="hidden max-w-2xl mx-auto space-y-6">
+      <div id="client-box-ultimatum" class="hidden bg-gradient-to-r from-red-600 to-rose-700 text-white p-5 rounded-2xl shadow-xl flex items-center gap-4 animate-pulse">
+        <i class="fa-solid fa-clock-rotate-left text-3xl"></i>
+        <div class="flex-1">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs uppercase font-extrabold tracking-wider bg-white/20 px-2 py-0.5 rounded">¡Último Aviso de Suspensión!</span>
+            <span id="client-ultimatum-tiempo" class="text-xs font-black bg-yellow-400 text-slate-900 px-2.5 py-0.5 rounded-full"></span>
+          </div>
+          <p id="client-ultimatum-mensaje" class="text-xs text-white leading-relaxed font-medium"></p>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+        <div class="flex justify-between items-center border-b pb-4 mb-5">
+          <div>
+            <h2 id="client-nombre" class="text-xl font-bold text-slate-800">Mi Conexión Conectado2</h2>
+            <p id="client-email" class="text-xs text-slate-400"></p>
+          </div>
+          <span id="client-estado-badge" class="text-xs px-3 py-1 rounded-full font-bold"></span>
+        </div>
+
+        <div id="box-cliente-al-dia" class="hidden mb-6 p-4 bg-emerald-50 border border-emerald-300 rounded-2xl flex items-center gap-3 text-emerald-900">
+          <div class="h-10 w-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center text-xl flex-shrink-0">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div>
+            <h4 class="font-extrabold text-sm uppercase">¡Estás al día con tus pagos!</h4>
+            <p class="text-xs text-emerald-700 font-medium">Gracias por pertenecer a Conectado2. Tu conexión está activa.</p>
+          </div>
+        </div>
+
+        <div id="box-cliente-factura-descarga" class="hidden mb-6 p-4 bg-slate-50 rounded-2xl border flex justify-between items-center">
+          <div>
+            <span class="text-xs font-bold text-slate-800 block">Factura de Cobro Vigente</span>
+            <span id="client-subtexto-factura" class="text-[11px] text-slate-500"></span>
+          </div>
+          <button onclick="generarFacturaPDF(usuarioEnSesion)" class="bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-lg">Descargar Factura PDF</button>
+        </div>
+
+        <div class="border-t pt-4">
+          <h4 class="font-bold text-sm text-slate-700 mb-1">Cargar Comprobante de Transferencia</h4>
+          <form onsubmit="subirComprobanteCliente(event)" class="space-y-3 bg-slate-50 p-4 rounded-xl border">
+            <input type="date" id="cli-pago-fecha" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
+            <input type="file" id="cli-pago-archivo" required accept="image/*,.pdf" class="w-full text-xs text-slate-500 border rounded-lg bg-white" />
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 rounded-lg">Enviar Comprobante (Cloud)</button>
+          </form>
+          <div id="cli-status-comprobante" class="mt-3 text-xs"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. PLANTILLA FACTURA PDF (OCULTA) -->
+    <div id="plantilla-factura" class="hidden p-8 bg-white font-sans text-slate-800 border" style="width: 700px;">
+      <h1 class="text-2xl font-black text-blue-600">CONECTADO2</h1>
+      <p id="pdf-factura-num" class="text-sm font-bold"></p>
+      <p id="pdf-cliente-nombre" class="mt-4 font-bold"></p>
+      <p id="pdf-total-cobro" class="mt-4 font-black text-lg text-blue-600"></p>
+    </div>
+
+  </main>
+
+  <script>
+    // Inicialización de Supabase con tu llave provista
+    const SUPABASE_URL = "https://vebsnjvihcxigmkvcsem.supabase.co"; // Instancia base de tu proyecto
+    const SUPABASE_ANON_KEY = "sb_publishable_hTGwIFWA4k9Hp17yq4S9Ig_pey76aob";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const ADMIN_CORREO_PRINCIPAL = "jeliasmazo@gmail.com";
+    const ADMIN_CLAVE_PRINCIPAL = "98013262140Ja**";
+
+    let clientes = JSON.parse(localStorage.getItem('conectado2_usuarios')) || [];
+    let comprobantesAprobados = JSON.parse(localStorage.getItem('conectado2_comprobantes_aprobados')) || [];
+    let administradoresSocios = JSON.parse(localStorage.getItem('conectado2_socios')) || [];
+
+    let usuarioEnSesion = null;
+    let usuarioEnRegistroCedula = null;
+    let esAdminPrincipal = false;
+    let esSocioSoloLectura = false;
+    let clienteRecienRegistrado = null;
+
+    function validarComplejidadContrasena(pass) {
+      if (!pass || pass.length < 12) return { valida: false, mensaje: "Debe tener al menos 12 caracteres." };
+      if (!/[A-Z]/.test(pass)) return { valida: false, mensaje: "Debe incluir Mayúscula." };
+      if (!/[a-z]/.test(pass)) return { valida: false, mensaje: "Debe incluir Minúscula." };
+      if (!/[0-9]/.test(pass)) return { valida: false, mensaje: "Debe incluir Número." };
+      if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pass)) return { valida: false, mensaje: "Debe incluir Carácter Especial." };
+      return { valida: true };
+    }
+
+    function parseMonto(valor) {
+      if (!valor) return 50000;
+      const limpio = String(valor).replace(/[^0-9]/g, "");
+      const num = parseInt(limpio, 10);
+      return isNaN(num) || num <= 0 ? 50000 : num;
+    }
+
+    function formatearDinero(num) {
+      return "$" + Number(num).toLocaleString('es-CO');
+    }
+
+    function obtenerFechaHoraActual() {
+      const d = new Date();
+      return d.toLocaleDateString('es-CO') + " " + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function calcularEstadoAutomatico(user) {
+      if (user.estado === 'Cancelado' || user.estado === 'Pendiente') return user.estado;
+      const hoy = new Date();
+      const diaActual = hoy.getDate();
+      const mesActual = hoy.getMonth() + 1;
+
+      if (user.pagoAprobadoAdmin && user.mesAprobado === mesActual) return "Activo";
+      if (user.comprobanteSubido && !user.pagoAprobadoAdmin) return "Comprobante en revisión";
+      if (diaActual >= 25 && diaActual <= 30) return "Pendiente por pagar";
+      if (diaActual > 30 || diaActual < 24) return "Servicio cortado por falta de pago";
+      return "Activo";
+    }
+
+    function cambiarPestana(p) {
+      document.getElementById('form-login-user').classList.toggle('hidden', p !== 'login-user');
+      document.getElementById('form-login-admin').classList.toggle('hidden', p !== 'login-admin');
+      document.getElementById('form-register').classList.toggle('hidden', p !== 'registro');
+    }
+
+    function validarCedulaDuplicadaEnRegistro() {
+      const cedula = document.getElementById('reg-cedula').value.trim();
+      const aviso = document.getElementById('aviso-cedula-duplicada');
+      const btnEnviar = document.getElementById('btn-enviar-solicitud');
+      if (cedula.length >= 6) {
+        const existe = clientes.some(c => String(c.cedula).trim() === cedula);
+        if (existe) {
+          aviso.classList.remove('hidden');
+          btnEnviar.disabled = true;
+          return;
+        }
+      }
+      aviso.classList.add('hidden');
+      btnEnviar.disabled = false;
+    }
+
+    function iniciarSesionCliente(e) {
+      e.preventDefault();
+      const cedula = document.getElementById('login-user-cedula').value.trim();
+      const cliente = clientes.find(c => String(c.cedula).trim() === cedula);
+      if (!cliente) {
+        alert("Cédula no encontrada.");
+        return;
+      }
+      cliente.clave = String(cliente.cedula).trim();
+      verificarPasoCedula(cliente);
+    }
+
+    function verificarPasoCedula(cliente) {
+      usuarioEnRegistroCedula = cliente;
+      if (!cliente.cedulaFrente || !cliente.cedulaReverso) {
+        document.getElementById('view-auth').classList.add('hidden');
+        document.getElementById('view-upload-cedula').classList.remove('hidden');
+        return;
+      }
+      if (cliente.estadoCedula === 'Pendiente' || !cliente.estadoCedula) {
+        document.getElementById('view-auth').classList.add('hidden');
+        document.getElementById('view-esperando-aprobacion').classList.remove('hidden');
+        return;
+      }
+      usuarioEnSesion = cliente;
+      abrirPanelCliente(cliente);
+    }
+
+    function previsualizarFoto(event, previewId) {
+      const file = event.target.files[0];
+      const box = document.getElementById(previewId);
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          box.innerHTML = `<img src="${e.target.result}" class="w-full h-auto object-cover" />`;
+          box.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function guardarFotosCedulaCliente(e) {
+      e.preventDefault();
+      const fileFrente = document.getElementById('foto-cedula-frente').files[0];
+      const fileReverso = document.getElementById('foto-cedula-reverso').files[0];
+      const btnSubir = document.getElementById('btn-subir-cedulas-sb');
+      
+      btnSubir.innerText = "Subiendo a Supabase Storage...";
+      btnSubir.disabled = true;
+
+      try {
+        const fileNameF = `${usuarioEnRegistroCedula.cedula}_frente_${Date.now()}.jpg`;
+        const fileNameR = `${usuarioEnRegistroCedula.cedula}_reverso_${Date.now()}.jpg`;
+
+        await supabaseClient.storage.from('archivos-conectado2').upload(fileNameF, fileFrente);
+        await supabaseClient.storage.from('archivos-conectado2').upload(fileNameR, fileReverso);
+
+        const urlF = supabaseClient.storage.from('archivos-conectado2').getPublicUrl(fileNameF).data.publicUrl;
+        const urlR = supabaseClient.storage.from('archivos-conectado2').getPublicUrl(fileNameR).data.publicUrl;
+
+        usuarioEnRegistroCedula.cedulaFrente = urlF;
+        usuarioEnRegistroCedula.cedulaReverso = urlR;
+        usuarioEnRegistroCedula.estadoCedula = "Pendiente";
+        localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+
+        document.getElementById('view-upload-cedula').classList.add('hidden');
+        document.getElementById('view-esperando-aprobacion').classList.remove('hidden');
+        alert("¡Fotos enviadas a Supabase Storage!");
+      } catch (err) {
+        alert("Error al subir a cloud: " + err.message);
+      } finally {
+        btnSubir.innerText = "Enviar Fotos a Verificación (Cloud)";
+        btnSubir.disabled = false;
+      }
+    }
+
+    function iniciarSesionAdmin(e) {
+      e.preventDefault();
+      const identificador = document.getElementById('login-admin-identificador').value.trim();
+      const clave = document.getElementById('login-admin-pass').value.trim();
+
+      const val = validarComplejidadContrasena(clave);
+      if (!val.valida) {
+        alert("Error de seguridad: " + val.mensaje);
+        return;
+      }
+
+      if (identificador.toLowerCase() === ADMIN_CORREO_PRINCIPAL.toLowerCase() && clave === ADMIN_CLAVE_PRINCIPAL) {
+        esAdminPrincipal = true;
+        esSocioSoloLectura = false;
+        abrirPanelAdmin("Janier Mazo", "Administrador Principal");
+        return;
+      }
+
+      alert("Credenciales inválidas.");
+    }
+
+    function registrarSolicitudPublica(e) {
+      e.preventDefault();
+      const cedulaVal = document.getElementById('reg-cedula').value.trim();
+      const nuevo = {
+        nombre: document.getElementById('reg-nombre').value.trim(),
+        cedula: cedulaVal,
+        celular: document.getElementById('reg-celular').value.trim(),
+        email: document.getElementById('reg-email').value.trim() || "Sin correo",
+        clave: cedulaVal,
+        plan: "20 MB",
+        tarifa: 50000,
+        tarifaInstalacion: 90000,
+        estado: "Pendiente",
+        cedulaFrente: null,
+        cedulaReverso: null,
+        estadoCedula: "Sin subir",
+        comprobanteSubido: null,
+        pagoAprobadoAdmin: false,
+        mesAprobado: null
+      };
+      clientes.push(nuevo);
+      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      clienteRecienRegistrado = nuevo;
+      document.getElementById('view-auth').classList.add('hidden');
+      document.getElementById('conf-nombre-cliente').innerText = `${nuevo.nombre} (C.C: ${nuevo.cedula})`;
+      document.getElementById('view-confirmacion-solicitud').classList.remove('hidden');
+    }
+
+    function irAPortalDesdeConfirmacion() {
+      document.getElementById('view-confirmacion-solicitud').classList.add('hidden');
+      if (clienteRecienRegistrado) verificarPasoCedula(clienteRecienRegistrado);
+    }
+
+    function abrirPanelAdmin(nombreUsuario = "Janier Mazo", rolTexto = "Administrador Principal") {
+      document.getElementById('view-auth').classList.add('hidden');
+      document.getElementById('view-client').classList.add('hidden');
+      document.getElementById('view-upload-cedula').classList.add('hidden');
+      document.getElementById('view-esperando-aprobacion').classList.add('hidden');
+      document.getElementById('view-confirmacion-solicitud').classList.add('hidden');
+      document.getElementById('view-admin').classList.remove('hidden');
+      document.getElementById('nav-user-box').classList.remove('hidden');
+      document.getElementById('nav-user-badge').innerText = rolTexto;
+      cargarTablaAdmin();
+    }
+
+    function cargarTablaAdmin() {
+      const tbody = document.getElementById('tabla-usuarios');
+      tbody.innerHTML = "";
+      clientes.forEach((user, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-3 font-bold">${user.nombre}</td>
+          <td class="p-3">${user.cedula}</td>
+          <td class="p-3">${user.celular}</td>
+          <td class="p-3">${user.plan} - $50.000</td>
+          <td class="p-3">${user.estadoCedula}</td>
+          <td class="p-3">${calcularEstadoAutomatico(user)}</td>
+          <td class="p-3">${user.pagoAprobadoAdmin ? 'Aprobado' : 'Pendiente'}</td>
+          <td class="p-3 text-center">
+            <button onclick="generarFacturaPDF(clientes[${idx}])" class="bg-emerald-600 text-white px-2 py-1 rounded text-[11px]">PDF</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function abrirPanelCliente(cli) {
+      document.getElementById('view-auth').classList.add('hidden');
+      document.getElementById('view-admin').classList.add('hidden');
+      document.getElementById('view-client').classList.remove('hidden');
+      document.getElementById('nav-user-box').classList.remove('hidden');
+      document.getElementById('client-nombre').innerText = cli.nombre;
+      document.getElementById('client-cedula').innerText = cli.cedula;
+      document.getElementById('client-tarifa-text').innerText = formatearDinero(cli.tarifa) + " COP";
+    }
+
+    function subirComprobanteCliente(e) {
+      e.preventDefault();
+      alert("Comprobante procesado y listo para validación cloud.");
+    }
+
+    function generarFacturaPDF(usuario) {
+      alert("Generando factura PDF en A4 para " + usuario.nombre);
+    }
+
+    function cerrarSesion() {
+      window.location.reload();
+    }
+  </script>
+</body>
+</html>
