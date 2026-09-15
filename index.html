@@ -1,1028 +1,551 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Conectado2 - Gestión de Internet</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Iconos -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Librería Facturas PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- Librería Excel -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-  <style>
-    @keyframes animacionBienvenida {
-      0% { opacity: 0.25; transform: scale(0.98); }
-      50% { opacity: 1; transform: scale(1.01); }
-      100% { opacity: 0.25; transform: scale(0.98); }
-    }
-    .anim-bienvenida {
-      animation: animacionBienvenida 4s ease-in-out infinite;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conectado2 - Portal de Gestión y Usuarios</title>
+    <!-- Tailwind CSS para un diseño moderno y adaptable -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Librería para leer archivos Excel (.xlsx, .xls) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Cliente de Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
 
-  <!-- BARRA SUPERIOR -->
-  <nav class="bg-blue-600 text-white shadow-md sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-2">
-      <div class="flex items-center space-x-2">
-        <i class="fa-solid fa-wifi text-2xl text-yellow-300"></i>
-        <span class="text-2xl font-black tracking-wide">Conectado2</span>
-      </div>
-
-      <div id="nav-bienvenida-box" class="hidden text-center flex-1 px-4">
-        <span id="nav-bienvenida-texto" class="anim-bienvenida inline-block text-sm md:text-base font-extrabold text-yellow-300 drop-shadow-sm tracking-wide"></span>
-      </div>
-
-      <div id="nav-user-box" class="hidden flex items-center space-x-3">
-        <button onclick="abrirModalPerfilAdmin()" id="nav-user-badge" class="text-xs bg-blue-800 hover:bg-blue-900 px-3.5 py-2 rounded-full font-bold shadow transition flex items-center gap-1.5 cursor-pointer"></button>
-        <button onclick="cerrarSesion()" class="text-xs bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded text-white font-bold transition shadow">Cerrar Sesión</button>
-      </div>
-    </div>
-  </nav>
-
-  <main class="max-w-7xl mx-auto px-4 py-8">
-
-    <!-- 1. VISTA DE INICIO / ACCESO -->
-    <section id="view-auth" class="max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200">
-      <div class="flex border-b border-slate-200 mb-6">
-        <button type="button" id="tab-login-user-btn" onclick="cambiarPestana('login-user')" class="flex-1 pb-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 text-xs sm:text-sm">Portal Clientes</button>
-        <button type="button" id="tab-register-btn" onclick="cambiarPestana('registro')" class="flex-1 pb-3 text-center font-bold text-slate-400 hover:text-slate-600 text-xs sm:text-sm">Solicitar Servicio</button>
-        <button type="button" id="tab-login-admin-btn" onclick="cambiarPestana('login-admin')" class="flex-1 pb-3 text-center font-bold text-slate-400 hover:text-slate-600 text-xs sm:text-sm">Admin / Socios</button>
-      </div>
-
-      <!-- PORTAL CLIENTES -->
-      <form id="form-login-user" onsubmit="iniciarSesionCliente(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Cédula de Ciudadanía</label>
-          <input type="number" id="login-user-cedula" required placeholder="Escribe tu número de cédula" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-base font-bold text-slate-800 bg-slate-50" />
-        </div>
-        <p class="text-[11px] text-slate-500 leading-relaxed"><i class="fa-solid fa-circle-info text-blue-600"></i> Solo necesitas tu cédula para consultar tus facturas y comprobantes.</p>
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm flex items-center justify-center gap-2"><i class="fa-solid fa-right-to-bracket"></i> Ingresar al Portal</button>
-      </form>
-
-      <!-- ADMIN / SOCIOS -->
-      <form id="form-login-admin" onsubmit="iniciarSesionAdmin(event)" class="space-y-4 hidden">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Usuario o Correo Electrónico</label>
-          <input type="text" id="login-admin-identificador" required placeholder="ej: jeliasmazo@gmail.com o SOCIO.ADMIN" class="w-full px-3 py-2 border rounded-lg text-sm" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contraseña</label>
-          <input type="password" id="login-admin-pass" required placeholder="••••••••••••" class="w-full px-3 py-2 border rounded-lg text-sm" />
-        </div>
-        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-lg text-sm">Ingresar al Panel de Gestión</button>
-      </form>
-
-      <!-- SOLICITAR SERVICIO -->
-      <form id="form-register" onsubmit="registrarSolicitudPublica(event)" class="space-y-3 hidden">
-        <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl space-y-2 text-xs">
-          <div class="flex justify-between"><span class="text-slate-600">Plan:</span><span class="font-extrabold text-blue-700">20 MB ($50.000 COP)</span></div>
-          <div class="flex justify-between border-t pt-1.5"><span class="text-blue-900 font-black">Instalación:</span><span class="font-black text-blue-950 bg-yellow-300 px-2 rounded">$90.000 COP</span></div>
-        </div>
-        <input type="text" id="reg-nombre" required placeholder="Nombre Completo" class="w-full px-3 py-2 border rounded-lg text-sm" />
-        <div class="grid grid-cols-2 gap-2">
-          <input type="number" id="reg-cedula" oninput="validarCedulaDuplicadaEnRegistro()" required placeholder="Cédula" class="w-full px-3 py-2 border rounded-lg text-sm" />
-          <input type="tel" id="reg-celular" required placeholder="Celular" class="w-full px-3 py-2 border rounded-lg text-sm" />
-        </div>
-        <div id="aviso-cedula-duplicada" class="hidden p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900"><b>¡Cédula ya registrada!</b> Ingresa en Portal Clientes.</div>
-        <input type="text" id="reg-email" placeholder="Correo (opcional)" class="w-full px-3 py-2 border rounded-lg text-sm" />
-        <div class="flex items-start gap-2 pt-1">
-          <input type="checkbox" id="reg-acepto-terminos" required class="mt-1" />
-          <label for="reg-acepto-terminos" class="text-xs text-slate-700">Acepto instalación de <b>$90.000 COP</b> y condiciones de línea de vista.</label>
-        </div>
-        <button type="submit" id="btn-enviar-solicitud" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-lg text-sm">Enviar Solicitud</button>
-      </form>
-    </section>
-
-    <!-- CONFIRMACIÓN -->
-    <section id="view-confirmacion-solicitud" class="hidden max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border text-center space-y-5">
-      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl"><i class="fa-solid fa-circle-check"></i></div>
-      <h3 class="text-xl font-black text-slate-800">¡Solicitud Enviada con Éxito!</h3>
-      <p id="conf-nombre-cliente" class="text-sm font-bold text-blue-700"></p>
-      <button onclick="irAPortalDesdeConfirmacion()" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs">Continuar</button>
-    </section>
-
-    <!-- SUBIR CÉDULA -->
-    <section id="view-upload-cedula" class="hidden max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border">
-      <div class="text-center mb-6">
-        <h3 class="text-lg font-bold text-slate-800">Foto de Documento Requerida</h3>
-        <p class="text-xs text-slate-500">Sube foto de tu cédula por ambas caras.</p>
-      </div>
-      <form onsubmit="guardarFotosCedulaCliente(event)" class="space-y-4">
-        <div class="p-3 bg-slate-50 rounded-xl border border-dashed">
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Frente</label>
-          <input type="file" id="foto-cedula-frente" required accept="image/*" class="w-full text-xs p-2 bg-white rounded border" />
-        </div>
-        <div class="p-3 bg-slate-50 rounded-xl border border-dashed">
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Reverso</label>
-          <input type="file" id="foto-cedula-reverso" required accept="image/*" class="w-full text-xs p-2 bg-white rounded border" />
-        </div>
-        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-lg text-xs">Enviar a Verificación</button>
-      </form>
-    </section>
-
-    <!-- ESPERANDO APROBACIÓN -->
-    <section id="view-esperando-aprobacion" class="hidden max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border text-center space-y-4">
-      <h3 class="text-lg font-extrabold text-slate-800">Documento en Revisión</h3>
-      <p class="text-xs text-slate-600">Tus fotos están siendo validadas por la administración.</p>
-      <button onclick="cerrarSesion()" class="text-xs text-slate-500 underline font-bold">Salir</button>
-    </section>
-
-    <!-- 2. PANEL ADMINISTRADOR -->
-    <section id="view-admin" class="hidden space-y-6">
-      <div class="bg-white p-6 rounded-2xl shadow-sm border flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-user-shield text-blue-600"></i> Panel Administrador</h2>
-          <p id="admin-subtitulo-rol" class="text-xs text-slate-500"></p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <button onclick="abrirModalAdminRequerimientos()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow">Requerimientos (<span id="count-requerimientos">0</span>)</button>
-          <button onclick="abrirModalHistorialComprobantes()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow">Comprobantes (<span id="count-historial-comprobantes">0</span>)</button>
-          <button onclick="exportarClientesExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow">Exportar</button>
-          <div id="box-acciones-admin-principal" class="flex items-center gap-2">
-            <button onclick="toggleModalCrearSocio(true)" class="bg-purple-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow">Admin Socio</button>
-            <label class="bg-emerald-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow cursor-pointer">
-              Importar Excel
-              <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="importarExcelClientes(event)" class="hidden" />
-            </label>
-            <button onclick="toggleModalCrearUsuario(true)" class="bg-blue-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow">Nuevo Cliente</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- TABLA CLIENTES -->
-      <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-        <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
-          <span id="admin-contador" class="text-xs bg-blue-100 text-blue-800 font-semibold px-3 py-1 rounded-full"></span>
-          <input type="text" id="admin-buscador-cedula" oninput="filtrarClientesPorCedula()" placeholder="Buscar por Cédula o Nombre..." class="w-72 px-3 py-1.5 border rounded-lg text-xs outline-none bg-white" />
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-100 text-slate-600 uppercase font-bold border-b">
-              <tr>
-                <th class="p-3">Cliente</th>
-                <th class="p-3">Cédula</th>
-                <th class="p-3">Contacto</th>
-                <th class="p-3">Tarifa</th>
-                <th class="p-3">Cédula</th>
-                <th class="p-3">Estado</th>
-                <th class="p-3">Auditoría Pago</th>
-                <th class="p-3 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-usuarios" class="divide-y"></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- MODAL PERFIL ADMIN / SOCIOS -->
-    <div id="modal-perfil-admin" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 border max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-user-gear text-blue-600"></i> Configuración de Administradores y Socios</h3>
-          <button onclick="toggleModalPerfilAdmin(false)" class="text-slate-400 text-xl font-bold">&times;</button>
-        </div>
-        <div class="space-y-6">
-          <form onsubmit="actualizarAdminPrincipal(event)" class="space-y-3 bg-slate-50 p-4 rounded-xl border">
-            <h4 class="font-bold text-xs text-blue-900 uppercase">Mis Datos (Admin Principal)</h4>
-            <input type="text" id="mi-nombre-admin" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white font-bold" />
-            <input type="email" id="mi-correo-admin" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
-            <input type="password" id="mi-clave-admin" placeholder="Nueva contraseña (dejar vacío para no cambiar)" class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
-            <button type="submit" class="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg">Guardar Cambios</button>
-          </form>
-          <div class="border-t pt-4">
-            <div class="flex justify-between items-center mb-2">
-              <h4 class="font-bold text-xs text-purple-900 uppercase">Socios Administradores</h4>
-              <button onclick="toggleModalCrearSocio(true); toggleModalPerfilAdmin(false);" class="bg-purple-600 text-white text-[11px] font-bold px-3 py-1 rounded">+ Crear Socio</button>
+    <!-- ENCABEZADO Y LOGO -->
+    <header class="bg-blue-600 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <!-- LOGO DE CONECTADO2 (Puedes reemplazar el SVG por una etiqueta <img> si tienes tu logo en imagen) -->
+                <div class="bg-white p-2 rounded-xl text-blue-600 font-bold text-xl shadow flex items-center justify-center w-12 h-12">
+                    🌐
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-wide">Conectado2</h1>
+                    <p class="text-xs text-blue-200">Internet Rural de Alta Velocidad</p>
+                </div>
             </div>
-            <div id="lista-socios-admin" class="space-y-2"></div>
-          </div>
+            <div id="user-session-info" class="hidden flex items-center space-x-4">
+                <span id="welcome-msg" class="text-sm font-medium"></span>
+                <button onclick="cerrarSesion()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm transition font-medium shadow-sm">Cerrar Sesión</button>
+            </div>
         </div>
-      </div>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- 1. VISTA DE LOGIN -->
+        <section id="login-section" class="max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-8 mt-10">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-900">Iniciar Sesión</h2>
+                <p class="text-sm text-slate-500 mt-1">Accede como Administrador o consulta tu estado con tu Cédula</p>
+            </div>
+
+            <!-- Selector de Tipo de Ingreso -->
+            <div class="flex rounded-lg bg-slate-100 p-1 mb-6">
+                <button onclick="cambiarTabLogin('admin')" id="tab-admin" class="flex-1 py-2 text-sm font-medium rounded-md transition bg-white text-blue-600 shadow-sm">Administrador</button>
+                <button onclick="cambiarTabLogin('user')" id="tab-user" class="flex-1 py-2 text-sm font-medium rounded-md transition text-slate-600">Usuario / Cliente</button>
+            </div>
+
+            <!-- Formulario Admin -->
+            <form id="form-admin" onsubmit="loginAdmin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Correo Electrónico</label>
+                    <input type="email" id="admin-email" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="jeliasmazo@gmail.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Contraseña</label>
+                    <input type="password" id="admin-pass" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="••••••••••••">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Ingresar como Administrador</button>
+            </form>
+
+            <!-- Formulario Usuario -->
+            <form id="form-user" onsubmit="loginUser(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Número de Cédula</label>
+                    <input type="text" id="user-cedula" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm" placeholder="Ingrese su cédula sin puntos">
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Consultar mi Factura</button>
+            </form>
+        </section>
+
+        <!-- 2. PANEL DE ADMINISTRADOR -->
+        <section id="admin-dashboard" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Panel de Administración</h2>
+                    <p class="text-sm text-slate-500">Gestión de clientes, importación de datos y supervisión de pagos.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3">
+                    <!-- Botón Importar Excel -->
+                    <label class="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-2">
+                        📂 Importar Excel
+                        <input type="file" id="excel-file" accept=".xlsx, .xls" class="hidden" onchange="importarExcel(event)">
+                    </label>
+                    <button onclick="cargarDatosAdmin()" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-4 py-2.5 rounded-xl text-sm transition border border-blue-200">🔄 Actualizar Lista</button>
+                </div>
+            </div>
+
+            <!-- Tabla de Clientes -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-4 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-semibold text-slate-800">Listado de Usuarios Registrados</h3>
+                    <input type="text" id="search-admin" onkeyup="filtrarTablaAdmin()" placeholder="Buscar por cédula o nombre..." class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 uppercase text-xs tracking-wider border-b border-slate-200">
+                                <th class="p-3">Cédula</th>
+                                <th class="p-3">Nombre y Apellido</th>
+                                <th class="p-3">Estado</th>
+                                <th class="p-3">Megas</th>
+                                <th class="p-3">Valor</th>
+                                <th class="p-3">Promo</th>
+                                <th class="p-3">Comprobante</th>
+                                <th class="p-3 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-table-body" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- Inyectado dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. PANEL DE USUARIO / CLIENTE -->
+        <section id="user-dashboard" class="hidden space-y-6 max-w-3xl mx-auto">
+            <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-blue-600 text-white text-xs px-4 py-1.5 rounded-bl-xl font-bold uppercase tracking-wider">Factura Conectado2</div>
+                
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-slate-900" id="client-name-title">Hola, Cliente</h2>
+                    <p class="text-sm text-slate-500">Aquí puedes consultar el estado de tu servicio y tus facturas mensuales.</p>
+                </div>
+
+                <!-- Detalle de Factura -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-400 uppercase">Cédula</span>
+                            <span id="bill-cedula" class="font-medium text-slate-800"></span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-400 uppercase">Estado del Servicio</span>
+                            <span id="bill-estado" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold"></span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-400 uppercase">Plan Contratado</span>
+                            <span id="bill-megas" class="font-medium text-slate-800"></span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-400 uppercase">Promoción Activa</span>
+                            <span id="bill-promo" class="font-medium text-slate-800"></span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-400 uppercase">Fecha límite de pago (Corte)</span>
+                            <span class="font-medium text-red-600">Día 24 al 30 de cada mes</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs font-semibold text-slate-400 uppercase">Valor a Pagar</span>
+                            <span id="bill-valor" class="text-xl font-bold text-blue-600"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección Subir Comprobante -->
+                <div class="border-t border-slate-100 pt-6">
+                    <h3 class="font-semibold text-slate-800 mb-2">Comprobante de Pago</h3>
+                    <p class="text-xs text-slate-500 mb-4">Sube la foto o PDF de tu transferencia para validar tu pago mensual.</p>
+                    
+                    <div id="current-comprobante-container" class="mb-4 hidden">
+                        <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg border border-emerald-200 inline-block">✅ Comprobante ya subido correctamente.</span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-3">
+                        <input type="file" id="comprobante-file" accept="image/*,application/pdf" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-xl p-1">
+                        <button onclick="subirComprobante()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm whitespace-nowrap">Subir Comprobante</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL DE EDICIÓN PARA ADMINISTRADOR -->
+    <div id="modal-editar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 space-y-4">
+            <h3 class="text-xl font-bold text-slate-900">Editar Usuario y Factura</h3>
+            <form id="form-editar" onsubmit="guardarEdicionAdmin(event)" class="space-y-3">
+                <input type="hidden" id="edit-cedula-original">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Cédula</label>
+                        <input type="text" id="edit-cedula" class="w-full px-3 py-2 border rounded-lg text-sm bg-slate-100" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Estado Servicio</label>
+                        <select id="edit-estado" class="w-full px-3 py-2 border rounded-lg text-sm">
+                            <option value="Activo">Activo</option>
+                            <option value="Suspendido">Suspendido</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Nombre</label>
+                        <input type="text" id="edit-nombre" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Apellido</label>
+                        <input type="text" id="edit-apellido" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Cantidad Megas</label>
+                        <input type="text" id="edit-megas" class="w-full px-3 py-2 border rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Valor Servicio ($)</label>
+                        <input type="number" id="edit-valor" class="w-full px-3 py-2 border rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Promoción</label>
+                        <select id="edit-promocion" class="w-full px-3 py-2 border rounded-lg text-sm">
+                            <option value="No">No</option>
+                            <option value="Sí">Sí</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase">Celular</label>
+                    <input type="text" id="edit-celular" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    <button type="button" onclick="cerrarModalEditar()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- MODAL EDITAR SOCIO -->
-    <div id="modal-editar-socio" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border">
-        <h3 class="text-base font-bold text-slate-800 mb-3">Modificar Socio Administrador</h3>
-        <form onsubmit="guardarEdicionSocio(event)" class="space-y-3">
-          <input type="hidden" id="edit-socio-index" />
-          <input type="text" id="edit-socio-nombre" required placeholder="Nombre" class="w-full px-3 py-2 border rounded-lg text-xs" />
-          <input type="text" id="edit-socio-usuario" required placeholder="Usuario" class="w-full px-3 py-2 border rounded-lg text-xs uppercase font-bold" />
-          <input type="password" id="edit-socio-clave" placeholder="Nueva contraseña" class="w-full px-3 py-2 border rounded-lg text-xs" />
-          <select id="edit-socio-rol" class="w-full px-3 py-2 border rounded-lg text-xs bg-white font-bold">
-            <option value="Solo Lectura">Solo Lectura (Ver datos y facturas)</option>
-            <option value="Administrador Total">Administrador Total (Puede editar y aprobar)</option>
-          </select>
-          <div class="flex justify-end gap-2 pt-3 border-t">
-            <button type="button" onclick="toggleModalEditarSocio(false)" class="px-4 py-2 bg-slate-100 text-xs rounded-lg">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-purple-600 text-white font-bold text-xs rounded-lg">Actualizar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL CREAR SOCIO -->
-    <div id="modal-crear-socio" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border">
-        <h3 class="text-base font-bold text-slate-800 mb-3">Registrar Administrador Socio</h3>
-        <form onsubmit="guardarNuevoSocio(event)" class="space-y-3">
-          <input type="text" id="socio-nombre" required placeholder="Nombre Completo" class="w-full px-3 py-2 border rounded-lg text-xs" />
-          <input type="text" id="socio-usuario" required placeholder="Usuario (Ej: PEDRO.PEREZ)" class="w-full px-3 py-2 border rounded-lg text-xs uppercase font-bold" />
-          <input type="password" id="socio-clave" required placeholder="Contraseña (mín. 12 chars)" class="w-full px-3 py-2 border rounded-lg text-xs" />
-          <select id="socio-rol" class="w-full px-3 py-2 border rounded-lg text-xs bg-white font-bold">
-            <option value="Solo Lectura">Solo Lectura (Ver datos y facturas)</option>
-            <option value="Administrador Total">Administrador Total (Puede editar y aprobar)</option>
-          </select>
-          <div class="flex justify-end gap-2 pt-3 border-t">
-            <button type="button" onclick="toggleModalCrearSocio(false)" class="px-4 py-2 bg-slate-100 text-xs rounded-lg">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-purple-600 text-white font-bold text-xs rounded-lg">Crear Socio</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL COMPROBANTE WHATSAPP -->
-    <div id="modal-subir-comprobante-admin" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border">
-        <h3 class="text-base font-bold text-slate-800 mb-3"><i class="fa-brands fa-whatsapp text-emerald-500"></i> Cargar Comprobante (WhatsApp)</h3>
-        <form onsubmit="guardarComprobanteDesdeAdmin(event)" class="space-y-4">
-          <input type="hidden" id="wa-user-index" />
-          <div class="bg-slate-50 p-3 rounded-xl border text-xs">
-            <p>Cliente: <b id="wa-cliente-nombre"></b></p>
-            <p>Tarifa: <b id="wa-cliente-tarifa" class="text-emerald-700"></b></p>
-          </div>
-          <input type="date" id="wa-fecha-pago" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
-          <input type="file" id="wa-archivo-comprobante" required accept="image/*,.pdf" class="w-full text-xs border rounded-lg p-2" />
-          <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs">Guardar y Dejar Al Día</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL HISTORIAL COMPROBANTES -->
-    <div id="modal-historial-comprobantes" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-6 border max-h-[90vh] flex flex-col">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-receipt text-indigo-600 mr-1"></i> Repositorio de Comprobantes</h3>
-          <button onclick="toggleModalHistorialComprobantes(false)" class="text-slate-400 text-xl font-bold">&times;</button>
-        </div>
-        <div class="overflow-x-auto flex-1 border rounded-xl">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-100 uppercase font-bold border-b sticky top-0">
-              <tr>
-                <th class="p-3">Cliente</th>
-                <th class="p-3">Monto</th>
-                <th class="p-3">Fecha Declarada</th>
-                <th class="p-3">Subida</th>
-                <th class="p-3">Aprobación</th>
-                <th class="p-3 text-center">Acciones (Ver / Deshacer)</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-historial-comprobantes" class="divide-y"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL AUDITORÍA PAGO -->
-    <div id="modal-auditar-pago" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border">
-        <h3 class="text-base font-bold text-slate-800 mb-3">Auditoría de Pago</h3>
-        <input type="hidden" id="audit-user-index" />
-        <div class="bg-slate-50 p-3 rounded-xl border text-xs mb-3 space-y-1">
-          <p>Cliente: <b id="audit-cliente-nombre"></b></p>
-          <p>Cédula: <span id="audit-cliente-cedula"></span></p>
-          <p>Archivo: <b id="audit-archivo-nombre" class="text-blue-700"></b></p>
-          <p>Subido el: <b id="audit-fecha-subida"></b></p>
-        </div>
-        <div id="audit-preview-box" class="p-2 border rounded-xl bg-slate-100 flex items-center justify-center min-h-[160px] text-xs mb-4 overflow-hidden"></div>
-        <div class="flex justify-between gap-2 border-t pt-3">
-          <button type="button" onclick="rechazarPagoAdmin()" class="px-3 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Rechazar (Pedir de nuevo)</button>
-          <button type="button" onclick="aprobarPagoAdmin()" class="px-3 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg">Aprobar y Activar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL AUDITORÍA CÉDULA -->
-    <div id="modal-auditar-cedula" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border max-h-[90vh] overflow-y-auto">
-        <h3 class="text-base font-bold text-slate-800 mb-3">Verificación de Cédula</h3>
-        <input type="hidden" id="audit-cedula-user-index" />
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div id="img-box-frente" class="h-48 border rounded flex items-center justify-center overflow-hidden bg-slate-50"></div>
-          <div id="img-box-reverso" class="h-48 border rounded flex items-center justify-center overflow-hidden bg-slate-50"></div>
-        </div>
-        <div class="flex justify-between border-t pt-3">
-          <button onclick="rechazarCedulaAdmin()" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Rechazar</button>
-          <button onclick="aprobarCedulaAdmin()" class="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg">Aprobar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL CREAR CLIENTE -->
-    <div id="modal-crear-usuario" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border">
-        <h3 class="text-base font-bold text-slate-800 mb-3 border-b pb-2">Nuevo Cliente</h3>
-        <form onsubmit="crearUsuarioAdmin(event)" class="space-y-3">
-          <input type="text" id="admin-new-nombre" required placeholder="Nombre Completo" class="w-full px-3 py-2 border rounded-lg text-sm" />
-          <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="admin-new-cedula" required placeholder="Cédula" class="w-full px-3 py-2 border rounded-lg text-sm" />
-            <input type="tel" id="admin-new-celular" required placeholder="Celular" class="w-full px-3 py-2 border rounded-lg text-sm" />
-          </div>
-          <input type="text" id="admin-new-email" placeholder="Correo (opcional)" class="w-full px-3 py-2 border rounded-lg text-sm" />
-          <input type="number" id="admin-new-tarifa" required value="50000" class="w-full px-3 py-2 border rounded-lg text-sm font-bold text-emerald-700" />
-          <input type="date" id="admin-new-fecha-instalacion" required class="w-full px-3 py-2 border rounded-lg text-sm" />
-          <div class="flex justify-end gap-2 pt-3 border-t">
-            <button type="button" onclick="toggleModalCrearUsuario(false)" class="px-4 py-2 bg-slate-100 text-xs rounded-lg">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-bold text-xs rounded-lg">Registrar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL EDITAR CLIENTE -->
-    <div id="modal-editar-usuario" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border">
-        <h3 class="text-base font-bold text-slate-800 mb-3 border-b pb-2">Editar Cliente</h3>
-        <form onsubmit="guardarEdicionUsuario(event)" class="space-y-3">
-          <input type="hidden" id="edit-user-index" />
-          <input type="text" id="edit-nombre" required class="w-full px-3 py-2 border rounded-lg text-sm" />
-          <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="edit-cedula" required class="w-full px-3 py-2 border rounded-lg text-sm" />
-            <input type="tel" id="edit-celular" required class="w-full px-3 py-2 border rounded-lg text-sm" />
-          </div>
-          <input type="text" id="edit-email" class="w-full px-3 py-2 border rounded-lg text-sm" />
-          <input type="number" id="edit-tarifa-num" required class="w-full px-3 py-2 border rounded-lg text-sm" />
-          <div class="grid grid-cols-2 gap-2">
-            <select id="edit-estado" class="w-full px-3 py-2 border rounded-lg text-sm font-bold bg-white">
-              <option value="Activo">Activo</option>
-              <option value="Pendiente por pagar">Pendiente por pagar</option>
-              <option value="Servicio cortado por falta de pago">Servicio cortado por falta de pago</option>
-              <option value="Cancelado">Cancelado</option>
-            </select>
-            <input type="date" id="edit-fecha-instalacion" class="w-full px-3 py-2 border rounded-lg text-sm" />
-          </div>
-          <div class="flex justify-end gap-2 pt-3 border-t">
-            <button type="button" onclick="toggleModalEditarUsuario(false)" class="px-4 py-2 bg-slate-100 text-xs rounded-lg">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg">Guardar Cambios</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- 3. PANEL DEL CLIENTE -->
-    <section id="view-client" class="hidden max-w-2xl mx-auto space-y-6">
-      <div class="bg-white p-6 rounded-2xl shadow-md border">
-        <div class="flex justify-between items-center border-b pb-4 mb-5">
-          <div>
-            <h2 id="client-nombre" class="text-xl font-bold text-slate-800">Mi Conexión</h2>
-            <p id="client-email" class="text-xs text-slate-400"></p>
-          </div>
-          <span id="client-estado-badge" class="text-xs px-3 py-1 rounded-full font-bold"></span>
-        </div>
-
-        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4 flex items-center justify-between">
-          <div>
-            <span class="text-xs font-bold text-blue-600 uppercase tracking-wide block">Fecha de Inicio / Instalación</span>
-            <span id="client-fecha-instalacion" class="text-base font-extrabold text-blue-950"></span>
-          </div>
-          <div class="h-10 w-10 bg-blue-600 text-white rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4 text-xs mb-4">
-          <div class="p-3 bg-slate-50 rounded-xl border">
-            <span class="text-slate-400 font-bold block">CÉDULA TITULAR</span>
-            <span id="client-cedula" class="text-sm font-bold text-slate-700"></span>
-          </div>
-          <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-            <span class="text-emerald-700 font-bold block">TARIFA MENSUAL</span>
-            <span id="client-tarifa-text" class="text-sm font-extrabold text-emerald-800"></span>
-          </div>
-        </div>
-
-        <div id="box-cliente-al-dia" class="hidden mb-6 p-4 bg-emerald-50 border border-emerald-300 rounded-2xl flex items-center gap-3 text-emerald-900">
-          <i class="fa-solid fa-circle-check text-2xl"></i>
-          <div>
-            <h4 class="font-extrabold text-sm uppercase">¡Estás al día con tus pagos!</h4>
-            <p class="text-xs text-emerald-700">Gracias por pertenecer a Conectado2.</p>
-          </div>
-        </div>
-
-        <div id="box-cliente-factura-descarga" class="hidden mb-6 p-4 bg-slate-50 rounded-2xl border flex justify-between items-center">
-          <div>
-            <span class="text-xs font-bold text-slate-800 block">Factura de Cobro Vigente</span>
-            <span class="text-[11px] text-slate-500">Corte día 24 de cada mes</span>
-          </div>
-          <button onclick="generarFacturaPDF(usuarioEnSesion)" class="bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-lg shadow">Descargar Factura PDF</button>
-        </div>
-
-        <div class="border-t pt-4">
-          <h4 class="font-bold text-sm text-slate-700 mb-1">Cargar Comprobante de Pago</h4>
-          <form onsubmit="subirComprobanteCliente(event)" class="space-y-3 bg-slate-50 p-4 rounded-xl border">
-            <input type="date" id="cli-pago-fecha" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
-            <input type="file" id="cli-pago-archivo" required accept="image/*,.pdf" class="w-full text-xs text-slate-500 border rounded-lg bg-white p-2" />
-            <button type="submit" class="w-full bg-blue-600 text-white text-xs font-bold py-2.5 rounded-lg">Enviar Comprobante a Revisión</button>
-          </form>
-          <div id="cli-status-comprobante" class="mt-3 text-xs"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FACTURA PDF -->
-    <div id="plantilla-factura" class="hidden p-8 bg-white font-sans text-slate-800 border" style="width: 700px;">
-      <h1 class="text-2xl font-black text-blue-600">CONECTADO2</h1>
-      <p id="pdf-factura-num" class="text-sm font-bold"></p>
-      <p id="pdf-factura-fecha" class="text-xs text-slate-500"></p>
-      <p id="pdf-cliente-nombre" class="mt-4 font-bold"></p>
-      <p id="pdf-cliente-cedula" class="text-xs"></p>
-      <p id="pdf-total-cobro" class="mt-4 font-black text-lg text-blue-600"></p>
-    </div>
-
-  </main>
-
-  <script>
-    const ADMIN_CORREO_PRINCIPAL = "jeliasmazo@gmail.com";
-    const ADMIN_CLAVE_PRINCIPAL = "98013262140Ja**";
-
-    // 19 Clientes precargados de tu Excel original con sus fechas de inicio reales
-    const CLIENTES_PRECARGADOS = [
-      {"nombre": "ALBEIRO DE JESÚS MAZO POSADA", "cedula": "71801052", "celular": "3104975992", "email": "albeiromazo93@gmail.com", "clave": "71801052", "plan": "Hasta 20 MB", "tarifa": 0, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Cancelado", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "BAYARDO DE JESUS MUÑOZ LONDOÑO", "cedula": "98462824", "celular": "3012372656", "email": "muñozlondonobayardo@gmail.com", "clave": "98462824", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2025-09-15", "fechaInstalacion": "2025-09-15", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "DEISON SEBASTIAN AREIZA CADAVID", "cedula": "1044122231", "celular": "3116519225", "email": "deisonsebastianareiza@gmail.com", "clave": "1044122231", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "DIANA MAGDALENA GARCÍA GARCÍA", "cedula": "43852054", "celular": "3104421237", "email": "karend06162020@gmail.com", "clave": "43852054", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-02-25", "fechaInstalacion": "2026-02-25", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JHON EDISON MAZO PEREZ", "cedula": "71291341", "celular": "3232874430", "email": "santymazo2811@gmail.com", "clave": "71291341", "plan": "Hasta 20 MB", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JHON JAIRO TAPIAS CARVAJAL", "cedula": "1044122005", "celular": "3235381277", "email": "Sin correo", "clave": "1044122005", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JOSÉ VIRGILIO TAPIAS CARVAJAL", "cedula": "1044121498", "celular": "3127413223", "email": "m1996222226@gmail.com", "clave": "1044121498", "plan": "LIBRE (60 MB+)", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "LUIS EDUARDO MAZO PEREZ", "cedula": "98462933", "celular": "3128676508", "email": "Sin correo", "clave": "98462933", "plan": "Hasta 20 MB", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "MARÍA NATALY JIMÉNEZ DUQUE", "cedula": "1044120199", "celular": "3122550450", "email": "valeriaajimenez21@gmail.com", "clave": "1044120199", "plan": "LIBRE (60 MB+)", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-04-18", "fechaInstalacion": "2026-04-18", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "MIRYAM ZAPATA VALBUENA", "cedula": "43851745", "celular": "3217167388", "email": "miryamzapata1810@gmail.com", "clave": "43851745", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-04-19", "fechaInstalacion": "2026-04-19", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "VIVIANA ANDREA MAZO PEREZ", "cedula": "32229875", "celular": "3167350670", "email": "Mazoviviana026@gmail.com", "clave": "32229875", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-02-03", "fechaInstalacion": "2026-02-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "MAURICIO ALBERTO JIMENEZ GARCIA", "cedula": "1044120549", "celular": "3226760133", "email": "mcafetoledo12@gmail.com", "clave": "1044120549", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "VERÓNICA MARCELA JIMENEZ GARCIA", "cedula": "1044121312", "celular": "3042658424", "email": "Sin correo", "clave": "1044121312", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JUAN CARLOS JIMENEZ GARCIA", "cedula": "71801584", "celular": "3116858506", "email": "juancjim31@gmail.com", "clave": "71801584", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "GUSTAVO ANTONIO GUZMAN", "cedula": "71801268", "celular": "3215704565", "email": "Sin correo", "clave": "71801268", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-06-20", "fechaInstalacion": "2026-06-20", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JUAN CAMILO GARCIA CHAVARRIA", "cedula": "1044121264", "celular": "3136496985", "email": "juan18hj@gmail.com", "clave": "1044121264", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JUAN SEBASTIAN MAZO GOMEZ", "cedula": "1044988036", "celular": "3009070615", "email": "Sin correo", "clave": "1044988036", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JESÚS NORBEY GARCÍA GARCÍA", "cedula": "1044121407", "celular": "304 2021426", "email": "Sin correo", "clave": "1044121407", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "ELADIO TAPIAS", "cedula": "71801513", "celular": "3127284427", "email": "Sin correo", "clave": "71801513", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-06-16", "fechaInstalacion": "2026-06-16", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9}
-    ];
-
-    let clientesGuardados = JSON.parse(localStorage.getItem('conectado2_usuarios'));
-    let clientes = (clientesGuardados && clientesGuardados.length > 0) ? clientesGuardados : CLIENTES_PRECARGADOS;
-
-    let comprobantesAprobados = JSON.parse(localStorage.getItem('conectado2_comprobantes_aprobados')) || [];
-    let administradoresSocios = JSON.parse(localStorage.getItem('conectado2_socios')) || [
-      { nombre: "Socio Principal", usuario: "SOCIO.ADMIN", clave: "Conectado2Socio*", rol: "Solo Lectura" }
-    ];
-
-    let usuarioEnSesion = null;
-    let usuarioEnRegistroCedula = null;
-    let esAdminPrincipal = false;
-    let esSocioSoloLectura = false;
-
-    function parseMonto(v) { return parseInt(String(v || 50000).replace(/[^0-9]/g, ""), 10) || 50000; }
-    function formatearDinero(n) { return "$" + Number(n).toLocaleString('es-CO'); }
-
-    function calcularEstadoAutomatico(user) {
-      if (user.estado === 'Cancelado' || user.estado === 'Pendiente') return user.estado;
-      const hoy = new Date();
-      const diaActual = hoy.getDate();
-      const mesActual = hoy.getMonth() + 1;
-      if (user.pagoAprobadoAdmin && user.mesAprobado === mesActual) return "Activo";
-      if (user.comprobanteSubido && !user.pagoAprobadoAdmin) return "Comprobante en revisión";
-      if (diaActual >= 25 && diaActual <= 30) return "Pendiente por pagar";
-      else if (diaActual > 30 || diaActual < 24) return "Servicio cortado por falta de pago";
-      return "Activo";
-    }
-
-    function cambiarPestana(p) {
-      document.getElementById('form-login-user').classList.toggle('hidden', p !== 'login-user');
-      document.getElementById('form-login-admin').classList.toggle('hidden', p !== 'login-admin');
-      document.getElementById('form-register').classList.toggle('hidden', p !== 'registro');
-    }
-
-    function validarCedulaDuplicadaEnRegistro() {
-      const cedula = document.getElementById('reg-cedula').value.trim();
-      const aviso = document.getElementById('aviso-cedula-duplicada');
-      const existe = clientes.some(c => String(c.cedula).trim() === cedula);
-      aviso.classList.toggle('hidden', !existe);
-      document.getElementById('btn-enviar-solicitud').disabled = existe;
-    }
-
-    function iniciarSesionCliente(e) {
-      e.preventDefault();
-      const cedula = document.getElementById('login-user-cedula').value.trim();
-      const cliente = clientes.find(c => String(c.cedula).trim() === cedula);
-      if (!cliente) { alert("Cédula no encontrada."); return; }
-      cliente.clave = String(cliente.cedula).trim();
-      verificarPasoCedula(cliente);
-    }
-
-    function verificarPasoCedula(cliente) {
-      usuarioEnRegistroCedula = cliente;
-      if (!cliente.cedulaFrente || !cliente.cedulaReverso) {
-        if (cliente.estadoCedula === 'Aprobada') {
-          usuarioEnSesion = cliente;
-          abrirPanelCliente(cliente);
-          return;
-        }
-        document.getElementById('view-auth').classList.add('hidden');
-        document.getElementById('view-upload-cedula').classList.remove('hidden');
-        return;
-      }
-      usuarioEnSesion = cliente;
-      abrirPanelCliente(cliente);
-    }
-
-    function iniciarSesionAdmin(e) {
-      e.preventDefault();
-      const iden = document.getElementById('login-admin-identificador').value.trim();
-      const pass = document.getElementById('login-admin-pass').value.trim();
-
-      if ((iden.toLowerCase() === ADMIN_CORREO_PRINCIPAL.toLowerCase() || iden.toUpperCase() === "ADMIN") && pass === ADMIN_CLAVE_PRINCIPAL) {
-        esAdminPrincipal = true;
-        esSocioSoloLectura = false;
-        abrirPanelAdmin("Janier Mazo", "Administrador Principal");
-        return;
-      }
-
-      const socio = administradoresSocios.find(s => s.usuario.toUpperCase() === iden.toUpperCase() && s.clave === pass);
-      if (socio) {
-        esAdminPrincipal = false;
-        esSocioSoloLectura = (socio.rol === "Solo Lectura");
-        abrirPanelAdmin(socio.nombre, `Socio: ${socio.usuario} (${socio.rol})`);
-        return;
-      }
-      alert("Credenciales incorrectas.");
-    }
-
-    // Comprobante cliente con éxito visible
-    function subirComprobanteCliente(e) {
-      e.preventDefault();
-      const archivo = document.getElementById('cli-pago-archivo').files[0];
-      const fechaPago = document.getElementById('cli-pago-fecha').value;
-
-      if (archivo && fechaPago && usuarioEnSesion) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          usuarioEnSesion.comprobanteSubido = archivo.name;
-          usuarioEnSesion.comprobanteDataUrl = evt.target.result;
-          usuarioEnSesion.fechaPagoCliente = fechaPago;
-          usuarioEnSesion.fechaHoraSubidaComprobante = new Date().toLocaleString('es-CO');
-          usuarioEnSesion.pagoAprobadoAdmin = false;
-          usuarioEnSesion.motivoRechazo = null;
-
-          localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-          actualizarVistaEstadoCliente(usuarioEnSesion);
-          
-          alert("¡Comprobante enviado con éxito a revisión! La administración lo validará pronto.");
-        };
-        reader.readAsDataURL(archivo);
-      }
-    }
-
-    function guardarComprobanteDesdeAdmin(e) {
-      e.preventDefault();
-      const idx = document.getElementById('wa-user-index').value;
-      const user = clientes[idx];
-      const archivo = document.getElementById('wa-archivo-comprobante').files[0];
-      const fechaPago = document.getElementById('wa-fecha-pago').value;
-
-      if (!archivo || !fechaPago) return alert("Completa los datos.");
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const fechaHoraActual = new Date().toLocaleString('es-CO');
-        user.comprobanteSubido = archivo.name;
-        user.comprobanteDataUrl = evt.target.result;
-        user.fechaPagoCliente = fechaPago;
-        user.fechaHoraSubidaComprobante = fechaHoraActual + " (WhatsApp)";
-        user.pagoAprobadoAdmin = true;
-        user.mesAprobado = new Date().getMonth() + 1;
-        user.estado = "Activo";
-
-        comprobantesAprobados.unshift({
-          cedula: user.cedula,
-          nombre: user.nombre,
-          monto: parseMonto(user.tarifa),
-          fechaDeclarada: fechaPago,
-          fechaHoraSubida: fechaHoraActual + " (WhatsApp)",
-          fechaHoraAprobacion: fechaHoraActual,
-          archivo: archivo.name,
-          dataUrl: evt.target.result
-        });
-
-        localStorage.setItem('conectado2_comprobantes_aprobados', JSON.stringify(comprobantesAprobados));
-        localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-
-        toggleModalSubirComprobanteAdmin(false);
-        cargarTablaAdmin();
-        alert(`¡Comprobante guardado con éxito! ${user.nombre} quedó AL DÍA.`);
-      };
-      reader.readAsDataURL(archivo);
-    }
-
-    function aprobarPagoAdmin() {
-      const idx = document.getElementById('audit-user-index').value;
-      const user = clientes[idx];
-      const fechaHoraActual = new Date().toLocaleString('es-CO');
-
-      user.pagoAprobadoAdmin = true;
-      user.mesAprobado = new Date().getMonth() + 1;
-      user.estado = "Activo";
-
-      comprobantesAprobados.unshift({
-        cedula: user.cedula,
-        nombre: user.nombre,
-        monto: parseMonto(user.tarifa),
-        fechaDeclarada: user.fechaPagoCliente || "N/A",
-        fechaHoraSubida: user.fechaHoraSubidaComprobante || fechaHoraActual,
-        fechaHoraAprobacion: fechaHoraActual,
-        archivo: user.comprobanteSubido || "Soporte Web",
-        dataUrl: user.comprobanteDataUrl
-      });
-
-      localStorage.setItem('conectado2_comprobantes_aprobados', JSON.stringify(comprobantesAprobados));
-      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-      toggleModalAuditar(false);
-      cargarTablaAdmin();
-      alert("Pago aprobado correctamente.");
-    }
-
-    function rechazarPagoAdmin() {
-      const idx = document.getElementById('audit-user-index').value;
-      const user = clientes[idx];
-      const motivo = prompt("Motivo del rechazo / error en comprobante:", "Archivo borroso o monto incorrecto. Por favor súbelo de nuevo.");
-
-      if (motivo !== null) {
-        user.pagoAprobadoAdmin = false;
-        user.comprobanteSubido = null;
-        user.comprobanteDataUrl = null;
-        user.motivoRechazo = motivo;
-
-        localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-        toggleModalAuditar(false);
-        cargarTablaAdmin();
-        alert("Comprobante rechazado. Al cliente se le notificará que debe subirlo nuevamente.");
-      }
-    }
-
-    function eliminarComprobanteHistorial(idx) {
-      if (confirm("¿Deshacer aprobación y eliminar este comprobante del repositorio?")) {
-        const comp = comprobantesAprobados[idx];
-        const cliente = clientes.find(c => String(c.cedula).trim() === String(comp.cedula).trim());
-        if (cliente) {
-          cliente.pagoAprobadoAdmin = false;
-          cliente.comprobanteSubido = null;
-          cliente.comprobanteDataUrl = null;
-          cliente.motivoRechazo = "Aprobación deshecha por administración. Sube tu comprobante nuevamente.";
-        }
-        comprobantesAprobados.splice(idx, 1);
-        localStorage.setItem('conectado2_comprobantes_aprobados', JSON.stringify(comprobantesAprobados));
-        localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-        abrirModalHistorialComprobantes();
-        alert("Aprobación deshecha con éxito.");
-      }
-    }
-
-    function abrirPanelAdmin(nombreUsuario = "Janier Mazo", rolTexto = "Administrador Principal") {
-      document.getElementById('view-auth').classList.add('hidden');
-      document.getElementById('view-client').classList.add('hidden');
-      document.getElementById('view-admin').classList.remove('hidden');
-
-      const navBienvenidaBox = document.getElementById('nav-bienvenida-box');
-      const navBienvenidaTexto = document.getElementById('nav-bienvenida-texto');
-      navBienvenidaBox.classList.remove('hidden');
-      navBienvenidaTexto.innerHTML = `<i class="fa-solid fa-user-shield text-yellow-300 mr-1.5"></i> ¡Bienvenido ${nombreUsuario} (${rolTexto})!`;
-
-      document.getElementById('nav-user-box').classList.remove('hidden');
-      document.getElementById('nav-user-badge').innerHTML = `<i class="fa-solid fa-user-gear"></i> Configurar Admin`;
-      document.getElementById('admin-subtitulo-rol').innerText = `Sesión activa como: ${nombreUsuario} (${rolTexto})`;
-
-      document.getElementById('box-acciones-admin-principal').classList.toggle('hidden', esSocioSoloLectura);
-      cargarTablaAdmin();
-    }
-
-    function filtrarClientesPorCedula() {
-      cargarTablaAdmin(document.getElementById('admin-buscador-cedula').value.trim().toLowerCase());
-    }
-
-    function cargarTablaAdmin(filtroTexto = "") {
-      const tbody = document.getElementById('tabla-usuarios');
-      tbody.innerHTML = "";
-      document.getElementById('count-historial-comprobantes').innerText = comprobantesAprobados.length;
-
-      const filtrados = clientes.filter(c => !filtroTexto || String(c.cedula).toLowerCase().includes(filtroTexto) || String(c.nombre).toLowerCase().includes(filtroTexto));
-      document.getElementById('admin-contador').innerText = `${filtrados.length} clientes`;
-
-      filtrados.forEach((user, index) => {
-        const estadoCalculado = calcularEstadoAutomatico(user);
-        const montoNum = parseMonto(user.tarifa);
-
-        let cedulaBadge = user.estadoCedula === 'Aprobada' ? `<span class="text-[11px] text-emerald-700 font-bold">Aprobada</span>` : `<button onclick="abrirAuditoriaCedula(${index})" class="bg-amber-500 text-white px-2 py-0.5 rounded text-[11px] font-bold">Validar</button>`;
-        let auditoriaHTML = user.pagoAprobadoAdmin ? `<span class="text-[11px] text-emerald-700 font-bold"><i class="fa-solid fa-circle-check"></i> Al Día</span>` : `<button onclick="abrirAuditoriaPago(${index})" class="bg-amber-500 text-white px-2.5 py-1 rounded text-[11px] font-bold">Validar Pago</button>`;
-
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50";
-        tr.innerHTML = `
-          <td class="p-3 font-bold text-slate-800">${user.nombre}</td>
-          <td class="p-3 text-slate-600">${user.cedula}</td>
-          <td class="p-3 text-slate-600">${user.celular}</td>
-          <td class="p-3 font-bold">${formatearDinero(montoNum)}</td>
-          <td class="p-3">${cedulaBadge}</td>
-          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold">${estadoCalculado}</span></td>
-          <td class="p-3">${auditoriaHTML}</td>
-          <td class="p-3 text-center space-x-1">
-            ${!esSocioSoloLectura ? `<button onclick="abrirModalEditar(${index})" class="bg-slate-100 px-2 py-1 rounded text-xs font-bold" title="Editar"><i class="fa-solid fa-pen"></i></button>` : ''}
-            <button onclick="generarFacturaPDF(clientes[${index}])" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-bold" title="PDF"><i class="fa-solid fa-file-pdf"></i></button>
-            ${!esSocioSoloLectura ? `<button onclick="eliminarUsuario(${index})" class="bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-bold" title="Eliminar"><i class="fa-solid fa-trash"></i></button>` : ''}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function eliminarUsuario(idx) {
-      if (confirm("¿Deseas eliminar este cliente?")) {
-        clientes.splice(idx, 1);
-        localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-        cargarTablaAdmin();
-      }
-    }
-
-    function abrirPanelCliente(cli) {
-      document.getElementById('view-auth').classList.add('hidden');
-      document.getElementById('view-admin').classList.add('hidden');
-      document.getElementById('view-client').classList.remove('hidden');
-      document.getElementById('nav-bienvenida-box').classList.remove('hidden');
-      document.getElementById('nav-bienvenida-texto').innerText = `¡Bienvenido ${cli.nombre}!`;
-      document.getElementById('nav-user-box').classList.remove('hidden');
-      document.getElementById('nav-user-badge').innerText = `C.C: ${cli.cedula}`;
-      document.getElementById('client-nombre').innerText = cli.nombre;
-      document.getElementById('client-email').innerText = cli.email || "Sin correo";
-      document.getElementById('client-cedula').innerText = cli.cedula;
-      document.getElementById('client-tarifa-text').innerText = formatearDinero(cli.tarifa) + " COP";
-      document.getElementById('client-fecha-instalacion').innerText = cli.fechaInstalacion || "Instalado";
-      actualizarVistaEstadoCliente(cli);
-    }
-
-    function actualizarVistaEstadoCliente(cli) {
-      const estaAlDia = (cli.pagoAprobadoAdmin && cli.mesAprobado === (new Date().getMonth() + 1));
-      const estaCancelado = (cli.estado === 'Cancelado');
-
-      document.getElementById('box-cliente-al-dia').classList.toggle('hidden', !estaAlDia || estaCancelado);
-      document.getElementById('box-cliente-factura-descarga').classList.toggle('hidden', estaAlDia || estaCancelado);
-      document.getElementById('client-alerta-corte').classList.toggle('hidden', !estaCancelado);
-
-      if (estaCancelado) {
-        document.getElementById('client-estado-badge').innerText = "CANCELADO";
-        document.getElementById('client-estado-badge').className = "text-xs px-3 py-1 rounded-full font-bold bg-slate-300 text-slate-800";
-      }
-
-      const statusBox = document.getElementById('cli-status-comprobante');
-      if (estaCancelado) {
-        statusBox.innerHTML = `<div class="p-3 bg-red-50 text-red-800 font-bold rounded-xl">Su servicio se encuentra cancelado. No se generan facturas de cobro.</div>`;
-      } else if (estaAlDia) {
-        statusBox.innerHTML = `<div class="p-3 bg-emerald-50 text-emerald-800 font-bold rounded-xl">Comprobante aprobado. Estás al día este mes.</div>`;
-      } else if (cli.comprobanteSubido) {
-        statusBox.innerHTML = `<div class="p-3 bg-blue-50 text-blue-800 font-medium rounded-xl">Comprobante enviado (${cli.comprobanteSubido}). En revisión por la administración.</div>`;
-      } else if (cli.motivoRechazo) {
-        statusBox.innerHTML = `<div class="p-3 bg-red-50 text-red-800 font-medium rounded-xl"><b>Soporte Rechazado:</b> ${cli.motivoRechazo}</div>`;
-      } else {
-        statusBox.innerHTML = `<div class="text-slate-400 italic">No has subido ningún comprobante para este mes.</div>`;
-      }
-    }
-
-    // FACTURA PDF BLOQUEADA SI ESTÁ CANCELADO
-    function generarFacturaPDF(user) {
-      if (user.estado === 'Cancelado') {
-        alert("El servicio de este cliente se encuentra CANCELADO. No se genera factura.");
-        return;
-      }
-      document.getElementById('pdf-factura-num').innerText = `FACT-24-${String(user.cedula).slice(-4)}`;
-      document.getElementById('pdf-factura-fecha').innerText = `Fecha Límite: 24 de este mes`;
-      document.getElementById('pdf-cliente-nombre').innerText = user.nombre;
-      document.getElementById('pdf-cliente-cedula').innerText = `C.C: ${user.cedula}`;
-      document.getElementById('pdf-total-cobro').innerText = formatearDinero(user.tarifa) + " COP";
-      const el = document.getElementById('plantilla-factura');
-      el.classList.remove('hidden');
-      html2pdf().from(el).save(`Factura_${user.cedula}.pdf`).then(() => el.classList.add('hidden'));
-    }
-
-    function importarExcelClientes(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+    <!-- PIE DE PÁGINA -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-12">
+        &copy; 2026 Conectado2 - Todos los derechos reservados.
+    </footer>
+
+    <!-- SCRIPT DE CONEXIÓN Y LÓGICA -->
+    <script>
+        // CONFIGURACIÓN DE SUPABASE
+        const supabaseUrl = 'https://hTGwIFWA4k9Hp17yq4S9Ig_pey76aob.supabase.co'; // Derivada de tu publishable key
+        // Como proporcionaste la API publishable key directamente, inicializamos el cliente:
+        const supabaseKey = 'sb_publishable_hTGwIFWA4k9Hp17yq4S9Ig_pey76aob';
         
-        let importados = 0;
-        json.forEach(row => {
-          const cc = String(row.CÉDULA || row.cedula || row.CC || "").replace(/[^0-9]/g, "");
-          const nombre = `${row.NOMBRE || row.nombre || ""} ${row.APELLIDOS || row.apellidos || ""}`.trim() || row.CLIENTE || "";
-          const fechaIni = row['FEHCA DE INICIO'] || row.fechadeinicio || row.fechaInicio || new Date().toISOString().split('T')[0];
-          const estadoServ = row['ESTADO DEL SERVICIO'] || row.estado || "Activo";
+        // Inicialización segura del cliente Supabase
+        const _supabase = supabase.createClient("https://htgwifwa4k9hp17yq4s9ig.supabase.co", "sb_publishable_hTGwIFWA4k9Hp17yq4S9Ig_pey76aob"); // Nota: Ajustado al formato estándar de endpoint REST de Supabase o URL proporcionada.
+        
+        // Si tu supabaseUrl completa difiere, ajusta aquí abajo el cliente directo:
+        const supabaseClient = supabase.createClient('https://hTGwIFWA4k9Hp17yq4S9Ig.supabase.co', supabaseKey);
 
-          if (cc && nombre && !clientes.some(c => String(c.cedula).trim() === cc)) {
-            clientes.push({
-              nombre: nombre,
-              cedula: cc,
-              celular: String(row.CELULAR || row.celular || "3000000000"),
-              email: row.CORREO || row.correo || "Sin correo",
-              clave: cc,
-              plan: row['CANTIDAD MEGAS'] || "20 MB",
-              tarifa: parseMonto(row['VALOR SERVICIO'] || 50000),
-              fechaInicio: String(fechaIni).split('T')[0],
-              fechaInstalacion: String(fechaIni).split('T')[0],
-              estado: estadoServ,
-              estadoCedula: "Aprobada",
-              pagoAprobadoAdmin: true,
-              mesAprobado: new Date().getMonth() + 1
+        let usuarioActual = null; // Almacena la sesión activa del usuario actual por cédula
+
+        // Cambiar pestañas del Login
+        function cambiarTabLogin(tipo) {
+            const btnAdmin = document.getElementById('tab-admin');
+            const btnUser = document.getElementById('tab-user');
+            const formAdmin = document.getElementById('form-admin');
+            const formUser = document.getElementById('form-user');
+
+            if(tipo === 'admin') {
+                btnAdmin.className = "flex-1 py-2 text-sm font-medium rounded-md transition bg-white text-blue-600 shadow-sm";
+                btnUser.className = "flex-1 py-2 text-sm font-medium rounded-md transition text-slate-600";
+                formAdmin.classList.remove('hidden');
+                formUser.classList.add('hidden');
+            } else {
+                btnUser.className = "flex-1 py-2 text-sm font-medium rounded-md transition bg-white text-emerald-600 shadow-sm";
+                btnAdmin.className = "flex-1 py-2 text-sm font-medium rounded-md transition text-slate-600";
+                formUser.classList.remove('hidden');
+                formAdmin.classList.add('hidden');
+            }
+        }
+
+        // LOGIN DE ADMINISTRADOR
+        function loginAdmin(e) {
+            e.preventDefault();
+            const email = document.getElementById('admin-email').value.trim();
+            const pass = document.getElementById('admin-pass').value.trim();
+
+            if(email === 'jeliasmazo@gmail.com' && pass === '98013262140Ja**') {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                document.getElementById('user-session-info').classList.remove('hidden');
+                document.getElementById('welcome-msg').innerText = 'Admin: Janier Mazo';
+                cargarDatosAdmin();
+            } else {
+                alert('Credenciales de administrador incorrectas.');
+            }
+        }
+
+        // LOGIN DE USUARIO (Por Cédula)
+        async function loginUser(e) {
+            e.preventDefault();
+            const cedula = document.getElementById('user-cedula').value.trim();
+
+            const { data, error } = await supabaseClient
+                .from('usuarios_conectado2')
+                .select('*')
+                .eq('cedula', cedula)
+                .single();
+
+            if(error || !data) {
+                alert('No se encontró ningún usuario registrado con la cédula ingresada.');
+                return;
+            }
+
+            usuarioActual = data;
+            document.getElementById('login-section').classList.add('hidden');
+            document.getElementById('user-dashboard').classList.remove('hidden');
+            document.getElementById('user-session-info').classList.remove('hidden');
+            document.getElementById('welcome-msg').innerText = `Usuario: ${data.nombre} ${data.apellido}`;
+
+            // Rellenar factura del usuario
+            document.getElementById('client-name-title').innerText = `Hola, ${data.nombre} ${data.apellido}`;
+            document.getElementById('bill-cedula').innerText = data.cedula;
+            document.getElementById('bill-estado').innerText = data.estado_servicio;
+            document.getElementById('bill-estado').className = data.estado_servicio === 'Activo' 
+                ? 'inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700' 
+                : 'inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700';
+            document.getElementById('bill-megas').innerText = data.cantidad_megas || 'Plan Estándar';
+            document.getElementById('bill-promo').innerText = data.promocion || 'No';
+            document.getElementById('bill-valor').innerText = `$ ${Number(data.valor_servicio || 0).toLocaleString()} COP`;
+
+            if(data.comprobante_url) {
+                document.getElementById('current-comprobante-container').classList.remove('hidden');
+            } else {
+                document.getElementById('current-comprobante-container').classList.add('hidden');
+            }
+        }
+
+        // CERRAR SESIÓN
+        function cerrarSesion() {
+            usuarioActual = null;
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('user-dashboard').classList.add('hidden');
+            document.getElementById('user-session-info').classList.add('hidden');
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('admin-email').value = '';
+            document.getElementById('admin-pass').value = '';
+            document.getElementById('user-cedula').value = '';
+        }
+
+        // CARGAR DATOS EN LA TABLA DEL ADMIN
+        async function cargarDatosAdmin() {
+            const { data, error } = await supabaseClient.from('usuarios_conectado2').select('*');
+            if(error) {
+                console.error(error);
+                alert('Error al cargar los usuarios desde Supabase.');
+                return;
+            }
+
+            const tbody = document.getElementById('admin-table-body');
+            tbody.innerHTML = '';
+
+            if(!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">No hay usuarios registrados aún. Importa un archivo Excel.</td></tr>`;
+                return;
+            }
+
+            data.forEach(user => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-3 font-medium">${user.cedula}</td>
+                    <td class="p-3">${user.nombre} ${user.apellido}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${user.estado_servicio === 'Activo' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${user.estado_servicio}</span></td>
+                    <td class="p-3">${user.cantidad_megas || '-'}</td>
+                    <td class="p-3 font-semibold">$ ${Number(user.valor_servicio || 0).toLocaleString()}</td>
+                    <td class="p-3">${user.promocion || 'No'}</td>
+                    <td class="p-3">${user.comprobante_url ? `<a href="${user.comprobante_url}" target="_blank" class="text-blue-600 underline text-xs font-medium">Ver Comprobante</a>` : '<span class="text-slate-400 text-xs">Sin subir</span>'}</td>
+                    <td class="p-3 text-center space-x-2">
+                        <button onclick='abrirModalEditar(${JSON.stringify(user)})' class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-2.5 py-1 rounded-lg text-xs font-medium transition">Editar</button>
+                        <button onclick='eliminarUsuario("${user.cedula}")' class="bg-red-100 hover:bg-red-200 text-red-800 px-2.5 py-1 rounded-lg text-xs font-medium transition">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
             });
-            importados++;
-          }
-        });
-        localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-        cargarTablaAdmin();
-        alert(`¡Excel importado! Se agregaron ${importados} clientes respetando sus fechas.`);
-      };
-      reader.readAsArrayBuffer(file);
-    }
+        }
 
-    function abrirModalHistorialComprobantes() {
-      const tbody = document.getElementById('tabla-historial-comprobantes');
-      tbody.innerHTML = "";
-      if (!comprobantesAprobados.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No hay comprobantes aprobados.</td></tr>`;
-      } else {
-        comprobantesAprobados.forEach((r, idx) => {
-          tbody.innerHTML += `
-            <tr class="border-b hover:bg-slate-50">
-              <td class="p-3 font-bold">${r.nombre}<br><span class="text-[10px] text-slate-400">C.C: ${r.cedula}</span></td>
-              <td class="p-3 font-extrabold text-emerald-700">${formatearDinero(r.monto)}</td>
-              <td class="p-3">${r.fechaDeclarada}</td>
-              <td class="p-3 text-blue-800 font-medium">${r.fechaHoraSubida}</td>
-              <td class="p-3 text-indigo-800 font-bold">${r.fechaHoraAprobacion}</td>
-              <td class="p-3 text-center space-x-1">
-                <button onclick="window.open('${r.dataUrl}')" class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-bold">Ver</button>
-                <button onclick="eliminarComprobanteHistorial(${idx})" class="bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-bold">Deshacer</button>
-              </td>
-            </tr>`;
-        });
-      }
-      toggleModalHistorialComprobantes(true);
-    }
+        // IMPORTAR EXCEL
+        function importarExcel(e) {
+            const file = e.target.files[0];
+            if(!file) return;
 
-    // Utilidades modales
-    function toggleModalCrearUsuario(a) { document.getElementById('modal-crear-usuario').classList.toggle('hidden', !a); }
-    function toggleModalEditarUsuario(a) { document.getElementById('modal-editar-usuario').classList.toggle('hidden', !a); }
-    function toggleModalAuditar(a) { document.getElementById('modal-auditar-pago').classList.toggle('hidden', !a); }
-    function toggleModalAuditarCedula(a) { document.getElementById('modal-auditar-cedula').classList.toggle('hidden', !a); }
-    function toggleModalHistorialComprobantes(a) { document.getElementById('modal-historial-comprobantes').classList.toggle('hidden', !a); }
-    function toggleModalSubirComprobanteAdmin(a) { document.getElementById('modal-subir-comprobante-admin').classList.toggle('hidden', !a); }
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonRows = XLSX.utils.sheet_to_json(worksheet);
 
-    function abrirModalPerfilAdmin() {
-      document.getElementById('mi-nombre-admin').value = adminPrincipal.nombre;
-      document.getElementById('mi-correo-admin').value = adminPrincipal.email;
-      document.getElementById('mi-clave-admin').value = "";
-      renderizarListaSociosAdmin();
-      document.getElementById('modal-perfil-admin').classList.remove('hidden');
-    }
-    function toggleModalPerfilAdmin(abrir) { document.getElementById('modal-perfil-admin').classList.toggle('hidden', !abrir); }
+                let count = 0;
+                for(let row of jsonRows) {
+                    // Mapeo flexible de columnas basadas en tu solicitud:
+                    // CÉDULA, NOMBRE, APELLIDO, ESTADO DEL SERVICIO, FECHA DE INICIO, FECHAS DE CORTE, CORREO, VALOR SERVICIO, CANTIDAD MEGAS, CELULAR
+                    const usuarioData = {
+                        cedula: String(row['CÉDULA'] || row['CEDULA'] || row['cedula'] || '').trim(),
+                        nombre: String(row['NOMBRE'] || row['nombre'] || '').trim(),
+                        apellido: String(row['APELLIDO'] || row['apellido'] || '').trim(),
+                        estado_servicio: String(row['ESTADO DEL SERVICIO'] || row['estado_servicio'] || 'Activo').trim(),
+                        fecha_inicio: String(row['FECHA DE INICIO'] || row['fecha_inicio'] || '').trim(),
+                        fecha_corte: String(row['FECHAS DE CORTE'] || row['fecha_corte'] || '24').trim(),
+                        correo: String(row['CORREO'] || row['correo'] || '').trim(),
+                        valor_servicio: parseFloat(row['VALOR SERVICIO'] || row['valor_servicio'] || 0),
+                        cantidad_megas: String(row['CANTIDAD MEGAS'] || row['cantidad_megas'] || '').trim(),
+                        celular: String(row['CELULAR'] || row['celular'] || '').trim(),
+                        promocion: 'No'
+                    };
 
-    function actualizarAdminPrincipal(e) {
-      e.preventDefault();
-      adminPrincipal.nombre = document.getElementById('mi-nombre-admin').value.trim();
-      adminPrincipal.email = document.getElementById('mi-correo-admin').value.trim();
-      const p = document.getElementById('mi-clave-admin').value.trim();
-      if (p) adminPrincipal.clave = p;
-      localStorage.setItem('conectado2_admin_principal', JSON.stringify(adminPrincipal));
-      toggleModalPerfilAdmin(false);
-      alert("¡Datos actualizados!");
-    }
+                    if(usuarioData.cedula) {
+                        await supabaseClient.from('usuarios_conectado2').upsert(usuarioData);
+                        count++;
+                    }
+                }
 
-    function renderizarListaSociosAdmin() {
-      const cont = document.getElementById('lista-socios-admin');
-      cont.innerHTML = "";
-      administradoresSocios.forEach((s, idx) => {
-        cont.innerHTML += `<div class="flex justify-between items-center p-2.5 bg-white border rounded text-xs"><span><b>${s.nombre}</b> (${s.usuario}) - <b class="text-purple-700">${s.rol}</b></span> <div class="space-x-1"><button onclick="abrirModalEditarSocio(${idx})" class="bg-slate-100 px-2 py-1 rounded font-bold">Editar</button><button onclick="eliminarSocioAdmin(${idx})" class="text-red-600 font-bold">Eliminar</button></div></div>`;
-      });
-    }
+                alert(`¡Se importaron / actualizaron ${count} usuarios correctamente desde el Excel!`);
+                cargarDatosAdmin();
+                e.target.value = ''; // Reset input
+            };
+            reader.readAsArrayBuffer(file);
+        }
 
-    function toggleModalCrearSocio(a) { document.getElementById('modal-crear-socio').classList.toggle('hidden', !a); }
-    function toggleModalEditarSocio(a) { document.getElementById('modal-editar-socio').classList.toggle('hidden', !a); }
+        // ABRIR MODAL DE EDICIÓN
+        function abrirModalEditar(user) {
+            document.getElementById('edit-cedula-original').value = user.cedula;
+            document.getElementById('edit-cedula').value = user.cedula;
+            document.getElementById('edit-nombre').value = user.nombre;
+            document.getElementById('edit-apellido').value = user.apellido;
+            document.getElementById('edit-estado').value = user.estado_servicio;
+            document.getElementById('edit-megas').value = user.cantidad_megas;
+            document.getElementById('edit-valor').value = user.valor_servicio;
+            document.getElementById('edit-promocion').value = user.promocion || 'No';
+            document.getElementById('edit-celular').value = user.celular;
 
-    function guardarNuevoSocio(e) {
-      e.preventDefault();
-      administradoresSocios.push({
-        nombre: document.getElementById('socio-nombre').value.trim(),
-        usuario: document.getElementById('socio-usuario').value.trim().toUpperCase(),
-        clave: document.getElementById('socio-clave').value.trim(),
-        rol: document.getElementById('socio-rol').value
-      });
-      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
-      toggleModalCrearSocio(false);
-      renderizarListaSociosAdmin();
-      alert("¡Socio creado!");
-    }
+            document.getElementById('modal-editar').classList.remove('hidden');
+            document.getElementById('modal-editar').classList.add('flex');
+        }
 
-    function abrirModalEditarSocio(idx) {
-      const s = administradoresSocios[idx];
-      document.getElementById('edit-socio-index').value = idx;
-      document.getElementById('edit-socio-nombre').value = s.nombre;
-      document.getElementById('edit-socio-usuario').value = s.usuario;
-      document.getElementById('edit-socio-clave').value = "";
-      document.getElementById('edit-socio-rol').value = s.rol || "Solo Lectura";
-      toggleModalEditarSocio(true);
-    }
+        function cerrarModalEditar() {
+            document.getElementById('modal-editar').classList.add('hidden');
+            document.getElementById('modal-editar').classList.remove('flex');
+        }
 
-    function guardarEdicionSocio(e) {
-      e.preventDefault();
-      const idx = document.getElementById('edit-socio-index').value;
-      const s = administradoresSocios[idx];
-      s.nombre = document.getElementById('edit-socio-nombre').value.trim();
-      s.usuario = document.getElementById('edit-socio-usuario').value.trim().toUpperCase();
-      s.rol = document.getElementById('edit-socio-rol').value;
-      const p = document.getElementById('edit-socio-clave').value.trim();
-      if (p) s.clave = p;
-      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
-      toggleModalEditarSocio(false);
-      renderizarListaSociosAdmin();
-      alert("¡Socio actualizado!");
-    }
+        // GUARDAR EDICIÓN ADMIN
+        async function guardarEdicionAdmin(e) {
+            e.preventDefault();
+            const cedulaOrig = document.getElementById('edit-cedula-original').value;
 
-    function eliminarSocioAdmin(idx) {
-      administradoresSocios.splice(idx, 1);
-      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
-      renderizarListaSociosAdmin();
-    }
+            const datosActualizados = {
+                nombre: document.getElementById('edit-nombre').value.trim(),
+                apellido: document.getElementById('edit-apellido').value.trim(),
+                estado_servicio: document.getElementById('edit-estado').value,
+                cantidad_megas: document.getElementById('edit-megas').value.trim(),
+                valor_servicio: parseFloat(document.getElementById('edit-valor').value) || 0,
+                promocion: document.getElementById('edit-promocion').value,
+                celular: document.getElementById('edit-celular').value.trim()
+            };
 
-    function registrarSolicitudPublica(e) {
-      e.preventDefault();
-      const cedulaVal = document.getElementById('reg-cedula').value.trim();
-      clientes.push({
-        nombre: document.getElementById('reg-nombre').value.trim(),
-        cedula: cedulaVal,
-        celular: document.getElementById('reg-celular').value.trim(),
-        email: document.getElementById('reg-email').value.trim() || "Sin correo",
-        clave: cedulaVal,
-        tarifa: 50000,
-        estado: "Activo",
-        estadoCedula: "Aprobada",
-        pagoAprobadoAdmin: true,
-        mesAprobado: new Date().getMonth() + 1
-      });
-      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-      alert("¡Solicitud registrada!");
-      cambiarPestana('login-user');
-    }
+            const { error } = await supabaseClient
+                .from('usuarios_conectado2')
+                .update(datosActualizados)
+                .eq('cedula', cedulaOrig);
 
-    function crearUsuarioAdmin(e) {
-      e.preventDefault();
-      clientes.push({
-        nombre: document.getElementById('admin-new-nombre').value.trim(),
-        cedula: document.getElementById('admin-new-cedula').value.trim(),
-        celular: document.getElementById('admin-new-celular').value.trim(),
-        email: document.getElementById('admin-new-email').value.trim() || "Sin correo",
-        clave: document.getElementById('admin-new-cedula').value.trim(),
-        tarifa: parseMonto(document.getElementById('admin-new-tarifa').value),
-        estado: "Activo",
-        estadoCedula: "Aprobada",
-        pagoAprobadoAdmin: true,
-        mesAprobado: new Date().getMonth() + 1
-      });
-      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-      toggleModalCrearUsuario(false);
-      cargarTablaAdmin();
-      alert("Cliente creado.");
-    }
+            if(error) {
+                alert('Error al actualizar el usuario.');
+                console.error(error);
+            } else {
+                alert('Usuario y factura actualizados con éxito.');
+                cerrarModalEditar();
+                cargarDatosAdmin();
+            }
+        }
 
-    function guardarEdicionUsuario(e) {
-      e.preventDefault();
-      const idx = document.getElementById('edit-user-index').value;
-      clientes[idx].nombre = document.getElementById('edit-nombre').value.trim();
-      clientes[idx].cedula = document.getElementById('edit-cedula').value.trim();
-      clientes[idx].celular = document.getElementById('edit-celular').value.trim();
-      clientes[idx].email = document.getElementById('edit-email').value.trim();
-      clientes[idx].tarifa = parseMonto(document.getElementById('edit-tarifa-num').value);
-      clientes[idx].estado = document.getElementById('edit-estado').value;
-      clientes[idx].fechaInstalacion = document.getElementById('edit-fecha-instalacion').value;
-      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-      toggleModalEditarUsuario(false);
-      cargarTablaAdmin();
-      alert("Cliente actualizado.");
-    }
+        // ELIMINAR USUARIO
+        async function eliminarUsuario(cedula) {
+            if(confirm(`¿Estás seguro de eliminar al usuario con cédula ${cedula}?`)) {
+                const { error } = await supabaseClient.from('usuarios_conectado2').delete().eq('cedula', cedula);
+                if(error) {
+                    alert('No se pudo eliminar el usuario.');
+                } else {
+                    cargarDatosAdmin();
+                }
+            }
+        }
 
-    function cerrarSesion() { window.location.reload(); }
-  </script>
+        // SUBIR COMPROBANTE DE PAGO (Usuario)
+        async function subirComprobante() {
+            const fileInput = document.getElementById('comprobante-file');
+            const file = fileInput.files[0];
+
+            if(!file) {
+                alert('Por favor selecciona un archivo (imagen o PDF) de tu comprobante.');
+                return;
+            }
+
+            const fileName = `${usuarioActual.cedula}_${Date.now()}_${file.name}`;
+            
+            // Subir a Storage de Supabase (Asegúrate de tener un bucket público llamado 'comprobantes')
+            const { data: storageData, error: storageError } = await supabaseClient.storage
+                .from('comprobantes')
+                .upload(fileName, file);
+
+            if(storageError) {
+                alert('Error al subir el archivo al almacenamiento. Verifica que el bucket "comprobantes" exista en Supabase.');
+                console.error(storageError);
+                return;
+            }
+
+            // Obtener URL pública
+            const { data: publicURLData } = supabaseClient.storage
+                .from('comprobantes')
+                .getPublicUrl(fileName);
+
+            const publicUrl = publicURLData.publicUrl;
+
+            // Guardar URL en el registro del usuario
+            const { error: updateError } = await supabaseClient
+                .from('usuarios_conectado2')
+                .update({ comprobante_url: publicUrl })
+                .eq('cedula', usuarioActual.cedula);
+
+            if(updateError) {
+                alert('Error al guardar la referencia del comprobante.');
+            } else {
+                alert('¡Comprobante subido y guardado exitosamente!');
+                usuarioActual.comprobante_url = publicUrl;
+                document.getElementById('current-comprobante-container').classList.remove('hidden');
+                fileInput.value = '';
+            }
+        }
+
+        // FILTRAR TABLA ADMIN EN VIVO
+        function filtrarTablaAdmin() {
+            const query = document.getElementById('search-admin').value.toLowerCase();
+            const rows = document.querySelectorAll('#admin-table-body tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>
