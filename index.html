@@ -8,9 +8,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Iconos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Librería Gratuita para Facturas PDF -->
+  <!-- Librería Facturas PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- Librería Gratuita para Leer y Exportar Excel -->
+  <!-- Librería Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
@@ -26,29 +26,21 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
 
-  <!-- BARRA SUPERIOR CON SALUDO ANIMADO Y PERFIL ADMIN -->
+  <!-- BARRA SUPERIOR -->
   <nav class="bg-blue-600 text-white shadow-md sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-2">
-      
-      <!-- LOGO -->
       <div class="flex items-center space-x-2">
         <i class="fa-solid fa-wifi text-2xl text-yellow-300"></i>
         <span class="text-2xl font-black tracking-wide">Conectado2</span>
       </div>
 
-      <!-- TEXTO DE BIENVENIDA ANIMADO -->
       <div id="nav-bienvenida-box" class="hidden text-center flex-1 px-4">
         <span id="nav-bienvenida-texto" class="anim-bienvenida inline-block text-sm md:text-base font-extrabold text-yellow-300 drop-shadow-sm tracking-wide"></span>
       </div>
 
-      <!-- BOTONES DE SESIÓN Y PERFIL -->
       <div id="nav-user-box" class="hidden flex items-center space-x-3">
-        <button onclick="abrirModalPerfilAdmin()" id="nav-user-badge" class="text-xs bg-blue-800 hover:bg-blue-900 px-3.5 py-2 rounded-full font-bold shadow transition flex items-center gap-1.5 cursor-pointer">
-          <!-- JS -->
-        </button>
-        <button onclick="cerrarSesion()" class="text-xs bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded text-white font-bold transition shadow">
-          Cerrar Sesión
-        </button>
+        <button onclick="abrirModalPerfilAdmin()" id="nav-user-badge" class="text-xs bg-blue-800 hover:bg-blue-900 px-3.5 py-2 rounded-full font-bold shadow transition flex items-center gap-1.5 cursor-pointer"></button>
+        <button onclick="cerrarSesion()" class="text-xs bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded text-white font-bold transition shadow">Cerrar Sesión</button>
       </div>
     </div>
   </nav>
@@ -57,232 +49,118 @@
 
     <!-- 1. VISTA DE INICIO / ACCESO -->
     <section id="view-auth" class="max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200">
-      
-      <!-- PESTAÑAS -->
       <div class="flex border-b border-slate-200 mb-6">
-        <button type="button" id="tab-login-user-btn" onclick="cambiarPestana('login-user')" class="flex-1 pb-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 text-xs sm:text-sm">
-          Portal Clientes
-        </button>
-        <button type="button" id="tab-register-btn" onclick="cambiarPestana('registro')" class="flex-1 pb-3 text-center font-bold text-slate-400 hover:text-slate-600 text-xs sm:text-sm">
-          Solicitar Servicio
-        </button>
-        <button type="button" id="tab-login-admin-btn" onclick="cambiarPestana('login-admin')" class="flex-1 pb-3 text-center font-bold text-slate-400 hover:text-slate-600 text-xs sm:text-sm">
-          Admin / Socios
-        </button>
+        <button type="button" id="tab-login-user-btn" onclick="cambiarPestana('login-user')" class="flex-1 pb-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 text-xs sm:text-sm">Portal Clientes</button>
+        <button type="button" id="tab-register-btn" onclick="cambiarPestana('registro')" class="flex-1 pb-3 text-center font-bold text-slate-400 hover:text-slate-600 text-xs sm:text-sm">Solicitar Servicio</button>
+        <button type="button" id="tab-login-admin-btn" onclick="cambiarPestana('login-admin')" class="flex-1 pb-3 text-center font-bold text-slate-400 hover:text-slate-600 text-xs sm:text-sm">Admin / Socios</button>
       </div>
 
-      <!-- FORMULARIO 1: ACCESO CLIENTES SOLO CON CÉDULA -->
+      <!-- PORTAL CLIENTES -->
       <form id="form-login-user" onsubmit="iniciarSesionCliente(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Cédula de Ciudadanía</label>
           <input type="number" id="login-user-cedula" required placeholder="Escribe tu número de cédula" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-base font-bold text-slate-800 bg-slate-50" />
         </div>
-        <p class="text-[11px] text-slate-500 leading-relaxed">
-          <i class="fa-solid fa-circle-info text-blue-600"></i> Solo necesitas tu número de cédula para consultar tus facturas y comprobantes.
-        </p>
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm flex items-center justify-center gap-2">
-          <i class="fa-solid fa-right-to-bracket"></i> Ingresar al Portal
-        </button>
+        <p class="text-[11px] text-slate-500 leading-relaxed"><i class="fa-solid fa-circle-info text-blue-600"></i> Solo necesitas tu cédula para consultar tus facturas y comprobantes.</p>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm flex items-center justify-center gap-2"><i class="fa-solid fa-right-to-bracket"></i> Ingresar al Portal</button>
       </form>
 
-      <!-- FORMULARIO 2: ACCESO ADMIN / SOCIOS -->
+      <!-- ADMIN / SOCIOS -->
       <form id="form-login-admin" onsubmit="iniciarSesionAdmin(event)" class="space-y-4 hidden">
         <div>
           <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Usuario o Correo Electrónico</label>
-          <input type="text" id="login-admin-identificador" required placeholder="ej: jeliasmazo@gmail.com o SOCIO.ADMIN" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" />
+          <input type="text" id="login-admin-identificador" required placeholder="ej: jeliasmazo@gmail.com o SOCIO.ADMIN" class="w-full px-3 py-2 border rounded-lg text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contraseña (Mínimo 12 caracteres)</label>
-          <input type="password" id="login-admin-pass" required placeholder="••••••••••••" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" />
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contraseña</label>
+          <input type="password" id="login-admin-pass" required placeholder="••••••••••••" class="w-full px-3 py-2 border rounded-lg text-sm" />
         </div>
-        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-lg text-sm transition shadow-sm">
-          Ingresar al Panel de Gestión
-        </button>
+        <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-lg text-sm">Ingresar al Panel de Gestión</button>
       </form>
 
-      <!-- FORMULARIO 3: SOLICITAR SERVICIO -->
+      <!-- SOLICITAR SERVICIO -->
       <form id="form-register" onsubmit="registrarSolicitudPublica(event)" class="space-y-3 hidden">
-        <div class="p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl space-y-2">
-          <div class="flex justify-between items-center text-xs">
-            <span class="text-slate-600 font-semibold">Plan de Velocidad:</span>
-            <span class="font-extrabold text-blue-700">20 MB</span>
-          </div>
-          <div class="flex justify-between items-center text-xs">
-            <span class="text-slate-600 font-semibold">Mensualidad:</span>
-            <span class="font-extrabold text-emerald-700">$50.000 COP (IVA Inc.)</span>
-          </div>
-          <div class="flex justify-between items-center text-xs border-t border-blue-200 pt-1.5">
-            <span class="text-blue-900 font-black uppercase tracking-wide">Valor Fijo de Instalación:</span>
-            <span class="text-sm font-black text-blue-950 bg-yellow-300 px-2.5 py-0.5 rounded-lg shadow-sm">$90.000 COP</span>
-          </div>
+        <div class="p-3.5 bg-blue-50 border border-blue-200 rounded-2xl space-y-2 text-xs">
+          <div class="flex justify-between"><span class="text-slate-600">Plan:</span><span class="font-extrabold text-blue-700">20 MB ($50.000 COP)</span></div>
+          <div class="flex justify-between border-t pt-1.5"><span class="text-blue-900 font-black">Instalación:</span><span class="font-black text-blue-950 bg-yellow-300 px-2 rounded">$90.000 COP</span></div>
         </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nombre Completo</label>
-          <input type="text" id="reg-nombre" required placeholder="Nombre y Apellidos del titular" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-        </div>
-
+        <input type="text" id="reg-nombre" required placeholder="Nombre Completo" class="w-full px-3 py-2 border rounded-lg text-sm" />
         <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Cédula</label>
-            <input type="number" id="reg-cedula" oninput="validarCedulaDuplicadaEnRegistro()" required placeholder="N° Cédula" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Celular / WhatsApp</label>
-            <input type="tel" id="reg-celular" required placeholder="300 000 0000" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-          </div>
+          <input type="number" id="reg-cedula" oninput="validarCedulaDuplicadaEnRegistro()" required placeholder="Cédula" class="w-full px-3 py-2 border rounded-lg text-sm" />
+          <input type="tel" id="reg-celular" required placeholder="Celular" class="w-full px-3 py-2 border rounded-lg text-sm" />
         </div>
-
-        <div id="aviso-cedula-duplicada" class="hidden p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-start gap-2">
-          <i class="fa-solid fa-circle-exclamation text-amber-600 mt-0.5 text-base"></i>
-          <div>
-            <b>¡Este número de cédula ya se encuentra registrado!</b>
-            <p class="mt-0.5 text-[11px] text-amber-800">Puedes ingresar directamente en <a href="javascript:void(0)" onclick="cambiarPestana('login-user')" class="font-bold underline text-blue-700">Portal Clientes</a>.</p>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Correo Electrónico (Opcional)</label>
-          <input type="text" id="reg-email" placeholder="correo@cliente.com o Sin Correo" class="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" />
-        </div>
-
-        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 space-y-1.5">
-          <p class="font-bold text-slate-800 flex items-center gap-1.5">
-            <i class="fa-solid fa-satellite-dish text-blue-600 text-sm"></i> Condiciones del Servicio Inalámbrico:
-          </p>
-          <ul class="list-disc list-inside space-y-1 text-slate-600">
-            <li><b>Línea de Vista Requerida:</b> Antena receptora con vista directa y despejada hacia la torre.</li>
-            <li><b>Costo de Instalación:</b> $90.000 COP al momento de instalar.</li>
-          </ul>
-        </div>
-
+        <div id="aviso-cedula-duplicada" class="hidden p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900"><b>¡Cédula ya registrada!</b> Ingresa en Portal Clientes.</div>
+        <input type="text" id="reg-email" placeholder="Correo (opcional)" class="w-full px-3 py-2 border rounded-lg text-sm" />
         <div class="flex items-start gap-2 pt-1">
-          <input type="checkbox" id="reg-acepto-terminos" required class="mt-1 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer" />
-          <label for="reg-acepto-terminos" class="text-xs text-slate-700 font-semibold cursor-pointer">
-            Acepto el valor de instalación de <b>$90.000 COP</b> y las condiciones.
-          </label>
+          <input type="checkbox" id="reg-acepto-terminos" required class="mt-1" />
+          <label for="reg-acepto-terminos" class="text-xs text-slate-700">Acepto instalación de <b>$90.000 COP</b> y condiciones de línea de vista.</label>
         </div>
-
-        <button type="submit" id="btn-enviar-solicitud" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-sm transition mt-2 shadow flex items-center justify-center gap-2">
-          <i class="fa-solid fa-paper-plane"></i> Enviar Solicitud de Servicio
-        </button>
+        <button type="submit" id="btn-enviar-solicitud" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-lg text-sm">Enviar Solicitud</button>
       </form>
     </section>
 
-    <!-- PANTALLA CONFIRMACIÓN Y BIENVENIDA -->
-    <section id="view-confirmacion-solicitud" class="hidden max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200 text-center space-y-5">
-      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-sm">
-        <i class="fa-solid fa-circle-check"></i>
-      </div>
-      <div>
-        <h3 class="text-xl font-black text-slate-800">¡Bienvenido a Conectado2!</h3>
-        <p id="conf-nombre-cliente" class="text-sm font-bold text-blue-700 mt-1"></p>
-        <p class="text-xs text-slate-500 mt-1">Pronto nos comunicaremos contigo para coordinar tu instalación.</p>
-      </div>
-      <button onclick="irAPortalDesdeConfirmacion()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
-        Entendido, Continuar
-      </button>
+    <!-- CONFIRMACIÓN -->
+    <section id="view-confirmacion-solicitud" class="hidden max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border text-center space-y-5">
+      <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl"><i class="fa-solid fa-circle-check"></i></div>
+      <h3 class="text-xl font-black text-slate-800">¡Solicitud Enviada con Éxito!</h3>
+      <p id="conf-nombre-cliente" class="text-sm font-bold text-blue-700"></p>
+      <button onclick="irAPortalDesdeConfirmacion()" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs">Continuar</button>
     </section>
 
-    <!-- PANTALLA SUBIR CÉDULA -->
-    <section id="view-upload-cedula" class="hidden max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200">
+    <!-- SUBIR CÉDULA -->
+    <section id="view-upload-cedula" class="hidden max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border">
       <div class="text-center mb-6">
-        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xl">
-          <i class="fa-solid fa-id-card"></i>
-        </div>
         <h3 class="text-lg font-bold text-slate-800">Foto de Documento Requerida</h3>
-        <p class="text-xs text-slate-500">Por favor sube foto clara de tu cédula por ambas caras.</p>
+        <p class="text-xs text-slate-500">Sube foto de tu cédula por ambas caras.</p>
       </div>
-
       <form onsubmit="guardarFotosCedulaCliente(event)" class="space-y-4">
-        <div class="p-3 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Foto Cédula - Frente</label>
-          <input type="file" id="foto-cedula-frente" required accept="image/*" onchange="previsualizarFoto(event, 'preview-frente')" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 border rounded-lg bg-white" />
-          <div id="preview-frente" class="hidden mt-2 max-h-36 overflow-hidden rounded-lg border"></div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-dashed">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Frente</label>
+          <input type="file" id="foto-cedula-frente" required accept="image/*" class="w-full text-xs p-2 bg-white rounded border" />
         </div>
-
-        <div class="p-3 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Foto Cédula - Reverso</label>
-          <input type="file" id="foto-cedula-reverso" required accept="image/*" onchange="previsualizarFoto(event, 'preview-reverso')" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 border rounded-lg bg-white" />
-          <div id="preview-reverso" class="hidden mt-2 max-h-36 overflow-hidden rounded-lg border"></div>
+        <div class="p-3 bg-slate-50 rounded-xl border border-dashed">
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Reverso</label>
+          <input type="file" id="foto-cedula-reverso" required accept="image/*" class="w-full text-xs p-2 bg-white rounded border" />
         </div>
-
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-sm">
-          Enviar Fotos a Verificación
-        </button>
+        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-lg text-xs">Enviar a Verificación</button>
       </form>
     </section>
 
-    <!-- PANTALLA ESPERANDO APROBACIÓN -->
-    <section id="view-esperando-aprobacion" class="hidden max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-center space-y-4">
-      <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-2xl animate-pulse">
-        <i class="fa-solid fa-user-clock"></i>
-      </div>
+    <!-- ESPERANDO APROBACIÓN -->
+    <section id="view-esperando-aprobacion" class="hidden max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border text-center space-y-4">
       <h3 class="text-lg font-extrabold text-slate-800">Documento en Revisión</h3>
-      <p class="text-xs text-slate-600 leading-relaxed">Tus fotos de cédula han sido enviadas. Estamos validando tu información.</p>
-      <button onclick="cerrarSesion()" class="text-xs text-slate-500 hover:text-slate-800 font-bold underline pt-2">Salir por ahora</button>
+      <p class="text-xs text-slate-600">Tus fotos están siendo validadas por la administración.</p>
+      <button onclick="cerrarSesion()" class="text-xs text-slate-500 underline font-bold">Salir</button>
     </section>
 
-    <!-- 2. PANEL DEL ADMINISTRADOR -->
+    <!-- 2. PANEL ADMINISTRADOR -->
     <section id="view-admin" class="hidden space-y-6">
-      <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="bg-white p-6 rounded-2xl shadow-sm border flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-user-shield text-blue-600"></i> Panel Administrador - Conectado2
-          </h2>
+          <h2 class="text-2xl font-bold text-slate-800"><i class="fa-solid fa-user-shield text-blue-600"></i> Panel Administrador</h2>
           <p id="admin-subtitulo-rol" class="text-xs text-slate-500"></p>
         </div>
-        
         <div class="flex flex-wrap items-center gap-2">
-          <!-- BOTÓN SOLICITUDES DE REQUERIMIENTOS -->
-          <button onclick="abrirModalAdminRequerimientos()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow transition flex items-center gap-1.5" title="Ver requerimientos de clientes">
-            <i class="fa-solid fa-list-check"></i> Requerimientos (<span id="count-requerimientos">0</span>)
-          </button>
-
-          <!-- BOTÓN GESTIONAR CATÁLOGO DE ROUTERS -->
-          <button onclick="abrirModalGestionRouters()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow transition flex items-center gap-1.5" title="Subir y gestionar routers">
-            <i class="fa-solid fa-router"></i> Catálogo Routers
-          </button>
-
-          <button onclick="abrirModalHistorialComprobantes()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
-            <i class="fa-solid fa-receipt"></i> Comprobantes (<span id="count-historial-comprobantes">0</span>)
-          </button>
-
-          <button onclick="exportarClientesExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
-            <i class="fa-solid fa-file-arrow-down"></i> Exportar
-          </button>
-
+          <button onclick="abrirModalAdminRequerimientos()" class="bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow">Requerimientos (<span id="count-requerimientos">0</span>)</button>
+          <button onclick="abrirModalHistorialComprobantes()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow">Comprobantes (<span id="count-historial-comprobantes">0</span>)</button>
+          <button onclick="exportarClientesExcel()" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow">Exportar</button>
           <div id="box-acciones-admin-principal" class="flex items-center gap-2">
-            <button onclick="toggleModalCrearSocio(true)" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
-              <i class="fa-solid fa-user-tie"></i> Admin Socio
-            </button>
-
-            <label class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow cursor-pointer transition flex items-center gap-1.5">
-              <i class="fa-solid fa-file-excel"></i> Importar Excel
+            <button onclick="toggleModalCrearSocio(true)" class="bg-purple-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow">Admin Socio</button>
+            <label class="bg-emerald-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow cursor-pointer">
+              Importar Excel
               <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" onchange="importarExcelClientes(event)" class="hidden" />
             </label>
-
-            <button onclick="toggleModalCrearUsuario(true)" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
-              <i class="fa-solid fa-user-plus"></i> Nuevo Cliente
-            </button>
+            <button onclick="toggleModalCrearUsuario(true)" class="bg-blue-600 text-white text-xs font-bold px-3 py-2.5 rounded-xl shadow">Nuevo Cliente</button>
           </div>
         </div>
       </div>
 
-      <!-- TABLA DE CLIENTES CON BUSCADOR -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-4 border-b bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <div class="flex items-center gap-2">
-            <h3 class="font-bold text-sm text-slate-700">Clientes Registrados</h3>
-            <span id="admin-contador" class="text-xs bg-blue-100 text-blue-800 font-semibold px-2.5 py-1 rounded-full"></span>
-          </div>
-
-          <div class="relative w-full sm:w-72">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-            <input type="text" id="admin-buscador-cedula" oninput="filtrarClientesPorCedula()" placeholder="Buscar por Cédula o Nombre..." class="w-full pl-8 pr-3 py-1.5 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-blue-500 bg-white" />
-          </div>
+      <!-- TABLA CLIENTES -->
+      <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+        <div class="p-4 border-b bg-slate-50 flex justify-between items-center">
+          <span id="admin-contador" class="text-xs bg-blue-100 text-blue-800 font-semibold px-3 py-1 rounded-full"></span>
+          <input type="text" id="admin-buscador-cedula" oninput="filtrarClientesPorCedula()" placeholder="Buscar por Cédula o Nombre..." class="w-72 px-3 py-1.5 border rounded-lg text-xs outline-none bg-white" />
         </div>
-
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="bg-slate-100 text-slate-600 uppercase font-bold border-b">
@@ -290,399 +168,176 @@
                 <th class="p-3">Cliente</th>
                 <th class="p-3">Cédula</th>
                 <th class="p-3">Contacto</th>
-                <th class="p-3">Plan / Tarifa</th>
-                <th class="p-3">Documento Identidad</th>
-                <th class="p-3">Estado Servicio</th>
+                <th class="p-3">Tarifa</th>
+                <th class="p-3">Cédula</th>
+                <th class="p-3">Estado</th>
                 <th class="p-3">Auditoría Pago</th>
-                <th class="p-3 text-center">Acciones y Cobro</th>
+                <th class="p-3 text-center">Acciones</th>
               </tr>
             </thead>
-            <tbody id="tabla-usuarios" class="divide-y divide-slate-100">
-              <!-- JS -->
-            </tbody>
+            <tbody id="tabla-usuarios" class="divide-y"></tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- MODAL: PERFIL Y GESTIÓN DE ADMINISTRADORES Y SOCIOS -->
+    <!-- MODAL PERFIL ADMIN / SOCIOS -->
     <div id="modal-perfil-admin" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 border max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-user-gear text-blue-600"></i> Configuración de Administradores y Socios
-          </h3>
-          <button onclick="toggleModalPerfilAdmin(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+          <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-user-gear text-blue-600"></i> Configuración de Administradores y Socios</h3>
+          <button onclick="toggleModalPerfilAdmin(false)" class="text-slate-400 text-xl font-bold">&times;</button>
         </div>
-
         <div class="space-y-6">
-          <div class="bg-slate-50 p-4 rounded-xl border space-y-3">
-            <h4 class="font-bold text-xs text-blue-900 uppercase">Mis Datos (Administrador Principal)</h4>
-            <form onsubmit="actualizarAdminPrincipal(event)" class="space-y-3">
-              <div>
-                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Nombre Completo</label>
-                <input type="text" id="mi-nombre-admin" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none font-bold" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Correo Electrónico (Usuario)</label>
-                <input type="email" id="mi-correo-admin" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Nueva Contraseña (Mín. 12 chars)</label>
-                <input type="password" id="mi-clave-admin" placeholder="Déjala en blanco si no deseas cambiarla" class="w-full px-3 py-2 border rounded-lg text-xs bg-white outline-none" />
-              </div>
-              <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition">Guardar Mis Cambios</button>
-            </form>
-          </div>
-
-          <div class="border-t pt-4 space-y-3">
-            <div class="flex justify-between items-center">
+          <form onsubmit="actualizarAdminPrincipal(event)" class="space-y-3 bg-slate-50 p-4 rounded-xl border">
+            <h4 class="font-bold text-xs text-blue-900 uppercase">Mis Datos (Admin Principal)</h4>
+            <input type="text" id="mi-nombre-admin" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white font-bold" />
+            <input type="email" id="mi-correo-admin" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
+            <input type="password" id="mi-clave-admin" placeholder="Nueva contraseña (dejar vacío para no cambiar)" class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
+            <button type="submit" class="bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg">Guardar Cambios</button>
+          </form>
+          <div class="border-t pt-4">
+            <div class="flex justify-between items-center mb-2">
               <h4 class="font-bold text-xs text-purple-900 uppercase">Socios Administradores</h4>
-              <button onclick="toggleModalCrearSocio(true); toggleModalPerfilAdmin(false);" class="bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition">+ Crear Nuevo Socio</button>
+              <button onclick="toggleModalCrearSocio(true); toggleModalPerfilAdmin(false);" class="bg-purple-600 text-white text-[11px] font-bold px-3 py-1 rounded">+ Crear Socio</button>
             </div>
-            <div id="lista-socios-admin" class="space-y-2 max-h-60 overflow-y-auto"></div>
+            <div id="lista-socios-admin" class="space-y-2"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- MODAL: EDITAR SOCIO -->
+    <!-- MODAL EDITAR SOCIO -->
     <div id="modal-editar-socio" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-slate-800">Modificar Socio Administrador</h3>
-          <button onclick="toggleModalEditarSocio(false)" class="text-slate-400 text-xl font-bold">&times;</button>
-        </div>
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border">
+        <h3 class="text-base font-bold text-slate-800 mb-3">Modificar Socio Administrador</h3>
         <form onsubmit="guardarEdicionSocio(event)" class="space-y-3">
           <input type="hidden" id="edit-socio-index" />
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre Completo</label>
-            <input type="text" id="edit-socio-nombre" required class="w-full px-3 py-2 border rounded-lg text-xs" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre de Usuario</label>
-            <input type="text" id="edit-socio-usuario" required class="w-full px-3 py-2 border rounded-lg text-xs uppercase font-bold" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nueva Contraseña (Mín. 12 chars)</label>
-            <input type="password" id="edit-socio-clave" placeholder="Nueva clave compleja" class="w-full px-3 py-2 border rounded-lg text-xs" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nivel de Permisos</label>
-            <select id="edit-socio-rol" class="w-full px-3 py-2 border rounded-lg text-xs bg-white font-bold">
-              <option value="Solo Lectura">Solo Lectura (Ver datos y facturas)</option>
-              <option value="Administrador Total">Administrador Total (Puede editar y aprobar)</option>
-            </select>
-          </div>
+          <input type="text" id="edit-socio-nombre" required placeholder="Nombre" class="w-full px-3 py-2 border rounded-lg text-xs" />
+          <input type="text" id="edit-socio-usuario" required placeholder="Usuario" class="w-full px-3 py-2 border rounded-lg text-xs uppercase font-bold" />
+          <input type="password" id="edit-socio-clave" placeholder="Nueva contraseña" class="w-full px-3 py-2 border rounded-lg text-xs" />
+          <select id="edit-socio-rol" class="w-full px-3 py-2 border rounded-lg text-xs bg-white font-bold">
+            <option value="Solo Lectura">Solo Lectura (Ver datos y facturas)</option>
+            <option value="Administrador Total">Administrador Total (Puede editar y aprobar)</option>
+          </select>
           <div class="flex justify-end gap-2 pt-3 border-t">
             <button type="button" onclick="toggleModalEditarSocio(false)" class="px-4 py-2 bg-slate-100 text-xs rounded-lg">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-purple-600 text-white font-bold text-xs rounded-lg">Actualizar Socio</button>
+            <button type="submit" class="px-4 py-2 bg-purple-600 text-white font-bold text-xs rounded-lg">Actualizar</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- MODAL: GESTIÓN DE CATÁLOGO DE ROUTERS (ADMIN) -->
-    <div id="modal-gestion-routers" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 max-h-[90vh] flex flex-col">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <div>
-            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-router text-teal-600"></i> Catálogo de Routers Disponibles
-            </h3>
-            <p class="text-xs text-slate-500">Sube fotos y fija los precios de los equipos</p>
-          </div>
-          <button onclick="toggleModalGestionRouters(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-        </div>
-
-        <form onsubmit="guardarNuevoRouterAdmin(event)" class="bg-slate-50 p-3.5 rounded-xl border mb-4 space-y-3">
-          <span class="text-xs font-bold text-slate-700 block uppercase"><i class="fa-solid fa-plus-circle text-teal-600 mr-1"></i> Agregar Nuevo Router al Catálogo</span>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <div>
-              <label class="block text-[11px] font-bold text-slate-600 uppercase mb-0.5">Modelo / Marca</label>
-              <input type="text" id="router-modelo" required placeholder="Ej: Router AC1200" class="w-full px-2.5 py-1.5 border rounded-lg text-xs bg-white outline-none" />
-            </div>
-            <div>
-              <label class="block text-[11px] font-bold text-slate-600 uppercase mb-0.5">Precio ($ COP)</label>
-              <input type="number" id="router-precio" required placeholder="Ej: 120000" class="w-full px-2.5 py-1.5 border rounded-lg text-xs bg-white outline-none font-bold text-emerald-700" />
-            </div>
-            <div>
-              <label class="block text-[11px] font-bold text-slate-600 uppercase mb-0.5">Foto</label>
-              <input type="file" id="router-foto" required accept="image/*" class="w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[11px] file:bg-teal-50 file:text-teal-700 border rounded-lg bg-white" />
-            </div>
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-600 uppercase mb-0.5">Descripción</label>
-            <input type="text" id="router-descripcion" placeholder="Ej: 4 antenas de alta ganancia..." class="w-full px-2.5 py-1.5 border rounded-lg text-xs bg-white outline-none" />
-          </div>
-          <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-1.5 rounded-lg text-xs transition">
-            Guardar Router en el Catálogo
-          </button>
-        </form>
-
-        <div class="flex-1 overflow-y-auto border rounded-xl p-2 space-y-2" id="contenedor-routers-admin"></div>
-      </div>
-    </div>
-
-    <!-- MODAL: REQUERIMIENTOS Y SOLICITUDES DE CLIENTES (ADMIN) -->
-    <div id="modal-admin-requerimientos" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 border border-slate-200 max-h-[90vh] flex flex-col">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <div>
-            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-list-check text-amber-500"></i> Solicitudes de Routers y Servicios Adicionales
-            </h3>
-            <p class="text-xs text-slate-500">Revisa los pedidos de tus clientes</p>
-          </div>
-          <button onclick="toggleModalAdminRequerimientos(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-        </div>
-
-        <div class="overflow-x-auto flex-1 border rounded-xl">
-          <table class="w-full text-left text-xs">
-            <thead class="bg-slate-100 text-slate-600 uppercase font-bold border-b sticky top-0">
-              <tr>
-                <th class="p-3">Cliente / Contacto</th>
-                <th class="p-3">Tipo de Requerimiento</th>
-                <th class="p-3">Detalle / Equipo Seleccionado</th>
-                <th class="p-3">Costo de Instalación</th>
-                <th class="p-3">Fecha Solicitud</th>
-                <th class="p-3">Estado</th>
-                <th class="p-3 text-center">Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-admin-requerimientos" class="divide-y divide-slate-100"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL: ENVIAR ALERTA DE COBRO -->
-    <div id="modal-enviar-alerta-corte" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-red-600 flex items-center gap-2">
-            <i class="fa-solid fa-bell text-lg animate-bounce"></i> Alerta de Suspensión de Servicio
-          </h3>
-          <button onclick="toggleModalAlertaCorte(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-        </div>
-        
-        <form onsubmit="guardarAlertaCorteCliente(event)" class="space-y-4">
-          <input type="hidden" id="alerta-corte-user-index" />
-          <div class="bg-slate-50 p-3 rounded-xl border text-xs space-y-1">
-            <p>Cliente: <b id="alerta-cliente-nombre" class="text-slate-800"></b></p>
-            <p>Deuda Actual: <b id="alerta-cliente-monto" class="text-red-600 font-extrabold"></b></p>
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tiempo de Gracia</label>
-            <input type="text" id="alerta-tiempo-gracia" required value="1 día y 1 hora" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-red-500 font-bold text-red-700" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Mensaje</label>
-            <textarea id="alerta-mensaje-corte" rows="3" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-red-500 text-slate-700">Tu servicio de internet presenta corte por falta de pago. Tienes 1 día y 1 hora para realizar tu pago y subir el comprobante antes de la desconexión definitiva de la antena.</textarea>
-          </div>
-          <div class="flex justify-end gap-2 pt-3 border-t">
-            <button type="button" onclick="toggleModalAlertaCorte(false)" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-lg transition">Emitir Alerta</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- MODAL: CREAR ADMINISTRADOR SOCIO -->
+    <!-- MODAL CREAR SOCIO -->
     <div id="modal-crear-socio" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-user-tie text-purple-600"></i> Registrar Administrador Socio
-          </h3>
-          <button onclick="toggleModalCrearSocio(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-        </div>
-        
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border">
+        <h3 class="text-base font-bold text-slate-800 mb-3">Registrar Administrador Socio</h3>
         <form onsubmit="guardarNuevoSocio(event)" class="space-y-3">
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre Completo</label>
-            <input type="text" id="socio-nombre" required placeholder="Ej: Pedro Pérez" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-purple-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre de Usuario</label>
-            <input type="text" id="socio-usuario" required placeholder="Ej: PEDRO.PEREZ" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-purple-500 font-bold uppercase" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Contraseña (Mínimo 12 caracteres)</label>
-            <input type="password" id="socio-clave" required placeholder="••••••••••••" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-purple-500" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nivel de Permisos</label>
-            <select id="socio-rol" class="w-full px-3 py-2 border rounded-lg text-xs bg-white font-bold">
-              <option value="Solo Lectura">Solo Lectura (Ver datos y facturas)</option>
-              <option value="Administrador Total">Administrador Total (Puede editar y aprobar)</option>
-            </select>
-          </div>
+          <input type="text" id="socio-nombre" required placeholder="Nombre Completo" class="w-full px-3 py-2 border rounded-lg text-xs" />
+          <input type="text" id="socio-usuario" required placeholder="Usuario (Ej: PEDRO.PEREZ)" class="w-full px-3 py-2 border rounded-lg text-xs uppercase font-bold" />
+          <input type="password" id="socio-clave" required placeholder="Contraseña (mín. 12 chars)" class="w-full px-3 py-2 border rounded-lg text-xs" />
+          <select id="socio-rol" class="w-full px-3 py-2 border rounded-lg text-xs bg-white font-bold">
+            <option value="Solo Lectura">Solo Lectura (Ver datos y facturas)</option>
+            <option value="Administrador Total">Administrador Total (Puede editar y aprobar)</option>
+          </select>
           <div class="flex justify-end gap-2 pt-3 border-t">
-            <button type="button" onclick="toggleModalCrearSocio(false)" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-lg transition">Crear Acceso Socio</button>
+            <button type="button" onclick="toggleModalCrearSocio(false)" class="px-4 py-2 bg-slate-100 text-xs rounded-lg">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-purple-600 text-white font-bold text-xs rounded-lg">Crear Socio</button>
           </div>
         </form>
       </div>
     </div>
 
-    <!-- MODAL: CARGAR COMPROBANTE WHATSAPP -->
+    <!-- MODAL COMPROBANTE WHATSAPP -->
     <div id="modal-subir-comprobante-admin" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-brands fa-whatsapp text-emerald-500 text-lg"></i> Cargar Comprobante (WhatsApp)
-          </h3>
-          <button onclick="toggleModalSubirComprobanteAdmin(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-        </div>
-        
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border">
+        <h3 class="text-base font-bold text-slate-800 mb-3"><i class="fa-brands fa-whatsapp text-emerald-500"></i> Cargar Comprobante (WhatsApp)</h3>
         <form onsubmit="guardarComprobanteDesdeAdmin(event)" class="space-y-4">
           <input type="hidden" id="wa-user-index" />
-          <div class="bg-slate-50 p-3 rounded-xl border text-xs space-y-1">
-            <p>Cliente: <b id="wa-cliente-nombre" class="text-slate-800"></b></p>
+          <div class="bg-slate-50 p-3 rounded-xl border text-xs">
+            <p>Cliente: <b id="wa-cliente-nombre"></b></p>
             <p>Tarifa: <b id="wa-cliente-tarifa" class="text-emerald-700"></b></p>
           </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Fecha de la Transferencia</label>
-            <input type="date" id="wa-fecha-pago" required class="w-full px-3 py-2 border rounded-lg text-xs outline-none bg-white" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Archivo de Comprobante</label>
-            <input type="file" id="wa-archivo-comprobante" required accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 border rounded-lg bg-white" />
-          </div>
-          <div class="flex justify-end gap-2 pt-3 border-t">
-            <button type="button" onclick="toggleModalSubirComprobanteAdmin(false)" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition">Guardar y Dejar Al Día</button>
-          </div>
+          <input type="date" id="wa-fecha-pago" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
+          <input type="file" id="wa-archivo-comprobante" required accept="image/*,.pdf" class="w-full text-xs border rounded-lg p-2" />
+          <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs">Guardar y Dejar Al Día</button>
         </form>
       </div>
     </div>
 
-    <!-- MODAL: HISTORIAL DE COMPROBANTES (REPOSITORIO) -->
+    <!-- MODAL HISTORIAL COMPROBANTES -->
     <div id="modal-historial-comprobantes" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-6 border border-slate-200 max-h-[90vh] flex flex-col">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-6 border max-h-[90vh] flex flex-col">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <div>
-            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-              <i class="fa-solid fa-receipt text-indigo-600"></i> Repositorio de Comprobantes de Pago
-            </h3>
-            <p class="text-xs text-slate-500">Historial detallado con fecha y hora de subida, visor y opción de deshacer aprobación si hay errores</p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button onclick="exportarHistorialComprobantesExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition">Exportar a Excel</button>
-            <button onclick="toggleModalHistorialComprobantes(false)" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-          </div>
+          <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-receipt text-indigo-600 mr-1"></i> Repositorio de Comprobantes</h3>
+          <button onclick="toggleModalHistorialComprobantes(false)" class="text-slate-400 text-xl font-bold">&times;</button>
         </div>
-
         <div class="overflow-x-auto flex-1 border rounded-xl">
           <table class="w-full text-left text-xs">
-            <thead class="bg-slate-100 text-slate-600 uppercase font-bold border-b sticky top-0">
+            <thead class="bg-slate-100 uppercase font-bold border-b sticky top-0">
               <tr>
-                <th class="p-3">Cliente / Cédula</th>
+                <th class="p-3">Cliente</th>
                 <th class="p-3">Monto</th>
                 <th class="p-3">Fecha Declarada</th>
-                <th class="p-3">Fecha y Hora de Subida</th>
-                <th class="p-3">Fecha y Hora de Aprobación</th>
+                <th class="p-3">Subida</th>
+                <th class="p-3">Aprobación</th>
                 <th class="p-3 text-center">Acciones (Ver / Deshacer)</th>
               </tr>
             </thead>
-            <tbody id="tabla-historial-comprobantes" class="divide-y divide-slate-100"></tbody>
+            <tbody id="tabla-historial-comprobantes" class="divide-y"></tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <!-- MODAL VISOR EN PANTALLA COMPLETA -->
-    <div id="modal-visor-comprobante" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-5 border border-slate-200 flex flex-col max-h-[90vh]">
-        <div class="flex justify-between items-center border-b pb-3 mb-3">
-          <div>
-            <h4 id="visor-titulo" class="font-bold text-sm text-slate-800">Comprobante de Pago</h4>
-            <p id="visor-subtitulo" class="text-xs text-slate-400"></p>
-          </div>
-          <div class="flex items-center gap-2">
-            <button id="btn-descargar-visor" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Descargar</button>
-            <button onclick="toggleModalVisor(false)" class="text-slate-400 text-xl font-bold">&times;</button>
-          </div>
-        </div>
-        <div class="flex-1 overflow-auto flex items-center justify-center bg-slate-100 rounded-xl p-2 min-h-[300px]" id="visor-contenedor-img"></div>
-      </div>
-    </div>
-
-    <!-- MODAL: AUDITORÍA CÉDULA -->
-    <div id="modal-auditar-cedula" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 max-h-[90vh] overflow-y-auto">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-id-card text-blue-600 mr-1"></i> Verificación de Cédula de Ciudadanía</h3>
-          <button onclick="toggleModalAuditarCedula(false)" class="text-slate-400 text-xl font-bold">&times;</button>
-        </div>
-        
-        <input type="hidden" id="audit-cedula-user-index" />
-        <div class="mb-4 text-xs text-slate-600">
-          Cliente: <b id="audit-cedula-nombre" class="text-slate-800"></b> | C.C: <b id="audit-cedula-numero" class="text-slate-800"></b>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div class="border rounded-xl p-3 bg-slate-50 text-center">
-            <span class="text-xs font-bold text-slate-700 block mb-2">Cara Frontal</span>
-            <div id="img-box-frente" class="h-48 bg-white border rounded-lg flex items-center justify-center overflow-hidden"></div>
-          </div>
-          <div class="border rounded-xl p-3 bg-slate-50 text-center">
-            <span class="text-xs font-bold text-slate-700 block mb-2">Cara Posterior / Reverso</span>
-            <div id="img-box-reverso" class="h-48 bg-white border rounded-lg flex items-center justify-center overflow-hidden"></div>
-          </div>
-        </div>
-
-        <div id="box-botones-cedula-admin" class="flex justify-between gap-2 pt-3 border-t">
-          <button type="button" onclick="rechazarCedulaAdmin()" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Rechazar Fotos</button>
-          <button type="button" onclick="aprobarCedulaAdmin()" class="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg">Aprobar Documento</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODAL: AUDITORÍA DE PAGO -->
+    <!-- MODAL AUDITORÍA PAGO -->
     <div id="modal-auditar-pago" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-magnifying-glass-dollar text-blue-600 mr-1"></i> Auditoría de Pago</h3>
-          <button onclick="toggleModalAuditar(false)" class="text-slate-400 text-xl font-bold">&times;</button>
+      <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border">
+        <h3 class="text-base font-bold text-slate-800 mb-3">Auditoría de Pago</h3>
+        <input type="hidden" id="audit-user-index" />
+        <div class="bg-slate-50 p-3 rounded-xl border text-xs mb-3 space-y-1">
+          <p>Cliente: <b id="audit-cliente-nombre"></b></p>
+          <p>Cédula: <span id="audit-cliente-cedula"></span></p>
+          <p>Archivo: <b id="audit-archivo-nombre" class="text-blue-700"></b></p>
+          <p>Subido el: <b id="audit-fecha-subida"></b></p>
         </div>
-        <div class="space-y-4">
-          <input type="hidden" id="audit-user-index" />
-          <div class="bg-slate-50 p-3 rounded-xl border text-xs space-y-1">
-            <p>Cliente: <b id="audit-cliente-nombre" class="text-slate-800"></b></p>
-            <p>Cédula: <span id="audit-cliente-cedula" class="text-slate-600"></span></p>
-            <p class="border-t pt-1 mt-1">Archivo cargado: <b id="audit-archivo-nombre" class="text-blue-700"></b></p>
-            <p>Fecha declarada de pago: <b id="audit-fecha-declarada" class="text-emerald-700"></b></p>
-            <p>Subido al sistema el: <b id="audit-fecha-subida" class="text-slate-700"></b></p>
-          </div>
-
-          <div id="audit-preview-box" class="p-2 border rounded-xl bg-slate-100 flex items-center justify-center min-h-[160px] text-xs text-slate-500 overflow-hidden"></div>
-
-          <div id="box-botones-pago-admin" class="flex justify-between gap-2 pt-3 border-t">
-            <button type="button" onclick="rechazarPagoAdmin()" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Rechazar y Pedir Archivo</button>
-            <button type="button" onclick="aprobarPagoAdmin()" class="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg">Aprobar y Activar</button>
-          </div>
+        <div id="audit-preview-box" class="p-2 border rounded-xl bg-slate-100 flex items-center justify-center min-h-[160px] text-xs mb-4 overflow-hidden"></div>
+        <div class="flex justify-between gap-2 border-t pt-3">
+          <button type="button" onclick="rechazarPagoAdmin()" class="px-3 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Rechazar (Pedir de nuevo)</button>
+          <button type="button" onclick="aprobarPagoAdmin()" class="px-3 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg">Aprobar y Activar</button>
         </div>
       </div>
     </div>
 
-    <!-- MODAL: CREAR CLIENTE -->
-    <div id="modal-crear-usuario" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-user-plus text-blue-600 mr-1"></i> Nuevo Cliente</h3>
-          <button onclick="toggleModalCrearUsuario(false)" class="text-slate-400 text-xl font-bold">&times;</button>
+    <!-- MODAL AUDITORÍA CÉDULA -->
+    <div id="modal-auditar-cedula" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border max-h-[90vh] overflow-y-auto">
+        <h3 class="text-base font-bold text-slate-800 mb-3">Verificación de Cédula</h3>
+        <input type="hidden" id="audit-cedula-user-index" />
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div id="img-box-frente" class="h-48 border rounded flex items-center justify-center overflow-hidden bg-slate-50"></div>
+          <div id="img-box-reverso" class="h-48 border rounded flex items-center justify-center overflow-hidden bg-slate-50"></div>
         </div>
+        <div class="flex justify-between border-t pt-3">
+          <button onclick="rechazarCedulaAdmin()" class="px-4 py-2 bg-red-600 text-white font-bold text-xs rounded-lg">Rechazar</button>
+          <button onclick="aprobarCedulaAdmin()" class="px-4 py-2 bg-emerald-600 text-white font-bold text-xs rounded-lg">Aprobar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CREAR CLIENTE -->
+    <div id="modal-crear-usuario" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border">
+        <h3 class="text-base font-bold text-slate-800 mb-3 border-b pb-2">Nuevo Cliente</h3>
         <form onsubmit="crearUsuarioAdmin(event)" class="space-y-3">
-          <input type="text" id="admin-new-nombre" required placeholder="Nombre Completo" class="w-full px-3 py-2 border rounded-lg text-sm outline-none" />
+          <input type="text" id="admin-new-nombre" required placeholder="Nombre Completo" class="w-full px-3 py-2 border rounded-lg text-sm" />
           <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="admin-new-cedula" required placeholder="Cédula" class="w-full px-3 py-2 border rounded-lg text-sm outline-none" />
-            <input type="tel" id="admin-new-celular" required placeholder="Celular" class="w-full px-3 py-2 border rounded-lg text-sm outline-none" />
+            <input type="number" id="admin-new-cedula" required placeholder="Cédula" class="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="tel" id="admin-new-celular" required placeholder="Celular" class="w-full px-3 py-2 border rounded-lg text-sm" />
           </div>
-          <input type="text" id="admin-new-email" placeholder="Correo (opcional)" class="w-full px-3 py-2 border rounded-lg text-sm outline-none" />
-          <input type="number" id="admin-new-tarifa" required value="50000" class="w-full px-3 py-2 border rounded-lg text-sm font-bold text-emerald-700 outline-none" />
-          <input type="date" id="admin-new-fecha-instalacion" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none" />
+          <input type="text" id="admin-new-email" placeholder="Correo (opcional)" class="w-full px-3 py-2 border rounded-lg text-sm" />
+          <input type="number" id="admin-new-tarifa" required value="50000" class="w-full px-3 py-2 border rounded-lg text-sm font-bold text-emerald-700" />
+          <input type="date" id="admin-new-fecha-instalacion" required class="w-full px-3 py-2 border rounded-lg text-sm" />
           <div class="flex justify-end gap-2 pt-3 border-t">
             <button type="button" onclick="toggleModalCrearUsuario(false)" class="px-4 py-2 bg-slate-100 text-xs rounded-lg">Cancelar</button>
             <button type="submit" class="px-4 py-2 bg-blue-600 text-white font-bold text-xs rounded-lg">Registrar</button>
@@ -691,22 +346,19 @@
       </div>
     </div>
 
-    <!-- MODAL: EDITAR CLIENTE -->
+    <!-- MODAL EDITAR CLIENTE -->
     <div id="modal-editar-usuario" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200">
-        <div class="flex justify-between items-center border-b pb-3 mb-4">
-          <h3 class="text-base font-bold text-slate-800"><i class="fa-solid fa-user-pen text-blue-600 mr-1"></i> Editar Cliente</h3>
-          <button onclick="toggleModalEditarUsuario(false)" class="text-slate-400 text-xl font-bold">&times;</button>
-        </div>
+      <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border">
+        <h3 class="text-base font-bold text-slate-800 mb-3 border-b pb-2">Editar Cliente</h3>
         <form onsubmit="guardarEdicionUsuario(event)" class="space-y-3">
           <input type="hidden" id="edit-user-index" />
-          <input type="text" id="edit-nombre" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none" />
+          <input type="text" id="edit-nombre" required class="w-full px-3 py-2 border rounded-lg text-sm" />
           <div class="grid grid-cols-2 gap-2">
-            <input type="number" id="edit-cedula" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none" />
-            <input type="tel" id="edit-celular" required class="w-full px-3 py-2 border rounded-lg text-sm outline-none" />
+            <input type="number" id="edit-cedula" required class="w-full px-3 py-2 border rounded-lg text-sm" />
+            <input type="tel" id="edit-celular" required class="w-full px-3 py-2 border rounded-lg text-sm" />
           </div>
-          <input type="text" id="edit-email" class="w-full px-3 py-2 border rounded-lg text-sm outline-none" />
-          <input type="number" id="edit-tarifa-num" required class="w-full px-3 py-2 border rounded-lg text-sm font-black text-emerald-800 outline-none" />
+          <input type="text" id="edit-email" class="w-full px-3 py-2 border rounded-lg text-sm" />
+          <input type="number" id="edit-tarifa-num" required class="w-full px-3 py-2 border rounded-lg text-sm" />
           <div class="grid grid-cols-2 gap-2">
             <select id="edit-estado" class="w-full px-3 py-2 border rounded-lg text-sm font-bold bg-white">
               <option value="Activo">Activo</option>
@@ -726,18 +378,10 @@
 
     <!-- 3. PANEL DEL CLIENTE -->
     <section id="view-client" class="hidden max-w-2xl mx-auto space-y-6">
-      <div id="client-alerta-corte" class="hidden bg-red-600 text-white p-4 rounded-2xl shadow-lg flex items-center gap-3">
-        <i class="fa-solid fa-triangle-exclamation text-3xl"></i>
-        <div>
-          <h4 class="font-extrabold text-sm uppercase">Servicio Cortado por Falta de Pago</h4>
-          <p class="text-xs text-red-100">Superaste la fecha límite. Sube tu comprobante abajo para reactivar tu servicio.</p>
-        </div>
-      </div>
-
-      <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+      <div class="bg-white p-6 rounded-2xl shadow-md border">
         <div class="flex justify-between items-center border-b pb-4 mb-5">
           <div>
-            <h2 id="client-nombre" class="text-xl font-bold text-slate-800">Mi Conexión Conectado2</h2>
+            <h2 id="client-nombre" class="text-xl font-bold text-slate-800">Mi Conexión</h2>
             <p id="client-email" class="text-xs text-slate-400"></p>
           </div>
           <span id="client-estado-badge" class="text-xs px-3 py-1 rounded-full font-bold"></span>
@@ -748,9 +392,7 @@
             <span class="text-xs font-bold text-blue-600 uppercase tracking-wide block">Fecha de Inicio / Instalación</span>
             <span id="client-fecha-instalacion" class="text-base font-extrabold text-blue-950"></span>
           </div>
-          <div class="h-10 w-10 bg-blue-600 text-white rounded-xl flex items-center justify-center text-lg">
-            <i class="fa-solid fa-screwdriver-wrench"></i>
-          </div>
+          <div class="h-10 w-10 bg-blue-600 text-white rounded-xl flex items-center justify-center text-lg"><i class="fa-solid fa-screwdriver-wrench"></i></div>
         </div>
 
         <div class="grid grid-cols-2 gap-4 text-xs mb-4">
@@ -759,7 +401,7 @@
             <span id="client-cedula" class="text-sm font-bold text-slate-700"></span>
           </div>
           <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-            <span class="text-emerald-700 font-bold block">TARIFA MENSUAL ACTUAL</span>
+            <span class="text-emerald-700 font-bold block">TARIFA MENSUAL</span>
             <span id="client-tarifa-text" class="text-sm font-extrabold text-emerald-800"></span>
           </div>
         </div>
@@ -768,20 +410,20 @@
           <i class="fa-solid fa-circle-check text-2xl"></i>
           <div>
             <h4 class="font-extrabold text-sm uppercase">¡Estás al día con tus pagos!</h4>
-            <p class="text-xs text-emerald-700 font-medium">Gracias por pertenecer a Conectado2.</p>
+            <p class="text-xs text-emerald-700">Gracias por pertenecer a Conectado2.</p>
           </div>
         </div>
 
         <div id="box-cliente-factura-descarga" class="hidden mb-6 p-4 bg-slate-50 rounded-2xl border flex justify-between items-center">
           <div>
             <span class="text-xs font-bold text-slate-800 block">Factura de Cobro Vigente</span>
-            <span id="client-subtexto-factura" class="text-[11px] text-slate-500"></span>
+            <span class="text-[11px] text-slate-500">Corte día 24 de cada mes</span>
           </div>
-          <button onclick="generarFacturaPDF(usuarioEnSesion)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition shadow">Descargar Factura PDF</button>
+          <button onclick="generarFacturaPDF(usuarioEnSesion)" class="bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-lg shadow">Descargar Factura PDF</button>
         </div>
 
         <div class="border-t pt-4">
-          <h4 class="font-bold text-sm text-slate-700 mb-1">Cargar Comprobante de Transferencia / Pago</h4>
+          <h4 class="font-bold text-sm text-slate-700 mb-1">Cargar Comprobante de Pago</h4>
           <form onsubmit="subirComprobanteCliente(event)" class="space-y-3 bg-slate-50 p-4 rounded-xl border">
             <input type="date" id="cli-pago-fecha" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
             <input type="file" id="cli-pago-archivo" required accept="image/*,.pdf" class="w-full text-xs text-slate-500 border rounded-lg bg-white p-2" />
@@ -792,7 +434,7 @@
       </div>
     </section>
 
-    <!-- 4. PLANTILLA FACTURA PDF (BLOQUEADA SI ESTÁ CANCELADO) -->
+    <!-- FACTURA PDF -->
     <div id="plantilla-factura" class="hidden p-8 bg-white font-sans text-slate-800 border" style="width: 700px;">
       <h1 class="text-2xl font-black text-blue-600">CONECTADO2</h1>
       <p id="pdf-factura-num" class="text-sm font-bold"></p>
@@ -804,37 +446,45 @@
 
   </main>
 
-  <!-- LÓGICA DE CONTROL -->
   <script>
-    let adminPrincipal = JSON.parse(localStorage.getItem('conectado2_admin_principal')) || {
-      nombre: "Janier Mazo",
-      email: "jeliasmazo@gmail.com",
-      clave: "98013262140Ja**"
-    };
+    const ADMIN_CORREO_PRINCIPAL = "jeliasmazo@gmail.com";
+    const ADMIN_CLAVE_PRINCIPAL = "98013262140Ja**";
 
-    const ADMIN_CORREO_PRINCIPAL = adminPrincipal.email;
-    const ADMIN_CLAVE_PRINCIPAL = adminPrincipal.clave;
+    // 19 Clientes precargados de tu Excel original con sus fechas de inicio reales
+    const CLIENTES_PRECARGADOS = [
+      {"nombre": "ALBEIRO DE JESÚS MAZO POSADA", "cedula": "71801052", "celular": "3104975992", "email": "albeiromazo93@gmail.com", "clave": "71801052", "plan": "Hasta 20 MB", "tarifa": 0, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Cancelado", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "BAYARDO DE JESUS MUÑOZ LONDOÑO", "cedula": "98462824", "celular": "3012372656", "email": "muñozlondonobayardo@gmail.com", "clave": "98462824", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2025-09-15", "fechaInstalacion": "2025-09-15", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "DEISON SEBASTIAN AREIZA CADAVID", "cedula": "1044122231", "celular": "3116519225", "email": "deisonsebastianareiza@gmail.com", "clave": "1044122231", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "DIANA MAGDALENA GARCÍA GARCÍA", "cedula": "43852054", "celular": "3104421237", "email": "karend06162020@gmail.com", "clave": "43852054", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-02-25", "fechaInstalacion": "2026-02-25", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "JHON EDISON MAZO PEREZ", "cedula": "71291341", "celular": "3232874430", "email": "santymazo2811@gmail.com", "clave": "71291341", "plan": "Hasta 20 MB", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "JHON JAIRO TAPIAS CARVAJAL", "cedula": "1044122005", "celular": "3235381277", "email": "Sin correo", "clave": "1044122005", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "JOSÉ VIRGILIO TAPIAS CARVAJAL", "cedula": "1044121498", "celular": "3127413223", "email": "m1996222226@gmail.com", "clave": "1044121498", "plan": "LIBRE (60 MB+)", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "LUIS EDUARDO MAZO PEREZ", "cedula": "98462933", "celular": "3128676508", "email": "Sin correo", "clave": "98462933", "plan": "Hasta 20 MB", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "MARÍA NATALY JIMÉNEZ DUQUE", "cedula": "1044120199", "celular": "3122550450", "email": "valeriaajimenez21@gmail.com", "clave": "1044120199", "plan": "LIBRE (60 MB+)", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-04-18", "fechaInstalacion": "2026-04-18", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "MIRYAM ZAPATA VALBUENA", "cedula": "43851745", "celular": "3217167388", "email": "miryamzapata1810@gmail.com", "clave": "43851745", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-04-19", "fechaInstalacion": "2026-04-19", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "VIVIANA ANDREA MAZO PEREZ", "cedula": "32229875", "celular": "3167350670", "email": "Mazoviviana026@gmail.com", "clave": "32229875", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-02-03", "fechaInstalacion": "2026-02-03", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "MAURICIO ALBERTO JIMENEZ GARCIA", "cedula": "1044120549", "celular": "3226760133", "email": "mcafetoledo12@gmail.com", "clave": "1044120549", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "VERÓNICA MARCELA JIMENEZ GARCIA", "cedula": "1044121312", "celular": "3042658424", "email": "Sin correo", "clave": "1044121312", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "JUAN CARLOS JIMENEZ GARCIA", "cedula": "71801584", "celular": "3116858506", "email": "juancjim31@gmail.com", "clave": "71801584", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "GUSTAVO ANTONIO GUZMAN", "cedula": "71801268", "celular": "3215704565", "email": "Sin correo", "clave": "71801268", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-06-20", "fechaInstalacion": "2026-06-20", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "JUAN CAMILO GARCIA CHAVARRIA", "cedula": "1044121264", "celular": "3136496985", "email": "juan18hj@gmail.com", "clave": "1044121264", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "JUAN SEBASTIAN MAZO GOMEZ", "cedula": "1044988036", "celular": "3009070615", "email": "Sin correo", "clave": "1044988036", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "JESÚS NORBEY GARCÍA GARCÍA", "cedula": "1044121407", "celular": "304 2021426", "email": "Sin correo", "clave": "1044121407", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9},
+      {"nombre": "ELADIO TAPIAS", "cedula": "71801513", "celular": "3127284427", "email": "Sin correo", "clave": "71801513", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-06-16", "fechaInstalacion": "2026-06-16", "diaCorte": 24, "estado": "Activo", "estadoCedula": "Aprobada", "pagoAprobadoAdmin": true, "mesAprobado": 9}
+    ];
 
-    let clientes = JSON.parse(localStorage.getItem('conectado2_usuarios')) || [];
+    let clientesGuardados = JSON.parse(localStorage.getItem('conectado2_usuarios'));
+    let clientes = (clientesGuardados && clientesGuardados.length > 0) ? clientesGuardados : CLIENTES_PRECARGADOS;
+
     let comprobantesAprobados = JSON.parse(localStorage.getItem('conectado2_comprobantes_aprobados')) || [];
-    let administradoresSocios = JSON.parse(localStorage.getItem('conectado2_socios')) || [];
-    let requerimientosClientes = JSON.parse(localStorage.getItem('conectado2_requerimientos')) || [];
-    let catalogoRouters = JSON.parse(localStorage.getItem('conectado2_catalogo_routers')) || [];
+    let administradoresSocios = JSON.parse(localStorage.getItem('conectado2_socios')) || [
+      { nombre: "Socio Principal", usuario: "SOCIO.ADMIN", clave: "Conectado2Socio*", rol: "Solo Lectura" }
+    ];
 
     let usuarioEnSesion = null;
     let usuarioEnRegistroCedula = null;
     let esAdminPrincipal = false;
     let esSocioSoloLectura = false;
-    let clienteRecienRegistrado = null;
-
-    function validarComplejidadContrasena(pass) {
-      if (!pass || pass.length < 12) return { valida: false, mensaje: "Debe tener al menos 12 caracteres." };
-      if (!/[A-Z]/.test(pass)) return { valida: false, mensaje: "Debe incluir Mayúscula (A-Z)." };
-      if (!/[a-z]/.test(pass)) return { valida: false, mensaje: "Debe incluir Minúscula (a-z)." };
-      if (!/[0-9]/.test(pass)) return { valida: false, mensaje: "Debe incluir Número (0-9)." };
-      if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pass)) return { valida: false, mensaje: "Debe incluir Carácter Especial (*, #, @, etc.)." };
-      return { valida: true };
-    }
 
     function parseMonto(v) { return parseInt(String(v || 50000).replace(/[^0-9]/g, ""), 10) || 50000; }
     function formatearDinero(n) { return "$" + Number(n).toLocaleString('es-CO'); }
@@ -895,10 +545,10 @@
       const iden = document.getElementById('login-admin-identificador').value.trim();
       const pass = document.getElementById('login-admin-pass').value.trim();
 
-      if ((iden.toLowerCase() === adminPrincipal.email.toLowerCase() || iden.toUpperCase() === "ADMIN") && pass === adminPrincipal.clave) {
+      if ((iden.toLowerCase() === ADMIN_CORREO_PRINCIPAL.toLowerCase() || iden.toUpperCase() === "ADMIN") && pass === ADMIN_CLAVE_PRINCIPAL) {
         esAdminPrincipal = true;
         esSocioSoloLectura = false;
-        abrirPanelAdmin(adminPrincipal.nombre, "Administrador Principal");
+        abrirPanelAdmin("Janier Mazo", "Administrador Principal");
         return;
       }
 
@@ -912,7 +562,7 @@
       alert("Credenciales incorrectas.");
     }
 
-    // SUBIR COMPROBANTE CLIENTE CON MENSAJE DE ÉXITO CLARO
+    // Comprobante cliente con éxito visible
     function subirComprobanteCliente(e) {
       e.preventDefault();
       const archivo = document.getElementById('cli-pago-archivo').files[0];
@@ -978,7 +628,6 @@
       reader.readAsDataURL(archivo);
     }
 
-    // APROBAR O DESHACER APROBACIÓN DE PAGO (PERMITE RECHAZAR Y PEDIR NUEVO ARCHIVO)
     function aprobarPagoAdmin() {
       const idx = document.getElementById('audit-user-index').value;
       const user = clientes[idx];
@@ -1042,55 +691,6 @@
       }
     }
 
-    // GESTIÓN DE SOCIOS CON PERMISOS MODIFICABLES
-    function guardarNuevoSocio(e) {
-      e.preventDefault();
-      const nombre = document.getElementById('socio-nombre').value.trim();
-      const usuario = document.getElementById('socio-usuario').value.trim().toUpperCase();
-      const clave = document.getElementById('socio-clave').value.trim();
-      const rol = document.getElementById('socio-rol').value;
-
-      administradoresSocios.push({ nombre, usuario, clave, rol });
-      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
-      toggleModalCrearSocio(false);
-      renderizarListaSociosAdmin();
-      alert(`¡Socio ${nombre} creado como ${rol}!`);
-    }
-
-    function guardarEdicionSocio(e) {
-      e.preventDefault();
-      const idx = document.getElementById('edit-socio-index').value;
-      const s = administradoresSocios[idx];
-      s.nombre = document.getElementById('edit-socio-nombre').value.trim();
-      s.usuario = document.getElementById('edit-socio-usuario').value.trim().toUpperCase();
-      s.rol = document.getElementById('edit-socio-rol').value;
-      const pass = document.getElementById('edit-socio-clave').value.trim();
-      if (pass !== "") s.clave = pass;
-
-      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
-      toggleModalEditarSocio(false);
-      renderizarListaSociosAdmin();
-      alert("¡Socio actualizado!");
-    }
-
-    function abrirModalEditarSocio(idx) {
-      const s = administradoresSocios[idx];
-      document.getElementById('edit-socio-index').value = idx;
-      document.getElementById('edit-socio-nombre').value = s.nombre;
-      document.getElementById('edit-socio-usuario').value = s.usuario;
-      document.getElementById('edit-socio-clave').value = "";
-      document.getElementById('edit-socio-rol').value = s.rol || "Solo Lectura";
-      toggleModalEditarSocio(true);
-    }
-
-    function eliminarSocioAdmin(idx) {
-      if (confirm("¿Eliminar este socio?")) {
-        administradoresSocios.splice(idx, 1);
-        localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
-        renderizarListaSociosAdmin();
-      }
-    }
-
     function abrirPanelAdmin(nombreUsuario = "Janier Mazo", rolTexto = "Administrador Principal") {
       document.getElementById('view-auth').classList.add('hidden');
       document.getElementById('view-client').classList.add('hidden');
@@ -1102,13 +702,10 @@
       navBienvenidaTexto.innerHTML = `<i class="fa-solid fa-user-shield text-yellow-300 mr-1.5"></i> ¡Bienvenido ${nombreUsuario} (${rolTexto})!`;
 
       document.getElementById('nav-user-box').classList.remove('hidden');
-      document.getElementById('nav-user-badge').innerHTML = `<i class="fa-solid fa-user-gear"></i> Perfil Admin`;
+      document.getElementById('nav-user-badge').innerHTML = `<i class="fa-solid fa-user-gear"></i> Configurar Admin`;
       document.getElementById('admin-subtitulo-rol').innerText = `Sesión activa como: ${nombreUsuario} (${rolTexto})`;
 
-      // Si el socio es Solo Lectura, ocultamos botones de escritura crítica
-      const esSoloLectura = (rolTexto.includes("Solo Lectura"));
-      document.getElementById('box-acciones-admin-principal').classList.toggle('hidden', esSoloLectura);
-
+      document.getElementById('box-acciones-admin-principal').classList.toggle('hidden', esSocioSoloLectura);
       cargarTablaAdmin();
     }
 
@@ -1128,8 +725,8 @@
         const estadoCalculado = calcularEstadoAutomatico(user);
         const montoNum = parseMonto(user.tarifa);
 
-        let cedulaBadge = user.estadoCedula === 'Aprobada' ? `<span class="text-[11px] text-emerald-700 font-bold">Aprobada</span>` : `<button onclick="abrirAuditoriaCedula(${index})" class="bg-amber-500 text-white px-2 py-0.5 rounded text-[11px] font-bold animate-pulse">Validar</button>`;
-        let auditoriaHTML = user.pagoAprobadoAdmin ? `<span class="text-[11px] text-emerald-700 font-bold"><i class="fa-solid fa-circle-check"></i> Al Día</span>` : `<button onclick="abrirAuditoriaPago(${index})" class="bg-amber-500 text-white px-2.5 py-1 rounded text-[11px] font-bold animate-pulse">Validar Pago</button>`;
+        let cedulaBadge = user.estadoCedula === 'Aprobada' ? `<span class="text-[11px] text-emerald-700 font-bold">Aprobada</span>` : `<button onclick="abrirAuditoriaCedula(${index})" class="bg-amber-500 text-white px-2 py-0.5 rounded text-[11px] font-bold">Validar</button>`;
+        let auditoriaHTML = user.pagoAprobadoAdmin ? `<span class="text-[11px] text-emerald-700 font-bold"><i class="fa-solid fa-circle-check"></i> Al Día</span>` : `<button onclick="abrirAuditoriaPago(${index})" class="bg-amber-500 text-white px-2.5 py-1 rounded text-[11px] font-bold">Validar Pago</button>`;
 
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50";
@@ -1142,12 +739,21 @@
           <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold">${estadoCalculado}</span></td>
           <td class="p-3">${auditoriaHTML}</td>
           <td class="p-3 text-center space-x-1">
-            <button onclick="abrirModalEditar(${index})" class="bg-slate-100 px-2 py-1 rounded text-xs font-bold" title="Editar"><i class="fa-solid fa-pen"></i></button>
+            ${!esSocioSoloLectura ? `<button onclick="abrirModalEditar(${index})" class="bg-slate-100 px-2 py-1 rounded text-xs font-bold" title="Editar"><i class="fa-solid fa-pen"></i></button>` : ''}
             <button onclick="generarFacturaPDF(clientes[${index}])" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-bold" title="PDF"><i class="fa-solid fa-file-pdf"></i></button>
+            ${!esSocioSoloLectura ? `<button onclick="eliminarUsuario(${index})" class="bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-bold" title="Eliminar"><i class="fa-solid fa-trash"></i></button>` : ''}
           </td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function eliminarUsuario(idx) {
+      if (confirm("¿Deseas eliminar este cliente?")) {
+        clientes.splice(idx, 1);
+        localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+        cargarTablaAdmin();
+      }
     }
 
     function abrirPanelCliente(cli) {
@@ -1168,12 +774,12 @@
 
     function actualizarVistaEstadoCliente(cli) {
       const estaAlDia = (cli.pagoAprobadoAdmin && cli.mesAprobado === (new Date().getMonth() + 1));
-      
-      // Bloquear factura si está cancelado
       const estaCancelado = (cli.estado === 'Cancelado');
+
       document.getElementById('box-cliente-al-dia').classList.toggle('hidden', !estaAlDia || estaCancelado);
       document.getElementById('box-cliente-factura-descarga').classList.toggle('hidden', estaAlDia || estaCancelado);
-      
+      document.getElementById('client-alerta-corte').classList.toggle('hidden', !estaCancelado);
+
       if (estaCancelado) {
         document.getElementById('client-estado-badge').innerText = "CANCELADO";
         document.getElementById('client-estado-badge').className = "text-xs px-3 py-1 rounded-full font-bold bg-slate-300 text-slate-800";
@@ -1185,7 +791,7 @@
       } else if (estaAlDia) {
         statusBox.innerHTML = `<div class="p-3 bg-emerald-50 text-emerald-800 font-bold rounded-xl">Comprobante aprobado. Estás al día este mes.</div>`;
       } else if (cli.comprobanteSubido) {
-        statusBox.innerHTML = `<div class="p-3 bg-blue-50 text-blue-800 font-medium rounded-xl">Comprobante enviado (${cli.comprobanteSubido}). En revisión por administración.</div>`;
+        statusBox.innerHTML = `<div class="p-3 bg-blue-50 text-blue-800 font-medium rounded-xl">Comprobante enviado (${cli.comprobanteSubido}). En revisión por la administración.</div>`;
       } else if (cli.motivoRechazo) {
         statusBox.innerHTML = `<div class="p-3 bg-red-50 text-red-800 font-medium rounded-xl"><b>Soporte Rechazado:</b> ${cli.motivoRechazo}</div>`;
       } else {
@@ -1193,10 +799,10 @@
       }
     }
 
-    // FACTURA PDF BLINDADA (NO SE GENERA SI ESTÁ CANCELADO)
+    // FACTURA PDF BLOQUEADA SI ESTÁ CANCELADO
     function generarFacturaPDF(user) {
       if (user.estado === 'Cancelado') {
-        alert("El servicio de este cliente se encuentra CANCELADO. No se puede generar factura de cobro.");
+        alert("El servicio de este cliente se encuentra CANCELADO. No se genera factura.");
         return;
       }
       document.getElementById('pdf-factura-num').innerText = `FACT-24-${String(user.cedula).slice(-4)}`;
@@ -1247,7 +853,7 @@
         });
         localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
         cargarTablaAdmin();
-        alert(`¡Excel importado con éxito! Se agregaron ${importados} clientes con sus respectivas fechas.`);
+        alert(`¡Excel importado! Se agregaron ${importados} clientes respetando sus fechas.`);
       };
       reader.readAsArrayBuffer(file);
     }
@@ -1256,7 +862,7 @@
       const tbody = document.getElementById('tabla-historial-comprobantes');
       tbody.innerHTML = "";
       if (!comprobantesAprobados.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No hay comprobantes en el repositorio.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No hay comprobantes aprobados.</td></tr>`;
       } else {
         comprobantesAprobados.forEach((r, idx) => {
           tbody.innerHTML += `
@@ -1268,7 +874,7 @@
               <td class="p-3 text-indigo-800 font-bold">${r.fechaHoraAprobacion}</td>
               <td class="p-3 text-center space-x-1">
                 <button onclick="window.open('${r.dataUrl}')" class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-bold">Ver</button>
-                <button onclick="eliminarComprobanteHistorial(${idx})" class="bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-bold" title="Deshacer aprobación">Deshacer</button>
+                <button onclick="eliminarComprobanteHistorial(${idx})" class="bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-bold">Deshacer</button>
               </td>
             </tr>`;
         });
@@ -1276,34 +882,130 @@
       toggleModalHistorialComprobantes(true);
     }
 
-    // Modales y utilidades de soporte
+    // Utilidades modales
     function toggleModalCrearUsuario(a) { document.getElementById('modal-crear-usuario').classList.toggle('hidden', !a); }
     function toggleModalEditarUsuario(a) { document.getElementById('modal-editar-usuario').classList.toggle('hidden', !a); }
     function toggleModalAuditar(a) { document.getElementById('modal-auditar-pago').classList.toggle('hidden', !a); }
     function toggleModalAuditarCedula(a) { document.getElementById('modal-auditar-cedula').classList.toggle('hidden', !a); }
     function toggleModalHistorialComprobantes(a) { document.getElementById('modal-historial-comprobantes').classList.toggle('hidden', !a); }
-    function toggleModalVisor(a) { document.getElementById('modal-visor-comprobante').classList.toggle('hidden', !a); }
     function toggleModalSubirComprobanteAdmin(a) { document.getElementById('modal-subir-comprobante-admin').classList.toggle('hidden', !a); }
-    function toggleModalAlertaCorte(a) { document.getElementById('modal-enviar-alerta-corte').classList.toggle('hidden', !a); }
-    function toggleModalGestionRouters(a) { document.getElementById('modal-gestion-routers').classList.toggle('hidden', !a); }
-    function toggleModalAdminRequerimientos(a) { document.getElementById('modal-admin-requerimientos').classList.toggle('hidden', !a); }
-    function toggleModalClienteRequerimientos(a) { document.getElementById('modal-cliente-requerimientos').classList.toggle('hidden', !a); }
 
-    function abrirModalAdminRequerimientos() { toggleModalAdminRequerimientos(true); }
-    function abrirModalGestionRouters() { toggleModalGestionRouters(true); }
-    function abrirModalClienteRequerimientos() { toggleModalClienteRequerimientos(true); }
-    function abrirModalEditar(index) {
-      const user = clientes[index];
-      document.getElementById('edit-user-index').value = index;
-      document.getElementById('edit-nombre').value = user.nombre;
-      document.getElementById('edit-cedula').value = user.cedula;
-      document.getElementById('edit-celular').value = user.celular;
-      document.getElementById('edit-email').value = user.email || "";
-      document.getElementById('edit-tarifa-num').value = parseMonto(user.tarifa);
-      document.getElementById('edit-estado').value = user.estado || "Activo";
-      document.getElementById('edit-fecha-instalacion').value = user.fechaInstalacion || "";
-      toggleModalEditarUsuario(true);
+    function abrirModalPerfilAdmin() {
+      document.getElementById('mi-nombre-admin').value = adminPrincipal.nombre;
+      document.getElementById('mi-correo-admin').value = adminPrincipal.email;
+      document.getElementById('mi-clave-admin').value = "";
+      renderizarListaSociosAdmin();
+      document.getElementById('modal-perfil-admin').classList.remove('hidden');
     }
+    function toggleModalPerfilAdmin(abrir) { document.getElementById('modal-perfil-admin').classList.toggle('hidden', !abrir); }
+
+    function actualizarAdminPrincipal(e) {
+      e.preventDefault();
+      adminPrincipal.nombre = document.getElementById('mi-nombre-admin').value.trim();
+      adminPrincipal.email = document.getElementById('mi-correo-admin').value.trim();
+      const p = document.getElementById('mi-clave-admin').value.trim();
+      if (p) adminPrincipal.clave = p;
+      localStorage.setItem('conectado2_admin_principal', JSON.stringify(adminPrincipal));
+      toggleModalPerfilAdmin(false);
+      alert("¡Datos actualizados!");
+    }
+
+    function renderizarListaSociosAdmin() {
+      const cont = document.getElementById('lista-socios-admin');
+      cont.innerHTML = "";
+      administradoresSocios.forEach((s, idx) => {
+        cont.innerHTML += `<div class="flex justify-between items-center p-2.5 bg-white border rounded text-xs"><span><b>${s.nombre}</b> (${s.usuario}) - <b class="text-purple-700">${s.rol}</b></span> <div class="space-x-1"><button onclick="abrirModalEditarSocio(${idx})" class="bg-slate-100 px-2 py-1 rounded font-bold">Editar</button><button onclick="eliminarSocioAdmin(${idx})" class="text-red-600 font-bold">Eliminar</button></div></div>`;
+      });
+    }
+
+    function toggleModalCrearSocio(a) { document.getElementById('modal-crear-socio').classList.toggle('hidden', !a); }
+    function toggleModalEditarSocio(a) { document.getElementById('modal-editar-socio').classList.toggle('hidden', !a); }
+
+    function guardarNuevoSocio(e) {
+      e.preventDefault();
+      administradoresSocios.push({
+        nombre: document.getElementById('socio-nombre').value.trim(),
+        usuario: document.getElementById('socio-usuario').value.trim().toUpperCase(),
+        clave: document.getElementById('socio-clave').value.trim(),
+        rol: document.getElementById('socio-rol').value
+      });
+      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
+      toggleModalCrearSocio(false);
+      renderizarListaSociosAdmin();
+      alert("¡Socio creado!");
+    }
+
+    function abrirModalEditarSocio(idx) {
+      const s = administradoresSocios[idx];
+      document.getElementById('edit-socio-index').value = idx;
+      document.getElementById('edit-socio-nombre').value = s.nombre;
+      document.getElementById('edit-socio-usuario').value = s.usuario;
+      document.getElementById('edit-socio-clave').value = "";
+      document.getElementById('edit-socio-rol').value = s.rol || "Solo Lectura";
+      toggleModalEditarSocio(true);
+    }
+
+    function guardarEdicionSocio(e) {
+      e.preventDefault();
+      const idx = document.getElementById('edit-socio-index').value;
+      const s = administradoresSocios[idx];
+      s.nombre = document.getElementById('edit-socio-nombre').value.trim();
+      s.usuario = document.getElementById('edit-socio-usuario').value.trim().toUpperCase();
+      s.rol = document.getElementById('edit-socio-rol').value;
+      const p = document.getElementById('edit-socio-clave').value.trim();
+      if (p) s.clave = p;
+      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
+      toggleModalEditarSocio(false);
+      renderizarListaSociosAdmin();
+      alert("¡Socio actualizado!");
+    }
+
+    function eliminarSocioAdmin(idx) {
+      administradoresSocios.splice(idx, 1);
+      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
+      renderizarListaSociosAdmin();
+    }
+
+    function registrarSolicitudPublica(e) {
+      e.preventDefault();
+      const cedulaVal = document.getElementById('reg-cedula').value.trim();
+      clientes.push({
+        nombre: document.getElementById('reg-nombre').value.trim(),
+        cedula: cedulaVal,
+        celular: document.getElementById('reg-celular').value.trim(),
+        email: document.getElementById('reg-email').value.trim() || "Sin correo",
+        clave: cedulaVal,
+        tarifa: 50000,
+        estado: "Activo",
+        estadoCedula: "Aprobada",
+        pagoAprobadoAdmin: true,
+        mesAprobado: new Date().getMonth() + 1
+      });
+      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      alert("¡Solicitud registrada!");
+      cambiarPestana('login-user');
+    }
+
+    function crearUsuarioAdmin(e) {
+      e.preventDefault();
+      clientes.push({
+        nombre: document.getElementById('admin-new-nombre').value.trim(),
+        cedula: document.getElementById('admin-new-cedula').value.trim(),
+        celular: document.getElementById('admin-new-celular').value.trim(),
+        email: document.getElementById('admin-new-email').value.trim() || "Sin correo",
+        clave: document.getElementById('admin-new-cedula').value.trim(),
+        tarifa: parseMonto(document.getElementById('admin-new-tarifa').value),
+        estado: "Activo",
+        estadoCedula: "Aprobada",
+        pagoAprobadoAdmin: true,
+        mesAprobado: new Date().getMonth() + 1
+      });
+      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      toggleModalCrearUsuario(false);
+      cargarTablaAdmin();
+      alert("Cliente creado.");
+    }
+
     function guardarEdicionUsuario(e) {
       e.preventDefault();
       const idx = document.getElementById('edit-user-index').value;
@@ -1318,34 +1020,6 @@
       toggleModalEditarUsuario(false);
       cargarTablaAdmin();
       alert("Cliente actualizado.");
-    }
-    function abrirAuditoriaPago(index) {
-      const user = clientes[index];
-      document.getElementById('audit-user-index').value = index;
-      document.getElementById('audit-cliente-nombre').innerText = user.nombre;
-      document.getElementById('audit-cliente-cedula').innerText = user.cedula;
-      document.getElementById('audit-archivo-nombre').innerText = user.comprobanteSubido || "Sin archivo";
-      document.getElementById('audit-fecha-declarada').innerText = user.fechaPagoCliente || "No declarada";
-      document.getElementById('audit-fecha-subida').innerText = user.fechaHoraSubidaComprobante || "No registrada";
-      const box = document.getElementById('audit-preview-box');
-      box.innerHTML = user.comprobanteDataUrl ? `<img src="${user.comprobanteDataUrl}" class="max-h-56 object-contain cursor-pointer" onclick="window.open('${user.comprobanteDataUrl}')" />` : "Sin comprobante";
-      toggleModalAuditar(true);
-    }
-    function aprobarCedulaAdmin() {
-      const idx = document.getElementById('audit-cedula-user-index').value;
-      clientes[idx].estadoCedula = "Aprobada";
-      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-      toggleModalAuditarCedula(false);
-      cargarTablaAdmin();
-    }
-    function rechazarCedulaAdmin() {
-      const idx = document.getElementById('audit-cedula-user-index').value;
-      clientes[idx].estadoCedula = "Sin subir";
-      clientes[idx].cedulaFrente = null;
-      clientes[idx].cedulaReverso = null;
-      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-      toggleModalAuditarCedula(false);
-      cargarTablaAdmin();
     }
 
     function cerrarSesion() { window.location.reload(); }
