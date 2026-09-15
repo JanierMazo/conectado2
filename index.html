@@ -8,10 +8,12 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Iconos -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Librería Gratuita para Facturas PDF -->
+  <!-- Librería Facturas PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- Librería Gratuita para Leer y Exportar Excel -->
+  <!-- Librería Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     @keyframes animacionBienvenida {
@@ -29,23 +31,17 @@
   <!-- BARRA SUPERIOR CON SALUDO ANIMADO Y PERFIL ADMIN -->
   <nav class="bg-blue-600 text-white shadow-md sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-2">
-      
-      <!-- LOGO -->
       <div class="flex items-center space-x-2">
         <i class="fa-solid fa-wifi text-2xl text-yellow-300"></i>
         <span class="text-2xl font-black tracking-wide">Conectado2</span>
       </div>
 
-      <!-- TEXTO DE BIENVENIDA ANIMADO -->
       <div id="nav-bienvenida-box" class="hidden text-center flex-1 px-4">
         <span id="nav-bienvenida-texto" class="anim-bienvenida inline-block text-sm md:text-base font-extrabold text-yellow-300 drop-shadow-sm tracking-wide"></span>
       </div>
 
-      <!-- BOTONES DE SESIÓN Y PERFIL ADMIN -->
       <div id="nav-user-box" class="hidden flex items-center space-x-3">
-        <!-- BOTÓN INTERACTIVO DE PERFIL ADMIN -->
         <button onclick="abrirModalPerfilAdmin()" id="nav-user-badge" class="text-xs bg-blue-800 hover:bg-blue-900 px-3.5 py-2 rounded-full font-bold shadow transition flex items-center gap-1.5 cursor-pointer">
-          <!-- JS -->
         </button>
         <button onclick="cerrarSesion()" class="text-xs bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded text-white font-bold transition shadow">
           Cerrar Sesión
@@ -58,8 +54,6 @@
 
     <!-- 1. VISTA DE INICIO / ACCESO -->
     <section id="view-auth" class="max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-slate-200">
-      
-      <!-- PESTAÑAS -->
       <div class="flex border-b border-slate-200 mb-6">
         <button type="button" id="tab-login-user-btn" onclick="cambiarPestana('login-user')" class="flex-1 pb-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 text-xs sm:text-sm">
           Portal Clientes
@@ -72,28 +66,28 @@
         </button>
       </div>
 
-      <!-- FORMULARIO 1: ACCESO CLIENTES SOLO CON CÉDULA -->
+      <!-- ACCESO CLIENTES -->
       <form id="form-login-user" onsubmit="iniciarSesionCliente(event)" class="space-y-4">
         <div>
           <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Cédula de Ciudadanía</label>
           <input type="number" id="login-user-cedula" required placeholder="Escribe tu número de cédula" class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-base font-bold text-slate-800 bg-slate-50" />
         </div>
         <p class="text-[11px] text-slate-500 leading-relaxed">
-          <i class="fa-solid fa-circle-info text-blue-600"></i> Solo necesitas tu número de cédula para consultar tus facturas y comprobantes.
+          <i class="fa-solid fa-circle-info text-blue-600"></i> Ingresa tu cédula para consultar facturas y subir comprobantes.
         </p>
         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition shadow-sm flex items-center justify-center gap-2">
           <i class="fa-solid fa-right-to-bracket"></i> Ingresar al Portal
         </button>
       </form>
 
-      <!-- FORMULARIO 2: ACCESO ADMIN / SOCIOS -->
+      <!-- ACCESO ADMIN / SOCIOS -->
       <form id="form-login-admin" onsubmit="iniciarSesionAdmin(event)" class="space-y-4 hidden">
         <div>
           <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Usuario o Correo Electrónico</label>
-          <input type="text" id="login-admin-identificador" required placeholder="ej: jeliasmazo@gmail.com o PEDRO.PEREZ" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" />
+          <input type="text" id="login-admin-identificador" required placeholder="ej: jeliasmazo@gmail.com o SOCIO.ADMIN" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" />
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contraseña (Mínimo 12 caracteres con complejidad)</label>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Contraseña</label>
           <input type="password" id="login-admin-pass" required placeholder="••••••••••••" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm" />
         </div>
         <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-lg text-sm transition shadow-sm">
@@ -101,7 +95,7 @@
         </button>
       </form>
 
-      <!-- FORMULARIO 3: SOLICITAR SERVICIO -->
+      <!-- SOLICITUD PÚBLICA -->
       <form id="form-register" onsubmit="registrarSolicitudPublica(event)" class="space-y-3 hidden">
         <div class="p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl space-y-2">
           <div class="flex justify-between items-center text-xs">
@@ -138,7 +132,7 @@
           <i class="fa-solid fa-circle-exclamation text-amber-600 mt-0.5 text-base"></i>
           <div>
             <b>¡Este número de cédula ya se encuentra registrado en Conectado2!</b>
-            <p class="mt-0.5 text-[11px] text-amber-800">Puedes ingresar directamente con tu cédula en la pestaña de <a href="javascript:void(0)" onclick="cambiarPestana('login-user')" class="font-bold underline text-blue-700">Portal Clientes</a>.</p>
+            <p class="mt-0.5 text-[11px] text-amber-800">Puedes ingresar en <a href="javascript:void(0)" onclick="cambiarPestana('login-user')" class="font-bold underline text-blue-700">Portal Clientes</a>.</p>
           </div>
         </div>
 
@@ -152,15 +146,15 @@
             <i class="fa-solid fa-satellite-dish text-blue-600 text-sm"></i> Condiciones del Servicio Inalámbrico:
           </p>
           <ul class="list-disc list-inside space-y-1 text-slate-600">
-            <li><b>Línea de Vista Requerida:</b> Antena receptora con vista directa y despejada hacia la torre.</li>
-            <li><b>Costo de Instalación:</b> Valor fijo de <b>$90.000 COP</b> al momento de instalar.</li>
+            <li><b>Línea de Vista Requerida:</b> Antena receptora con vista directa y despejada.</li>
+            <li><b>Costo de Instalación:</b> Valor fijo de <b>$90.000 COP</b> al instalar.</li>
           </ul>
         </div>
 
         <div class="flex items-start gap-2 pt-1">
           <input type="checkbox" id="reg-acepto-terminos" required class="mt-1 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 cursor-pointer" />
           <label for="reg-acepto-terminos" class="text-xs text-slate-700 font-semibold cursor-pointer">
-            Acepto el valor de instalación de <b>$90.000 COP</b> y las condiciones de línea de vista y cuidado de antenas.
+            Acepto instalación de <b>$90.000 COP</b> y las condiciones técnicas.
           </label>
         </div>
 
@@ -170,7 +164,7 @@
       </form>
     </section>
 
-    <!-- PANTALLA CONFIRMACIÓN -->
+    <!-- CONFIRMACIÓN SOLICITUD -->
     <section id="view-confirmacion-solicitud" class="hidden max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200 text-center space-y-5">
       <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-sm">
         <i class="fa-solid fa-circle-check"></i>
@@ -178,48 +172,51 @@
       <div>
         <h3 class="text-xl font-black text-slate-800">¡Bienvenido a Conectado2!</h3>
         <p id="conf-nombre-cliente" class="text-sm font-bold text-blue-700 mt-1"></p>
-        <p class="text-xs text-slate-500 mt-1">Pronto nos comunicaremos contigo para coordinar tu instalación.</p>
+        <p class="text-xs text-slate-500 mt-1">Pronto nos comunicaremos contigo para coordinar la instalación.</p>
       </div>
       <button onclick="irAPortalDesdeConfirmacion()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow">
         Entendido, Continuar
       </button>
     </section>
 
-    <!-- VISTA SUBIR CÉDULA -->
+    <!-- SUBIR CÉDULA -->
     <section id="view-upload-cedula" class="hidden max-w-lg mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200">
       <div class="text-center mb-6">
         <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xl">
           <i class="fa-solid fa-id-card"></i>
         </div>
         <h3 class="text-lg font-bold text-slate-800">Foto de Documento Requerida</h3>
-        <p class="text-xs text-slate-500">Por favor sube foto clara de tu cédula por ambas caras para verificar tu identidad.</p>
+        <p class="text-xs text-slate-500">Sube foto clara de tu cédula por ambas caras para verificar identidad.</p>
       </div>
+
       <form onsubmit="guardarFotosCedulaCliente(event)" class="space-y-4">
         <div class="p-3 bg-slate-50 rounded-xl border border-dashed border-slate-300">
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">1. Foto Cédula - Frente</label>
-          <input type="file" id="foto-cedula-frente" required accept="image/*" class="w-full text-xs text-slate-500 border rounded-lg bg-white" />
+          <input type="file" id="foto-cedula-frente" required accept="image/*" class="w-full text-xs text-slate-500 border rounded-lg bg-white p-2" />
         </div>
+
         <div class="p-3 bg-slate-50 rounded-xl border border-dashed border-slate-300">
           <label class="block text-xs font-bold text-slate-700 uppercase mb-1">2. Foto Cédula - Reverso</label>
-          <input type="file" id="foto-cedula-reverso" required accept="image/*" class="w-full text-xs text-slate-500 border rounded-lg bg-white" />
+          <input type="file" id="foto-cedula-reverso" required accept="image/*" class="w-full text-xs text-slate-500 border rounded-lg bg-white p-2" />
         </div>
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-sm">
-          Enviar Fotos a Verificación
+
+        <button type="submit" id="btn-subir-cedula-cloud" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg text-xs transition shadow-sm flex items-center justify-center gap-2">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Enviar Fotos a la Nube
         </button>
       </form>
     </section>
 
-    <!-- PANTALLA ESPERANDO APROBACIÓN -->
+    <!-- DOCUMENTO EN REVISIÓN -->
     <section id="view-esperando-aprobacion" class="hidden max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-slate-200 text-center space-y-4">
       <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto text-2xl animate-pulse">
         <i class="fa-solid fa-user-clock"></i>
       </div>
       <h3 class="text-lg font-extrabold text-slate-800">Documento en Revisión</h3>
-      <p class="text-xs text-slate-600 leading-relaxed">Tus fotos de cédula han sido enviadas a la administración. Estamos validando tu información.</p>
+      <p class="text-xs text-slate-600 leading-relaxed">Tus fotos están en el sistema. La administración las validará en breve.</p>
       <button onclick="cerrarSesion()" class="text-xs text-slate-500 hover:text-slate-800 font-bold underline pt-2">Salir por ahora</button>
     </section>
 
-    <!-- 2. PANEL DEL ADMINISTRADOR -->
+    <!-- 2. PANEL ADMINISTRADOR -->
     <section id="view-admin" class="hidden space-y-6">
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -258,7 +255,7 @@
         </div>
       </div>
 
-      <!-- TABLA DE CLIENTES -->
+      <!-- TABLA CLIENTES -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="p-4 border-b bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div class="flex items-center gap-2">
@@ -291,7 +288,7 @@
       </div>
     </section>
 
-    <!-- MODAL: PERFIL Y GESTIÓN DE ADMINISTRADORES Y SOCIOS -->
+    <!-- MODAL PERFIL ADMIN / SOCIOS -->
     <div id="modal-perfil-admin" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-xl w-full p-6 border border-slate-200 max-h-[90vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -332,7 +329,7 @@
       </div>
     </div>
 
-    <!-- MODAL: EDITAR SOCIO -->
+    <!-- MODAL EDITAR SOCIO -->
     <div id="modal-editar-socio" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -352,7 +349,7 @@
       </div>
     </div>
 
-    <!-- MODAL: GESTIÓN ROUTERS -->
+    <!-- MODAL CATÁLOGO ROUTERS -->
     <div id="modal-gestion-routers" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 max-h-[90vh] flex flex-col">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -372,7 +369,7 @@
       </div>
     </div>
 
-    <!-- MODAL: REQUERIMIENTOS -->
+    <!-- MODAL REQUERIMIENTOS -->
     <div id="modal-admin-requerimientos" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 border border-slate-200 max-h-[90vh] flex flex-col">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -398,7 +395,7 @@
       </div>
     </div>
 
-    <!-- MODAL: ALERTA CORTE -->
+    <!-- MODAL ALERTA CORTE -->
     <div id="modal-enviar-alerta-corte" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
         <h3 class="text-base font-bold text-red-600 mb-3">Alerta de Suspensión</h3>
@@ -415,7 +412,7 @@
       </div>
     </div>
 
-    <!-- MODAL: CREAR SOCIO -->
+    <!-- MODAL CREAR SOCIO -->
     <div id="modal-crear-socio" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
         <h3 class="text-base font-bold text-slate-800 mb-3">Registrar Administrador Socio</h3>
@@ -431,7 +428,7 @@
       </div>
     </div>
 
-    <!-- MODAL: CARGAR COMPROBANTE WHATSAPP -->
+    <!-- MODAL SUBIR COMPROBANTE WHATSAPP -->
     <div id="modal-subir-comprobante-admin" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
         <h3 class="text-base font-bold text-slate-800 mb-3"><i class="fa-brands fa-whatsapp text-emerald-500"></i> Cargar Comprobante WhatsApp</h3>
@@ -442,12 +439,12 @@
           </div>
           <input type="date" id="wa-fecha-pago" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
           <input type="file" id="wa-archivo-comprobante" required accept="image/*,.pdf" class="w-full text-xs border rounded-lg p-2" />
-          <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs">Guardar y Dejar Al Día</button>
+          <button type="submit" id="btn-subir-wa-cloud" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-lg text-xs">Guardar y Dejar Al Día</button>
         </form>
       </div>
     </div>
 
-    <!-- MODAL: HISTORIAL DE COMPROBANTES -->
+    <!-- MODAL HISTORIAL COMPROBANTES -->
     <div id="modal-historial-comprobantes" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full p-6 border border-slate-200 max-h-[90vh] flex flex-col">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -472,7 +469,7 @@
       </div>
     </div>
 
-    <!-- MODAL VISOR EN PANTALLA COMPLETA -->
+    <!-- MODAL VISOR COMPROBANTE -->
     <div id="modal-visor-comprobante" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-5 border border-slate-200 flex flex-col max-h-[90vh]">
         <div class="flex justify-between items-center border-b pb-3 mb-3">
@@ -483,14 +480,14 @@
       </div>
     </div>
 
-    <!-- MODAL: AUDITAR CÉDULA -->
+    <!-- MODAL AUDITAR CÉDULA -->
     <div id="modal-auditar-cedula" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 border border-slate-200 max-h-[90vh] overflow-y-auto">
         <h3 class="text-base font-bold text-slate-800 mb-3">Verificación de Cédula</h3>
         <input type="hidden" id="audit-cedula-user-index" />
         <div class="grid grid-cols-2 gap-4 mb-4">
-          <div id="img-box-frente" class="h-48 border rounded flex items-center justify-center"></div>
-          <div id="img-box-reverso" class="h-48 border rounded flex items-center justify-center"></div>
+          <div id="img-box-frente" class="h-48 border rounded flex items-center justify-center overflow-hidden"></div>
+          <div id="img-box-reverso" class="h-48 border rounded flex items-center justify-center overflow-hidden"></div>
         </div>
         <div class="flex justify-between" id="box-botones-cedula-admin">
           <button onclick="rechazarCedulaAdmin()" class="bg-red-600 text-white px-4 py-2 rounded text-xs font-bold">Rechazar</button>
@@ -499,7 +496,7 @@
       </div>
     </div>
 
-    <!-- MODAL: AUDITORÍA DE PAGO -->
+    <!-- MODAL AUDITORÍA PAGO -->
     <div id="modal-auditar-pago" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
         <h3 class="text-base font-bold text-slate-800 mb-3">Auditoría de Pago</h3>
@@ -512,7 +509,7 @@
       </div>
     </div>
 
-    <!-- MODAL: CREAR CLIENTE -->
+    <!-- MODAL CREAR CLIENTE -->
     <div id="modal-crear-usuario" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200">
         <h3 class="text-base font-bold text-slate-800 mb-3 border-b pb-2">Nuevo Cliente</h3>
@@ -533,7 +530,7 @@
       </div>
     </div>
 
-    <!-- MODAL: EDITAR CLIENTE -->
+    <!-- MODAL EDITAR CLIENTE -->
     <div id="modal-editar-usuario" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200">
         <h3 class="text-base font-bold text-slate-800 mb-3 border-b pb-2">Editar Cliente</h3>
@@ -554,7 +551,7 @@
       </div>
     </div>
 
-    <!-- 3. PANEL DEL CLIENTE -->
+    <!-- 3. PANEL CLIENTE -->
     <section id="view-client" class="hidden max-w-2xl mx-auto space-y-6">
       <div id="client-box-ultimatum" class="hidden bg-gradient-to-r from-red-600 to-rose-700 text-white p-5 rounded-2xl shadow-xl flex items-center gap-4 animate-pulse">
         <i class="fa-solid fa-clock-rotate-left text-3xl"></i>
@@ -599,7 +596,7 @@
           <form onsubmit="subirComprobanteCliente(event)" class="space-y-3 bg-slate-50 p-4 rounded-xl border">
             <input type="date" id="cli-pago-fecha" required class="w-full px-3 py-2 border rounded-lg text-xs bg-white" />
             <input type="file" id="cli-pago-archivo" required accept="image/*,.pdf" class="w-full text-xs text-slate-500 border rounded-lg bg-white" />
-            <button type="submit" class="w-full bg-blue-600 text-white text-xs font-bold py-2.5 rounded-lg">Enviar Comprobante</button>
+            <button type="submit" id="btn-subir-comprobante-cli" class="w-full bg-blue-600 text-white text-xs font-bold py-2.5 rounded-lg">Enviar Comprobante a Revisión</button>
           </form>
           <div id="cli-status-comprobante" class="mt-3 text-xs"></div>
         </div>
@@ -639,72 +636,7 @@
 
   </main>
 
-  <!-- LÓGICA DE CONTROL CON TUS 19 CLIENTES Y SOCIOS PRECARGADOS -->
   <script>
-    // Lista original de tus 19 clientes de tu Excel precargada directamente
-    const CLIENTES_PRECARGADOS = [
-      {"nombre": "ALBEIRO DE JESÚS MAZO POSADA", "cedula": "71801052", "celular": "3104975992", "email": "albeiromazo93@gmail.com", "clave": "71801052", "plan": "Hasta 20 MB", "tarifa": 0, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Cancelado", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "BAYARDO DE JESUS MUÑOZ LONDOÑO", "cedula": "98462824", "celular": "3012372656", "email": "muñozlondonobayardo@gmail.com", "clave": "98462824", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2025-09-15", "fechaInstalacion": "2025-09-15", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "DEISON SEBASTIAN AREIZA CADAVID", "cedula": "1044122231", "celular": "3116519225", "email": "deisonsebastianareiza@gmail.com", "clave": "1044122231", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "DIANA MAGDALENA GARCÍA GARCÍA", "cedula": "43852054", "celular": "3104421237", "email": "karend06162020@gmail.com", "clave": "43852054", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-02-25", "fechaInstalacion": "2026-02-25", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JHON EDISON MAZO PEREZ", "cedula": "71291341", "celular": "3232874430", "email": "santymazo2811@gmail.com", "clave": "71291341", "plan": "Hasta 20 MB", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JHON JAIRO TAPIAS CARVAJAL", "cedula": "1044122005", "celular": "3235381277", "email": "Sin correo", "clave": "1044122005", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JOSÉ VIRGILIO TAPIAS CARVAJAL", "cedula": "1044121498", "celular": "3127413223", "email": "m1996222226@gmail.com", "clave": "1044121498", "plan": "LIBRE (60 MB+)", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "LUIS EDUARDO MAZO PEREZ", "cedula": "98462933", "celular": "3128676508", "email": "Sin correo", "clave": "98462933", "plan": "Hasta 20 MB", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "MARÍA NATALY JIMÉNEZ DUQUE", "cedula": "1044120199", "celular": "3122550450", "email": "valeriaajimenez21@gmail.com", "clave": "1044120199", "plan": "LIBRE (60 MB+)", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-04-18", "fechaInstalacion": "2026-04-18", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "MIRYAM ZAPATA VALBUENA", "cedula": "43851745", "celular": "3217167388", "email": "miryamzapata1810@gmail.com", "clave": "43851745", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-04-19", "fechaInstalacion": "2026-04-19", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "VIVIANA ANDREA MAZO PEREZ", "cedula": "32229875", "celular": "3167350670", "email": "Mazoviviana026@gmail.com", "clave": "32229875", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-02-03", "fechaInstalacion": "2026-02-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "MAURICIO ALBERTO JIMENEZ GARCIA", "cedula": "1044120549", "celular": "3226760133", "email": "mcafetoledo12@gmail.com", "clave": "1044120549", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "VERÓNICA MARCELA JIMENEZ GARCIA", "cedula": "1044121312", "celular": "3042658424", "email": "Sin correo", "clave": "1044121312", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JUAN CARLOS JIMENEZ GARCIA", "cedula": "71801584", "celular": "3116858506", "email": "juancjim31@gmail.com", "clave": "71801584", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "GUSTAVO ANTONIO GUZMAN", "cedula": "71801268", "celular": "3215704565", "email": "Sin correo", "clave": "71801268", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-06-20", "fechaInstalacion": "2026-06-20", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JUAN CAMILO GARCIA CHAVARRIA", "cedula": "1044121264", "celular": "3136496985", "email": "juan18hj@gmail.com", "clave": "1044121264", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JUAN SEBASTIAN MAZO GOMEZ", "cedula": "1044988036", "celular": "3009070615", "email": "Sin correo", "clave": "1044988036", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JESÚS NORBEY GARCÍA GARCÍA", "cedula": "1044121407", "celular": "304 2021426", "email": "Sin correo", "clave": "1044121407", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "ELADIO TAPIAS", "cedula": "71801513", "celular": "3127284427", "email": "Sin correo", "clave": "71801513", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-06-16", "fechaInstalacion": "2026-06-16", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9}
-    ];
-
-    // Cargar clientes: si el navegador no tiene ninguno, usa los 19 del Excel de inmediato
-    let clientesGuardados = JSON.parse(localStorage.getItem('conectado2_usuarios'));
-    let clientes = (clientesGuardados && clientesGuardados.length > 0) ? clientesGuardados : CLIENTES_PRECARGADOS;
-
-    let adminPrincipal = JSON.parse(localStorage.getItem('conectado2_admin_principal')) || {
-      nombre: "Janier Mazo",
-      email: "jeliasmazo@gmail.com",
-      clave: "98013262140Ja**"
-    };
-
-    let administradoresSocios = JSON.parse(localStorage.getItem('conectado2_socios')) || [
-      {
-        nombre: "Socio Principal",
-        usuario: "SOCIO.ADMIN",
-        clave: "Conectado2Socio*",
-        rol: "Solo Lectura"
-      }
-    ];
-
-    let comprobantesAprobados = JSON.parse(localStorage.getItem('conectado2_comprobantes_aprobados')) || [];
-    let requerimientosClientes = JSON.parse(localStorage.getItem('conectado2_requerimientos')) || [];
-
-    let catalogoRouters = JSON.parse(localStorage.getItem('conectado2_catalogo_routers')) || [
-      { id: "R1", modelo: "Router AC1200 Doble Banda", precio: 120000, descripcion: "4 antenas de alta ganancia.", foto: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=400&q=80" }
-    ];
-
-    let usuarioEnSesion = null;
-    let usuarioEnRegistroCedula = null;
-    let esAdminPrincipal = false;
-    let esSocioSoloLectura = false;
-    let clienteRecienRegistrado = null;
-
-    function validarComplejidadContrasena(pass) {
-      if (!pass || pass.length < 12) return { valida: false, mensaje: "Debe tener al menos 12 caracteres." };
-      if (!/[A-Z]/.test(pass)) return { valida: false, mensaje: "Debe incluir Mayúscula (A-Z)." };
-      if (!/[a-z]/.test(pass)) return { valida: false, mensaje: "Debe incluir Minúscula (a-z)." };
-      if (!/[0-9]/.test(pass)) return { valida: false, mensaje: "Debe incluir Número (0-9)." };
-      if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pass)) return { valida: false, mensaje: "Debe incluir Carácter Especial (*, #, @, etc.)." };
-      return { valida: true };
-    }
-
     function parseMonto(valor) {
       return parseInt(String(valor || 50000).replace(/[^0-9]/g, ""), 10) || 50000;
     }
@@ -712,18 +644,6 @@
     function obtenerFechaHoraActual() {
       const d = new Date();
       return d.toLocaleDateString('es-CO') + " " + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
-    }
-
-    function calcularEstadoAutomatico(user) {
-      if (user.estado === 'Cancelado' || user.estado === 'Pendiente') return user.estado;
-      const hoy = new Date();
-      const diaActual = hoy.getDate();
-      const mesActual = hoy.getMonth() + 1;
-      if (user.pagoAprobadoAdmin && user.mesAprobado === mesActual) return "Activo";
-      if (user.comprobanteSubido && !user.pagoAprobadoAdmin) return "Comprobante en revisión";
-      if (diaActual >= 25 && diaActual <= 30) return "Pendiente por pagar";
-      if (diaActual > 30 || diaActual < 24) return "Servicio cortado por falta de pago";
-      return "Activo";
     }
 
     function cambiarPestana(p) {
@@ -744,10 +664,7 @@
       e.preventDefault();
       const cedula = document.getElementById('login-user-cedula').value.trim();
 
-      // Busca entre los clientes
       let cliente = clientes.find(c => String(c.cedula).trim() === cedula);
-
-      // Si no estaba en memoria local, buscar en la lista precargada
       if (!cliente) {
         cliente = CLIENTES_PRECARGADOS.find(c => String(c.cedula).trim() === cedula);
         if (cliente) {
@@ -791,7 +708,6 @@
       const identificador = document.getElementById('login-admin-identificador').value.trim();
       const clave = document.getElementById('login-admin-pass').value.trim();
 
-      // Validación Administrador Principal
       if ((identificador.toLowerCase() === adminPrincipal.email.toLowerCase() || identificador.toUpperCase() === "ADMIN") && clave === adminPrincipal.clave) {
         esAdminPrincipal = true;
         esSocioSoloLectura = false;
@@ -799,7 +715,6 @@
         return;
       }
 
-      // Validación Socios Administradores
       const socio = administradoresSocios.find(s => s.usuario.toUpperCase() === identificador.toUpperCase() && s.clave === clave);
       if (socio) {
         esAdminPrincipal = false;
@@ -811,6 +726,134 @@
       alert("Credenciales incorrectas de Administrador o Socio.");
     }
 
+    async function guardarFotosCedulaCliente(e) {
+      e.preventDefault();
+      const fileFrente = document.getElementById('foto-cedula-frente').files[0];
+      const fileReverso = document.getElementById('foto-cedula-reverso').files[0];
+      const btn = document.getElementById('btn-subir-cedula-cloud');
+
+      if (!fileFrente || !fileReverso) {
+        alert("Debes adjuntar ambas fotos.");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando fotos en la nube...`;
+
+      let urlFrente = await subirArchivoAStorage(fileFrente, `${usuarioEnRegistroCedula.cedula}_frente`);
+      let urlReverso = await subirArchivoAStorage(fileReverso, `${usuarioEnRegistroCedula.cedula}_reverso`);
+
+      const readerFrente = new FileReader();
+      readerFrente.onload = function(e1) {
+        const readerReverso = new FileReader();
+        readerReverso.onload = function(e2) {
+          usuarioEnRegistroCedula.cedulaFrente = urlFrente || e1.target.result;
+          usuarioEnRegistroCedula.cedulaReverso = urlReverso || e2.target.result;
+          usuarioEnRegistroCedula.estadoCedula = "Pendiente";
+
+          localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+          guardarClienteEnNube(usuarioEnRegistroCedula);
+
+          btn.disabled = false;
+          btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Enviar Fotos a la Nube`;
+
+          document.getElementById('view-upload-cedula').classList.add('hidden');
+          document.getElementById('view-esperando-aprobacion').classList.remove('hidden');
+          alert("¡Fotos subidas exitosamente a la nube!");
+        };
+        readerReverso.readAsDataURL(fileReverso);
+      };
+      readerFrente.readAsDataURL(fileFrente);
+    }
+
+    async function subirComprobanteCliente(e) {
+      e.preventDefault();
+      const archivo = document.getElementById('cli-pago-archivo').files[0];
+      const fechaPago = document.getElementById('cli-pago-fecha').value;
+      const btn = document.getElementById('btn-subir-comprobante-cli');
+
+      if (archivo && fechaPago && usuarioEnSesion) {
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Subiendo a la nube...`;
+
+        let urlCloud = await subirArchivoAStorage(archivo, `pago_${usuarioEnSesion.cedula}`);
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          usuarioEnSesion.comprobanteSubido = archivo.name;
+          usuarioEnSesion.comprobanteDataUrl = urlCloud || evt.target.result;
+          usuarioEnSesion.fechaPagoCliente = fechaPago;
+          usuarioEnSesion.fechaHoraSubidaComprobante = obtenerFechaHoraActual();
+          usuarioEnSesion.pagoAprobadoAdmin = false;
+          usuarioEnSesion.motivoRechazo = null;
+
+          localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+          guardarClienteEnNube(usuarioEnSesion);
+
+          btn.disabled = false;
+          btn.innerText = "Enviar Comprobante a Revisión";
+
+          actualizarVistaEstadoCliente(usuarioEnSesion);
+          alert("¡Comprobante guardado en la nube y enviado a revisión!");
+        };
+        reader.readAsDataURL(archivo);
+      }
+    }
+
+    async function guardarComprobanteDesdeAdmin(e) {
+      e.preventDefault();
+      const idx = document.getElementById('wa-user-index').value;
+      const user = clientes[idx];
+      const archivo = document.getElementById('wa-archivo-comprobante').files[0];
+      const fechaPago = document.getElementById('wa-fecha-pago').value;
+      const btn = document.getElementById('btn-subir-wa-cloud');
+
+      if (!archivo || !fechaPago) return alert("Completa los datos.");
+
+      btn.disabled = true;
+      btn.innerText = "Subiendo archivo...";
+
+      let urlCloud = await subirArchivoAStorage(archivo, `pago_admin_${user.cedula}`);
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const fechaHoraActual = obtenerFechaHoraActual();
+        const finalUrl = urlCloud || evt.target.result;
+
+        user.comprobanteSubido = archivo.name;
+        user.comprobanteDataUrl = finalUrl;
+        user.fechaPagoCliente = fechaPago;
+        user.fechaHoraSubidaComprobante = fechaHoraActual + " (Vía WhatsApp)";
+        user.pagoAprobadoAdmin = true;
+        user.mesAprobado = new Date().getMonth() + 1;
+        user.estado = "Activo";
+        user.alertaUltimatumActiva = false;
+
+        comprobantesAprobados.unshift({
+          cedula: user.cedula,
+          nombre: user.nombre,
+          monto: parseMonto(user.tarifa),
+          fechaDeclarada: fechaPago,
+          fechaHoraSubida: fechaHoraActual + " (WhatsApp)",
+          fechaHoraAprobacion: fechaHoraActual,
+          archivo: archivo.name,
+          dataUrl: finalUrl
+        });
+
+        localStorage.setItem('conectado2_comprobantes_aprobados', JSON.stringify(comprobantesAprobados));
+        localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+        guardarClienteEnNube(user);
+
+        btn.disabled = false;
+        btn.innerText = "Guardar y Dejar Al Día";
+
+        toggleModalSubirComprobanteAdmin(false);
+        cargarTablaAdmin();
+        alert(`¡Listo! Comprobante guardado en la nube. ${user.nombre} está AL DÍA.`);
+      };
+      reader.readAsDataURL(archivo);
+    }
+
     function abrirModalPerfilAdmin() {
       document.getElementById('mi-nombre-admin').value = adminPrincipal.nombre;
       document.getElementById('mi-correo-admin').value = adminPrincipal.email;
@@ -819,9 +862,7 @@
       document.getElementById('modal-perfil-admin').classList.remove('hidden');
     }
 
-    function toggleModalPerfilAdmin(abrir) {
-      document.getElementById('modal-perfil-admin').classList.toggle('hidden', !abrir);
-    }
+    function toggleModalPerfilAdmin(abrir) { document.getElementById('modal-perfil-admin').classList.toggle('hidden', !abrir); }
 
     function actualizarAdminPrincipal(e) {
       e.preventDefault();
@@ -948,7 +989,6 @@
 
       document.getElementById('nav-user-box').classList.remove('hidden');
       document.getElementById('admin-subtitulo-rol').innerText = `Sesión activa como: ${nombreUsuario} (${rolTexto})`;
-
       document.getElementById('box-acciones-admin-principal').classList.toggle('hidden', esSocioSoloLectura);
 
       actualizarContadorRequerimientos();
@@ -1089,11 +1129,20 @@
       });
     }
 
-    function eliminarUsuario(idx) {
+    async function eliminarUsuario(idx) {
       if (esSocioSoloLectura) return alert("Modo Solo Lectura.");
       if (confirm("¿Deseas eliminar este cliente?")) {
+        const clienteBorrado = clientes[idx];
         clientes.splice(idx, 1);
         localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+
+        if (supabaseClient && clienteBorrado) {
+          try {
+            await supabaseClient.from('clientes').delete().eq('cedula', clienteBorrado.cedula);
+          } catch (err) {
+            console.error("Error eliminando en nube:", err);
+          }
+        }
         cargarTablaAdmin();
       }
     }
@@ -1205,29 +1254,6 @@
       }
     }
 
-    function subirComprobanteCliente(e) {
-      e.preventDefault();
-      const archivo = document.getElementById('cli-pago-archivo').files[0];
-      const fechaPago = document.getElementById('cli-pago-fecha').value;
-
-      if (archivo && fechaPago && usuarioEnSesion) {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          usuarioEnSesion.comprobanteSubido = archivo.name;
-          usuarioEnSesion.comprobanteDataUrl = evt.target.result;
-          usuarioEnSesion.fechaPagoCliente = fechaPago;
-          usuarioEnSesion.fechaHoraSubidaComprobante = obtenerFechaHoraActual();
-          usuarioEnSesion.pagoAprobadoAdmin = false;
-          usuarioEnSesion.motivoRechazo = null;
-
-          localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-          actualizarVistaEstadoCliente(usuarioEnSesion);
-          alert("¡Comprobante enviado a la administración para validación!");
-        };
-        reader.readAsDataURL(archivo);
-      }
-    }
-
     function generarFacturaPDF(usuario) {
       if (!usuario) return;
 
@@ -1284,7 +1310,6 @@
       });
     }
 
-    // Exportar e importar Excel intactos
     function exportarClientesExcel() {
       if (clientes.length === 0) return alert("No hay clientes.");
       const hoja = XLSX.utils.json_to_sheet(clientes);
@@ -1314,7 +1339,7 @@
           json.forEach(row => {
             const cc = String(row.CÉDULA || row.cedula || row.CC || "").replace(/[^0-9]/g, "");
             if (cc && !clientes.some(c => c.cedula === cc)) {
-              clientes.push({
+              const nuevo = {
                 nombre: `${row.NOMBRE || ""} ${row.APELLIDOS || ""}`.trim() || row.CLIENTE || "Cliente",
                 cedula: cc,
                 celular: String(row.CELULAR || "3000000000"),
@@ -1326,12 +1351,14 @@
                 estadoCedula: "Aprobada",
                 pagoAprobadoAdmin: true,
                 mesAprobado: new Date().getMonth() + 1
-              });
+              };
+              clientes.push(nuevo);
+              guardarClienteEnNube(nuevo);
             }
           });
           localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
           cargarTablaAdmin();
-          alert("¡Excel importado!");
+          alert("¡Excel importado y sincronizado!");
         }
       };
       reader.readAsArrayBuffer(file);
@@ -1356,6 +1383,7 @@
       };
       clientes.push(nuevo);
       localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      guardarClienteEnNube(nuevo);
       alert("¡Solicitud registrada con éxito!");
       cambiarPestana('login-user');
     }
@@ -1363,7 +1391,7 @@
     function crearUsuarioAdmin(e) {
       e.preventDefault();
       const cedulaVal = document.getElementById('admin-new-cedula').value.trim();
-      clientes.push({
+      const nuevo = {
         nombre: document.getElementById('admin-new-nombre').value.trim(),
         cedula: cedulaVal,
         celular: document.getElementById('admin-new-celular').value.trim(),
@@ -1375,8 +1403,10 @@
         estadoCedula: "Aprobada",
         pagoAprobadoAdmin: true,
         mesAprobado: new Date().getMonth() + 1
-      });
+      };
+      clientes.push(nuevo);
       localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      guardarClienteEnNube(nuevo);
       toggleModalCrearUsuario(false);
       cargarTablaAdmin();
       alert("Cliente creado.");
@@ -1391,6 +1421,7 @@
       clientes[idx].email = document.getElementById('edit-email').value.trim() || "Sin correo";
       clientes[idx].tarifa = parseMonto(document.getElementById('edit-tarifa-num').value);
       localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      guardarClienteEnNube(clientes[idx]);
       toggleModalEditarUsuario(false);
       cargarTablaAdmin();
       alert("Cliente actualizado.");
@@ -1411,8 +1442,22 @@
     function abrirAuditoriaCedula(index) {
       const user = clientes[index];
       document.getElementById('audit-cedula-user-index').value = index;
-      document.getElementById('img-box-frente').innerHTML = `<span class="text-xs text-slate-500">Documento verificado</span>`;
-      document.getElementById('img-box-reverso').innerHTML = `<span class="text-xs text-slate-500">Documento verificado</span>`;
+
+      const boxFrente = document.getElementById('img-box-frente');
+      const boxReverso = document.getElementById('img-box-reverso');
+
+      if (user.cedulaFrente) {
+        boxFrente.innerHTML = `<img src="${user.cedulaFrente}" class="h-full w-full object-contain cursor-pointer" onclick="window.open('${user.cedulaFrente}')" title="Clic para ver en grande" />`;
+      } else {
+        boxFrente.innerHTML = `<span class="text-xs text-slate-400">Sin foto frontal</span>`;
+      }
+
+      if (user.cedulaReverso) {
+        boxReverso.innerHTML = `<img src="${user.cedulaReverso}" class="h-full w-full object-contain cursor-pointer" onclick="window.open('${user.cedulaReverso}')" title="Clic para ver en grande" />`;
+      } else {
+        boxReverso.innerHTML = `<span class="text-xs text-slate-400">Sin foto posterior</span>`;
+      }
+
       document.getElementById('box-botones-cedula-admin').classList.toggle('hidden', esSocioSoloLectura);
       toggleModalAuditarCedula(true);
     }
@@ -1421,6 +1466,7 @@
       const idx = document.getElementById('audit-cedula-user-index').value;
       clientes[idx].estadoCedula = "Aprobada";
       localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      guardarClienteEnNube(clientes[idx]);
       toggleModalAuditarCedula(false);
       cargarTablaAdmin();
     }
@@ -1429,6 +1475,7 @@
       const idx = document.getElementById('audit-cedula-user-index').value;
       clientes[idx].estadoCedula = "Sin subir";
       localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      guardarClienteEnNube(clientes[idx]);
       toggleModalAuditarCedula(false);
       cargarTablaAdmin();
     }
@@ -1436,7 +1483,18 @@
     function abrirAuditoriaPago(index) {
       const user = clientes[index];
       document.getElementById('audit-user-index').value = index;
-      document.getElementById('audit-preview-box').innerHTML = `<span class="text-slate-500 text-xs">Comprobante de ${user.nombre}</span>`;
+      const previewBox = document.getElementById('audit-preview-box');
+
+      if (user.comprobanteDataUrl) {
+        if (user.comprobanteDataUrl.startsWith("data:image/") || user.comprobanteDataUrl.startsWith("http")) {
+          previewBox.innerHTML = `<img src="${user.comprobanteDataUrl}" class="max-h-56 max-w-full object-contain rounded border shadow-sm cursor-pointer" onclick="window.open('${user.comprobanteDataUrl}')" title="Clic para ver" />`;
+        } else {
+          previewBox.innerHTML = `<button onclick="window.open('${user.comprobanteDataUrl}')" class="text-xs bg-blue-600 text-white px-3 py-1.5 rounded font-bold">Ver Comprobante PDF</button>`;
+        }
+      } else {
+        previewBox.innerHTML = `<span class="text-slate-400 text-xs">Sin comprobante</span>`;
+      }
+
       document.getElementById('box-botones-pago-admin').classList.toggle('hidden', esSocioSoloLectura);
       toggleModalAuditar(true);
     }
@@ -1446,6 +1504,7 @@
       clientes[idx].pagoAprobadoAdmin = true;
       clientes[idx].mesAprobado = new Date().getMonth() + 1;
       localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      guardarClienteEnNube(clientes[idx]);
       toggleModalAuditar(false);
       cargarTablaAdmin();
       alert("Pago Aprobado.");
@@ -1455,6 +1514,7 @@
       const idx = document.getElementById('audit-user-index').value;
       clientes[idx].pagoAprobadoAdmin = false;
       localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      guardarClienteEnNube(clientes[idx]);
       toggleModalAuditar(false);
       cargarTablaAdmin();
     }
@@ -1466,17 +1526,6 @@
       document.getElementById('wa-cliente-nombre').innerText = user.nombre;
       document.getElementById('wa-fecha-pago').value = new Date().toISOString().split('T')[0];
       toggleModalSubirComprobanteAdmin(true);
-    }
-
-    function guardarComprobanteDesdeAdmin(e) {
-      e.preventDefault();
-      const idx = document.getElementById('wa-user-index').value;
-      clientes[idx].pagoAprobadoAdmin = true;
-      clientes[idx].mesAprobado = new Date().getMonth() + 1;
-      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-      toggleModalSubirComprobanteAdmin(false);
-      cargarTablaAdmin();
-      alert("¡Comprobante guardado y cliente al día!");
     }
 
     function abrirModalAlertaCorte(index) {
@@ -1494,6 +1543,7 @@
       clientes[idx].alertaTiempoGracia = document.getElementById('alerta-tiempo-gracia').value;
       clientes[idx].alertaMensaje = document.getElementById('alerta-mensaje-corte').value;
       localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      guardarClienteEnNube(clientes[idx]);
       toggleModalAlertaCorte(false);
       alert("Alerta enviada.");
     }
