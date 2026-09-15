@@ -504,7 +504,7 @@
             <input type="text" id="socio-nombre" required placeholder="Ej: Pedro Pérez" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-purple-500" />
           </div>
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre de Usuario</label>
+            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nombre de Usuario (Para Iniciar Sesión)</label>
             <input type="text" id="socio-usuario" required placeholder="Ej: PEDRO.PEREZ" class="w-full px-3 py-2 border rounded-lg text-xs outline-none focus:ring-2 focus:ring-purple-500 font-bold uppercase" />
           </div>
           <div>
@@ -549,7 +549,7 @@
 
           <div class="flex justify-end gap-2 pt-3 border-t">
             <button type="button" onclick="toggleModalSubirComprobanteAdmin(false)" class="px-4 py-2 bg-slate-100 text-slate-700 font-bold text-xs rounded-lg">Cancelar</button>
-            <button type="submit" id="btn-subir-wa-cloud" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition flex items-center gap-1.5">
+            <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition flex items-center gap-1.5">
               <i class="fa-solid fa-check-double"></i> Guardar y Dejar Al Día
             </button>
           </div>
@@ -680,7 +680,7 @@
       </div>
     </div>
 
-    <!-- MODAL: CREAR CLIENTE -->
+    <!-- MODAL: CREAR CLIENTE (ADMIN) -->
     <div id="modal-crear-usuario" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -712,7 +712,7 @@
               <input type="number" id="admin-new-tarifa" required value="50000" class="w-full px-3 py-2 border rounded-lg text-sm font-bold text-emerald-700 outline-none" />
             </div>
             <div>
-              <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Motivo / Promoción</label>
+              <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Motivo / Promoción (Opcional)</label>
               <input type="text" id="admin-new-promo" placeholder="Ej: Tarifa Promo" class="w-full px-3 py-2 border rounded-lg text-sm outline-none" />
             </div>
           </div>
@@ -728,7 +728,7 @@
       </div>
     </div>
 
-    <!-- MODAL: EDITAR CLIENTE -->
+    <!-- MODAL: EDITAR CLIENTE (ADMIN) -->
     <div id="modal-editar-usuario" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-200">
         <div class="flex justify-between items-center border-b pb-3 mb-4">
@@ -882,7 +882,7 @@
           </div>
           <div>
             <h4 class="font-extrabold text-sm uppercase">¡Estás al día con tus pagos!</h4>
-            <p class="text-xs text-emerald-700 font-medium">Gracias por pertenecer a Conectado2. Tu conexión está activa.</p>
+            <p class="text-xs text-emerald-700 font-medium">Gracias por pertenecer a Conectado2.</p>
           </div>
         </div>
 
@@ -893,7 +893,7 @@
             </span>
             <span id="client-subtexto-factura" class="text-[11px] text-slate-500"></span>
           </div>
-          <button onclick="generarFacturaPDF(usuarioEnSesion)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition flex items-center gap-2 shadow">
+          <button onclick="generarFacturaPDF(usuarioEnSesion)" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition shadow">
             <i class="fa-solid fa-file-pdf"></i> Descargar Factura PDF
           </button>
         </div>
@@ -913,7 +913,7 @@
               <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Adjuntar Comprobante (PDF o Foto)</label>
               <input type="file" id="cli-pago-archivo" required accept="image/*,.pdf" class="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 border bg-white rounded-lg" />
             </div>
-            <button type="submit" id="btn-subir-comprobante-cli" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 rounded-lg transition shadow-sm">
+            <button type="submit" id="btn-subir-comprobante-cli" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition shadow-sm">
               Enviar Comprobante a Revisión
             </button>
           </form>
@@ -1049,60 +1049,31 @@
 
   </main>
 
+  <!-- LÓGICA ORIGINAL RESTAURADA Y CON CONFIRMACIÓN DE COMPROBANTE -->
   <script>
-    // Inicialización independiente y segura de Supabase
-    const SUPABASE_URL = "https://vebsnjvihcxigmkvcsem.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_hTGwIFWA4k9Hp17yq4S9Ig_pey76aob";
-    let supabaseClient = null;
+    const ADMIN_CORREO_PRINCIPAL = "jeliasmazo@gmail.com";
+    const ADMIN_CLAVE_PRINCIPAL = "98013262140Ja**";
 
-    try {
-      if (window.supabase) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      }
-    } catch (e) {
-      console.warn("Modo local activo:", e);
-    }
-
-    // 19 Clientes precargados de tu Excel original
-    const CLIENTES_PRECARGADOS = [
-      {"nombre": "ALBEIRO DE JESÚS MAZO POSADA", "cedula": "71801052", "celular": "3104975992", "email": "albeiromazo93@gmail.com", "clave": "71801052", "plan": "Hasta 20 MB", "tarifa": 0, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Cancelado", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "BAYARDO DE JESUS MUÑOZ LONDOÑO", "cedula": "98462824", "celular": "3012372656", "email": "muñozlondonobayardo@gmail.com", "clave": "98462824", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2025-09-15", "fechaInstalacion": "2025-09-15", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "DEISON SEBASTIAN AREIZA CADAVID", "cedula": "1044122231", "celular": "3116519225", "email": "deisonsebastianareiza@gmail.com", "clave": "1044122231", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "DIANA MAGDALENA GARCÍA GARCÍA", "cedula": "43852054", "celular": "3104421237", "email": "karend06162020@gmail.com", "clave": "43852054", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-02-25", "fechaInstalacion": "2026-02-25", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JHON EDISON MAZO PEREZ", "cedula": "71291341", "celular": "3232874430", "email": "santymazo2811@gmail.com", "clave": "71291341", "plan": "Hasta 20 MB", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JHON JAIRO TAPIAS CARVAJAL", "cedula": "1044122005", "celular": "3235381277", "email": "Sin correo", "clave": "1044122005", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JOSÉ VIRGILIO TAPIAS CARVAJAL", "cedula": "1044121498", "celular": "3127413223", "email": "m1996222226@gmail.com", "clave": "1044121498", "plan": "LIBRE (60 MB+)", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "LUIS EDUARDO MAZO PEREZ", "cedula": "98462933", "celular": "3128676508", "email": "Sin correo", "clave": "98462933", "plan": "Hasta 20 MB", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-03-03", "fechaInstalacion": "2026-03-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "MARÍA NATALY JIMÉNEZ DUQUE", "cedula": "1044120199", "celular": "3122550450", "email": "valeriaajimenez21@gmail.com", "clave": "1044120199", "plan": "LIBRE (60 MB+)", "tarifa": 40000, "tarifaInstalacion": 90000, "motivoPromo": "Tarifa promocional aplicada", "fechaInicio": "2026-04-18", "fechaInstalacion": "2026-04-18", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "MIRYAM ZAPATA VALBUENA", "cedula": "43851745", "celular": "3217167388", "email": "miryamzapata1810@gmail.com", "clave": "43851745", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-04-19", "fechaInstalacion": "2026-04-19", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "VIVIANA ANDREA MAZO PEREZ", "cedula": "32229875", "celular": "3167350670", "email": "Mazoviviana026@gmail.com", "clave": "32229875", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-02-03", "fechaInstalacion": "2026-02-03", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "MAURICIO ALBERTO JIMENEZ GARCIA", "cedula": "1044120549", "celular": "3226760133", "email": "mcafetoledo12@gmail.com", "clave": "1044120549", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "VERÓNICA MARCELA JIMENEZ GARCIA", "cedula": "1044121312", "celular": "3042658424", "email": "Sin correo", "clave": "1044121312", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JUAN CARLOS JIMENEZ GARCIA", "cedula": "71801584", "celular": "3116858506", "email": "juancjim31@gmail.com", "clave": "71801584", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-05-16", "fechaInstalacion": "2026-05-16", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "GUSTAVO ANTONIO GUZMAN", "cedula": "71801268", "celular": "3215704565", "email": "Sin correo", "clave": "71801268", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-06-20", "fechaInstalacion": "2026-06-20", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JUAN CAMILO GARCIA CHAVARRIA", "cedula": "1044121264", "celular": "3136496985", "email": "juan18hj@gmail.com", "clave": "1044121264", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JUAN SEBASTIAN MAZO GOMEZ", "cedula": "1044988036", "celular": "3009070615", "email": "Sin correo", "clave": "1044988036", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "JESÚS NORBEY GARCÍA GARCÍA", "cedula": "1044121407", "celular": "304 2021426", "email": "Sin correo", "clave": "1044121407", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-08-15", "fechaInstalacion": "2026-08-15", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9},
-      {"nombre": "ELADIO TAPIAS", "cedula": "71801513", "celular": "3127284427", "email": "Sin correo", "clave": "71801513", "plan": "Hasta 20 MB", "tarifa": 50000, "tarifaInstalacion": 90000, "motivoPromo": "", "fechaInicio": "2026-06-16", "fechaInstalacion": "2026-06-16", "diaCorte": 24, "estado": "Activo", "cedulaFrente": null, "cedulaReverso": null, "estadoCedula": "Aprobada", "comprobanteSubido": null, "comprobanteDataUrl": null, "fechaPagoCliente": null, "fechaHoraSubidaComprobante": null, "alertaUltimatumActiva": false, "alertaTiempoGracia": "", "alertaMensaje": "", "pagoAprobadoAdmin": true, "mesAprobado": 9}
-    ];
-
-    let clientesGuardados = JSON.parse(localStorage.getItem('conectado2_usuarios'));
-    let clientes = (clientesGuardados && clientesGuardados.length > 0) ? clientesGuardados : CLIENTES_PRECARGADOS;
-
-    let adminPrincipal = JSON.parse(localStorage.getItem('conectado2_admin_principal')) || {
-      nombre: "Janier Mazo",
-      email: "jeliasmazo@gmail.com",
-      clave: "98013262140Ja**"
-    };
-
-    let administradoresSocios = JSON.parse(localStorage.getItem('conectado2_socios')) || [
-      { nombre: "Socio Administrador", usuario: "SOCIO.ADMIN", clave: "Conectado2Socio*", rol: "Solo Lectura" }
-    ];
-
+    let clientes = JSON.parse(localStorage.getItem('conectado2_usuarios')) || [];
     let comprobantesAprobados = JSON.parse(localStorage.getItem('conectado2_comprobantes_aprobados')) || [];
+    let administradoresSocios = JSON.parse(localStorage.getItem('conectado2_socios')) || [];
     let requerimientosClientes = JSON.parse(localStorage.getItem('conectado2_requerimientos')) || [];
+
     let catalogoRouters = JSON.parse(localStorage.getItem('conectado2_catalogo_routers')) || [
-      { id: "R1", modelo: "Router Rompemuros AC1200", precio: 120000, descripcion: "4 antenas de alta ganancia.", foto: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=400&q=80" }
+      {
+        id: "R1",
+        modelo: "Router Rompemuros Doble Banda AC1200",
+        precio: 120000,
+        descripcion: "4 antenas de alta ganancia, ideal para casas grandes de 2 pisos o zonas con muros gruesos.",
+        foto: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=400&q=80"
+      },
+      {
+        id: "R2",
+        modelo: "Router Gigabit Wi-Fi 6 AX1500",
+        precio: 160000,
+        descripcion: "Máxima velocidad para múltiples celulares, Smart TVs y computadores conectados simultáneamente.",
+        foto: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?auto=format&fit=crop&w=400&q=80"
+      }
     ];
 
     let usuarioEnSesion = null;
@@ -1111,59 +1082,26 @@
     let esSocioSoloLectura = false;
     let clienteRecienRegistrado = null;
 
-    // Subida asíncrona no bloqueante
-    async function subirArchivoAStorage(file, prefijo) {
-      if (!supabaseClient || !file) return null;
-      try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${prefijo}_${Date.now()}.${fileExt}`;
-        const { error } = await supabaseClient.storage
-          .from('archivos-conectado2')
-          .upload(fileName, file, { cacheControl: '3600', upsert: true });
-
-        if (error) return null;
-        const { data: urlData } = supabaseClient.storage
-          .from('archivos-conectado2')
-          .getPublicUrl(fileName);
-        return urlData ? urlData.publicUrl : null;
-      } catch (err) {
-        return null;
-      }
+    function validarComplejidadContrasena(pass) {
+      if (!pass || pass.length < 12) return { valida: false, mensaje: "Debe tener al menos 12 caracteres." };
+      if (!/[A-Z]/.test(pass)) return { valida: false, mensaje: "Debe incluir Mayúscula (A-Z)." };
+      if (!/[a-z]/.test(pass)) return { valida: false, mensaje: "Debe incluir Minúscula (a-z)." };
+      if (!/[0-9]/.test(pass)) return { valida: false, mensaje: "Debe incluir Número (0-9)." };
+      if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(pass)) return { valida: false, mensaje: "Debe incluir Carácter Especial (*, #, @, etc.)." };
+      return { valida: true };
     }
 
-    function guardarClienteEnNube(user) {
-      if (!supabaseClient) return;
-      supabaseClient.from('clientes').upsert({
-        cedula: String(user.cedula).trim(),
-        nombre: user.nombre,
-        celular: user.celular,
-        email: user.email,
-        clave: String(user.clave || user.cedula).trim(),
-        plan: user.plan,
-        tarifa: parseMonto(user.tarifa),
-        tarifa_instalacion: user.tarifaInstalacion || 90000,
-        motivo_promo: user.motivoPromo || "",
-        fecha_inicio: user.fechaInicio,
-        fecha_instalacion: user.fechaInstalacion,
-        dia_corte: user.diaCorte || 24,
-        estado: user.estado,
-        cedula_frente: user.cedulaFrente,
-        cedula_reverso: user.cedulaReverso,
-        estado_cedula: user.estadoCedula,
-        comprobante_subido: user.comprobanteSubido,
-        comprobante_data_url: user.comprobanteDataUrl,
-        fecha_pago_cliente: user.fechaPagoCliente,
-        fecha_hora_subida_comprobante: user.fechaHoraSubidaComprobante,
-        alerta_ultimatum_activa: user.alertaUltimatumActiva,
-        alerta_tiempo_gracia: user.alertaTiempoGracia,
-        alerta_mensaje: user.alertaMensaje,
-        pago_aprobado_admin: user.pagoAprobadoAdmin,
-        mes_aprobado: user.mesAprobado
-      }).then(()=>{0}).catch(()=>{0});
+    function parseMonto(valor) {
+      if (!valor) return 50000;
+      const limpio = String(valor).replace(/[^0-9]/g, "");
+      const num = parseInt(limpio, 10);
+      return isNaN(num) || num <= 0 ? 50000 : num;
     }
 
-    function parseMonto(v) { return parseInt(String(v || 50000).replace(/[^0-9]/g, ""), 10) || 50000; }
-    function formatearDinero(n) { return "$" + Number(n).toLocaleString('es-CO'); }
+    function formatearDinero(num) {
+      return "$" + Number(num).toLocaleString('es-CO');
+    }
+
     function obtenerFechaHoraActual() {
       const d = new Date();
       return d.toLocaleDateString('es-CO') + " " + d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
@@ -1174,10 +1112,11 @@
       const hoy = new Date();
       const diaActual = hoy.getDate();
       const mesActual = hoy.getMonth() + 1;
+
       if (user.pagoAprobadoAdmin && user.mesAprobado === mesActual) return "Activo";
       if (user.comprobanteSubido && !user.pagoAprobadoAdmin) return "Comprobante en revisión";
       if (diaActual >= 25 && diaActual <= 30) return "Pendiente por pagar";
-      if (diaActual > 30 || diaActual < 24) return "Servicio cortado por falta de pago";
+      else if (diaActual > 30 || diaActual < 24) return "Servicio cortado por falta de pago";
       return "Activo";
     }
 
@@ -1195,22 +1134,13 @@
       document.getElementById('btn-enviar-solicitud').disabled = existe;
     }
 
-    // ACCESO INMEDIATO SIN ESPERAS
     function iniciarSesionCliente(e) {
       e.preventDefault();
       const cedula = document.getElementById('login-user-cedula').value.trim();
-
-      let cliente = clientes.find(c => String(c.cedula).trim() === cedula);
-      if (!cliente) {
-        cliente = CLIENTES_PRECARGADOS.find(c => String(c.cedula).trim() === cedula);
-        if (cliente) {
-          clientes.push(cliente);
-          localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-        }
-      }
+      const cliente = clientes.find(c => String(c.cedula).trim() === cedula);
 
       if (!cliente) {
-        alert("Número de cédula no encontrado. Por favor solicita el servicio.");
+        alert("Número de cédula no encontrado. Por favor solicita el servicio o contacta al administrador.");
         return;
       }
 
@@ -1221,11 +1151,6 @@
     function verificarPasoCedula(cliente) {
       usuarioEnRegistroCedula = cliente;
       if (!cliente.cedulaFrente || !cliente.cedulaReverso) {
-        if (cliente.estadoCedula === 'Aprobada') {
-          usuarioEnSesion = cliente;
-          abrirPanelCliente(cliente);
-          return;
-        }
         document.getElementById('view-auth').classList.add('hidden');
         document.getElementById('view-upload-cedula').classList.remove('hidden');
         return;
@@ -1235,91 +1160,394 @@
         document.getElementById('view-esperando-aprobacion').classList.remove('hidden');
         return;
       }
-      usuarioEnSesion = cliente;
-      abrirPanelCliente(cliente);
+      if (cliente.estadoCedula === 'Aprobada') {
+        usuarioEnSesion = cliente;
+        abrirPanelCliente(cliente);
+      }
     }
 
-    function iniciarSesionAdmin(e) {
-      e.preventDefault();
-      const iden = document.getElementById('login-admin-identificador').value.trim();
-      const pass = document.getElementById('login-admin-pass').value.trim();
-
-      if ((iden.toLowerCase() === adminPrincipal.email.toLowerCase() || iden.toUpperCase() === "ADMIN") && pass === adminPrincipal.clave) {
-        esAdminPrincipal = true;
-        esSocioSoloLectura = false;
-        abrirPanelAdmin(adminPrincipal.nombre, "Administrador Principal");
-        return;
+    function previsualizarFoto(event, previewId) {
+      const file = event.target.files[0];
+      const box = document.getElementById(previewId);
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          box.innerHTML = `<img src="${e.target.result}" class="w-full h-auto object-cover" />`;
+          box.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
       }
-
-      const socio = administradoresSocios.find(s => s.usuario.toUpperCase() === iden.toUpperCase() && s.clave === pass);
-      if (socio) {
-        esAdminPrincipal = false;
-        esSocioSoloLectura = true;
-        abrirPanelAdmin(socio.nombre, `Socio: ${socio.usuario} (Solo Lectura)`);
-        return;
-      }
-
-      alert("Credenciales incorrectas.");
     }
 
-    async function guardarFotosCedulaCliente(e) {
+    function guardarFotosCedulaCliente(e) {
       e.preventDefault();
       const fileFrente = document.getElementById('foto-cedula-frente').files[0];
       const fileReverso = document.getElementById('foto-cedula-reverso').files[0];
 
-      if (!fileFrente || !fileReverso) return alert("Adjunta ambas fotos.");
-
-      let urlFrente = await subirArchivoAStorage(fileFrente, `${usuarioEnRegistroCedula.cedula}_frente`);
-      let urlReverso = await subirArchivoAStorage(fileReverso, `${usuarioEnRegistroCedula.cedula}_reverso`);
+      if (!fileFrente || !fileReverso) {
+        alert("Debes adjuntar ambas fotos (Frente y Reverso).");
+        return;
+      }
 
       const readerFrente = new FileReader();
       readerFrente.onload = function(e1) {
         const readerReverso = new FileReader();
         readerReverso.onload = function(e2) {
-          usuarioEnRegistroCedula.cedulaFrente = urlFrente || e1.target.result;
-          usuarioEnRegistroCedula.cedulaReverso = urlReverso || e2.target.result;
+          usuarioEnRegistroCedula.cedulaFrente = e1.target.result;
+          usuarioEnRegistroCedula.cedulaReverso = e2.target.result;
           usuarioEnRegistroCedula.estadoCedula = "Pendiente";
 
           localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-          guardarClienteEnNube(usuarioEnRegistroCedula);
 
           document.getElementById('view-upload-cedula').classList.add('hidden');
           document.getElementById('view-esperando-aprobacion').classList.remove('hidden');
-          alert("¡Fotos enviadas con éxito!");
+          alert("¡Fotos enviadas! Tu cuenta queda en revisión por la administración.");
         };
         readerReverso.readAsDataURL(fileReverso);
       };
       readerFrente.readAsDataURL(fileFrente);
     }
 
-    async function subirComprobanteCliente(e) {
+    function iniciarSesionAdmin(e) {
+      e.preventDefault();
+      const identificador = document.getElementById('login-admin-identificador').value.trim();
+      const clave = document.getElementById('login-admin-pass').value.trim();
+
+      const val = validarComplejidadContrasena(clave);
+      if (!val.valida) {
+        alert("Error en contraseña:\n\n" + val.mensaje);
+        return;
+      }
+
+      if (identificador.toLowerCase() === ADMIN_CORREO_PRINCIPAL.toLowerCase() && clave === ADMIN_CLAVE_PRINCIPAL) {
+        esAdminPrincipal = true;
+        esSocioSoloLectura = false;
+        abrirPanelAdmin("Janier Mazo", "Administrador Principal");
+        return;
+      }
+
+      const socioEncontrado = administradoresSocios.find(s => 
+        (s.usuario && s.usuario.toUpperCase() === identificador.toUpperCase()) || 
+        (s.email && s.email.toLowerCase() === identificador.toLowerCase())
+      );
+
+      if (socioEncontrado && socioEncontrado.clave === clave) {
+        esAdminPrincipal = false;
+        esSocioSoloLectura = true;
+        abrirPanelAdmin(socioEncontrado.nombre, `Socio: ${socioEncontrado.usuario} (Solo Lectura)`);
+        return;
+      }
+
+      alert("Credenciales incorrectas de Administrador o Socio.");
+    }
+
+    function toggleModalCrearSocio(abrir) {
+      document.getElementById('modal-crear-socio').classList.toggle('hidden', !abrir);
+    }
+
+    function guardarNuevoSocio(e) {
+      e.preventDefault();
+      const nombre = document.getElementById('socio-nombre').value.trim();
+      const usuario = document.getElementById('socio-usuario').value.trim().toUpperCase();
+      const clave = document.getElementById('socio-clave').value.trim();
+
+      if (usuario.length < 4) {
+        alert("El nombre de usuario debe tener al menos 4 caracteres.");
+        return;
+      }
+
+      const valClave = validarComplejidadContrasena(clave);
+      if (!valClave.valida) {
+        alert("Contraseña inválida:\n\n" + valClave.mensaje);
+        return;
+      }
+
+      administradoresSocios.push({
+        nombre: nombre,
+        usuario: usuario,
+        clave: clave,
+        rol: "Solo Lectura",
+        fechaCreacion: obtenerFechaHoraActual()
+      });
+
+      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
+      toggleModalCrearSocio(false);
+      document.getElementById('socio-nombre').value = "";
+      document.getElementById('socio-usuario').value = "";
+      document.getElementById('socio-clave').value = "";
+      alert(`¡Socio ${nombre} creado con éxito!\n\nUsuario: ${usuario}`);
+    }
+
+    function registrarSolicitudPublica(e) {
+      e.preventDefault();
+      const cedulaVal = document.getElementById('reg-cedula').value.trim();
+      const yaRegistrado = clientes.some(c => String(c.cedula).trim() === cedulaVal);
+      if (yaRegistrado) {
+        alert("¡Este número de cédula ya se encuentra registrado!");
+        cambiarPestana('login-user');
+        document.getElementById('login-user-cedula').value = cedulaVal;
+        return;
+      }
+
+      const nuevo = {
+        nombre: document.getElementById('reg-nombre').value.trim(),
+        cedula: cedulaVal,
+        celular: document.getElementById('reg-celular').value.trim(),
+        email: document.getElementById('reg-email').value.trim() || "Sin correo",
+        clave: cedulaVal,
+        plan: "20 MB",
+        tarifa: 50000,
+        tarifaInstalacion: 90000,
+        motivoPromo: "",
+        fechaInicio: new Date().toISOString().split('T')[0],
+        fechaInstalacion: "Por coordinar",
+        diaCorte: 24,
+        estado: "Pendiente",
+        cedulaFrente: null,
+        cedulaReverso: null,
+        estadoCedula: "Sin subir",
+        comprobanteSubido: null,
+        comprobanteDataUrl: null,
+        fechaPagoCliente: null,
+        fechaHoraSubidaComprobante: null,
+        alertaUltimatumActiva: false,
+        alertaTiempoGracia: "",
+        alertaMensaje: "",
+        pagoAprobadoAdmin: false,
+        mesAprobado: null
+      };
+
+      clientes.push(nuevo);
+      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      clienteRecienRegistrado = nuevo;
+
+      document.getElementById('view-auth').classList.add('hidden');
+      document.getElementById('conf-nombre-cliente').innerText = `${nuevo.nombre} (C.C: ${nuevo.cedula})`;
+      document.getElementById('view-confirmacion-solicitud').classList.remove('hidden');
+    }
+
+    function irAPortalDesdeConfirmacion() {
+      document.getElementById('view-confirmacion-solicitud').classList.add('hidden');
+      if (clienteRecienRegistrado) {
+        verificarPasoCedula(clienteRecienRegistrado);
+      } else {
+        cambiarPestana('login-user');
+        document.getElementById('view-auth').classList.remove('hidden');
+      }
+    }
+
+    function crearUsuarioAdmin(e) {
+      e.preventDefault();
+      const tarifaNum = parseMonto(document.getElementById('admin-new-tarifa').value);
+      const cedulaVal = document.getElementById('admin-new-cedula').value.trim();
+
+      const nuevo = {
+        nombre: document.getElementById('admin-new-nombre').value.trim(),
+        cedula: cedulaVal,
+        celular: document.getElementById('admin-new-celular').value.trim(),
+        email: document.getElementById('admin-new-email').value.trim() || "Sin correo",
+        clave: cedulaVal,
+        plan: "20 MB",
+        tarifa: tarifaNum,
+        tarifaInstalacion: 90000,
+        motivoPromo: document.getElementById('admin-new-promo').value.trim(),
+        fechaInicio: document.getElementById('admin-new-fecha-instalacion').value,
+        fechaInstalacion: document.getElementById('admin-new-fecha-instalacion').value,
+        diaCorte: 24,
+        estado: "Activo",
+        estadoCedula: "Aprobada",
+        comprobanteSubido: null,
+        comprobanteDataUrl: null,
+        pagoAprobadoAdmin: true,
+        mesAprobado: new Date().getMonth() + 1
+      };
+
+      clientes.push(nuevo);
+      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      toggleModalCrearUsuario(false);
+      cargarTablaAdmin();
+      alert("Cliente registrado con éxito.");
+    }
+
+    function exportarClientesExcel() {
+      if (clientes.length === 0) return alert("No hay clientes.");
+      const hoja = XLSX.utils.json_to_sheet(clientes);
+      const libro = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(libro, hoja, "Clientes_Conectado2");
+      XLSX.writeFile(libro, `Clientes_Conectado2_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
+
+    function exportarHistorialComprobantesExcel() {
+      if (comprobantesAprobados.length === 0) return alert("No hay comprobantes.");
+      const hoja = XLSX.utils.json_to_sheet(comprobantesAprobados);
+      const libro = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(libro, hoja, "Comprobantes_Aprobados");
+      XLSX.writeFile(libro, `Comprobantes_${new Date().toISOString().split('T')[0]}.xlsx`);
+    }
+
+    function importarExcelClientes(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const filas = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+          let importados = 0;
+          filas.forEach(f => {
+            const cc = String(f.CÉDULA || f.cedula || f.CC || "").replace(/[^0-9]/g, "");
+            const nombre = `${f.NOMBRE || f.nombre || ""} ${f.APELLIDOS || f.apellidos || ""}`.trim() || f.CLIENTE || "";
+            const fechaIni = f['FEHCA DE INICIO'] || f.fechadeinicio || f.fechaInicio || new Date().toISOString().split('T')[0];
+
+            if (cc && nombre && !clientes.some(c => String(c.cedula).trim() === cc)) {
+              clientes.push({
+                nombre: nombre,
+                cedula: cc,
+                celular: String(f.CELULAR || f.celular || "3000000000"),
+                email: f.CORREO || f.correo || "Sin correo",
+                clave: cc,
+                plan: f['CANTIDAD MEGAS'] || "20 MB",
+                tarifa: parseMonto(f['VALOR SERVICIO'] || 50000),
+                tarifaInstalacion: 90000,
+                motivoPromo: parseMonto(f['VALOR SERVICIO']) < 50000 ? "Tarifa promocional aplicada" : "",
+                fechaInicio: String(fechaIni).split('T')[0],
+                fechaInstalacion: String(fechaIni).split('T')[0],
+                diaCorte: 24,
+                estado: f['ESTADO DEL SERVICIO'] || "Activo",
+                cedulaFrente: null,
+                cedulaReverso: null,
+                estadoCedula: "Aprobada",
+                comprobanteSubido: null,
+                comprobanteDataUrl: null,
+                pagoAprobadoAdmin: true,
+                mesAprobado: new Date().getMonth() + 1
+              });
+              importados++;
+            }
+          });
+
+          if (importados > 0) {
+            localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+            cargarTablaAdmin();
+            alert(`¡Se importaron ${importados} clientes correctamente con sus fechas!`);
+          } else {
+            alert("No se encontraron nuevos clientes para importar.");
+          }
+          event.target.value = "";
+        } catch (err) {
+          alert("Error al leer Excel: " + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // MODALES
+    function toggleModalCrearUsuario(abrir) { document.getElementById('modal-crear-usuario').classList.toggle('hidden', !abrir); }
+    function toggleModalEditarUsuario(abrir) { document.getElementById('modal-editar-usuario').classList.toggle('hidden', !abrir); }
+    function toggleModalAuditar(abrir) { document.getElementById('modal-auditar-pago').classList.toggle('hidden', !abrir); }
+    function toggleModalAuditarCedula(abrir) { document.getElementById('modal-auditar-cedula').classList.toggle('hidden', !abrir); }
+    function toggleModalHistorialComprobantes(abrir) { document.getElementById('modal-historial-comprobantes').classList.toggle('hidden', !abrir); }
+    function toggleModalVisor(abrir) { document.getElementById('modal-visor-comprobante').classList.toggle('hidden', !abrir); }
+    function toggleModalSubirComprobanteAdmin(abrir) { document.getElementById('modal-subir-comprobante-admin').classList.toggle('hidden', !abrir); }
+    function toggleModalAlertaCorte(abrir) { document.getElementById('modal-enviar-alerta-corte').classList.toggle('hidden', !abrir); }
+    function toggleModalGestionRouters(abrir) { document.getElementById('modal-gestion-routers').classList.toggle('hidden', !abrir); }
+    function toggleModalAdminRequerimientos(abrir) { document.getElementById('modal-admin-requerimientos').classList.toggle('hidden', !abrir); }
+    function toggleModalClienteRequerimientos(abrir) { document.getElementById('modal-cliente-requerimientos').classList.toggle('hidden', !abrir); }
+
+    function abrirModalGestionRouters() { renderizarRoutersAdmin(); toggleModalGestionRouters(true); }
+    function renderizarRoutersAdmin() {
+      const cont = document.getElementById('contenedor-routers-admin');
+      cont.innerHTML = "";
+      catalogoRouters.forEach((r, idx) => {
+        cont.innerHTML += `<div class="flex justify-between items-center p-3 bg-white border rounded-xl"><div><b>${r.modelo}</b> - ${formatearDinero(r.precio)}</div><button onclick="catalogoRouters.splice(${idx},1);localStorage.setItem('conectado2_catalogo_routers',JSON.stringify(catalogoRouters));renderizarRoutersAdmin();" class="text-red-600 font-bold text-xs">Eliminar</button></div>`;
+      });
+    }
+
+    function guardarNuevoRouterAdmin(e) {
+      e.preventDefault();
+      catalogoRouters.push({
+        id: "R" + Date.now(),
+        modelo: document.getElementById('router-modelo').value.trim(),
+        precio: parseMonto(document.getElementById('router-precio').value),
+        descripcion: document.getElementById('router-descripcion').value.trim(),
+        foto: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=400&q=80"
+      });
+      localStorage.setItem('conectado2_catalogo_routers', JSON.stringify(catalogoRouters));
+      renderizarRoutersAdmin();
+      alert("Router guardado.");
+    }
+
+    function abrirModalClienteRequerimientos() {
+      const cont = document.getElementById('lista-routers-cliente');
+      cont.innerHTML = "";
+      catalogoRouters.forEach(r => {
+        cont.innerHTML += `<div onclick="document.getElementById('router-seleccionado-id').value='${r.id}';alert('Router seleccionado: ${r.modelo}');" class="p-3 border rounded-xl cursor-pointer bg-slate-50"><b class="text-xs">${r.modelo}</b><br><span class="text-xs text-emerald-700">${formatearDinero(r.precio)}</span></div>`;
+      });
+      toggleModalClienteRequerimientos(true);
+    }
+
+    function cambiarTipoRequerimientoClient() {}
+    function enviarRequerimientoCliente(e) {
+      e.preventDefault();
+      requerimientosClientes.unshift({
+        id: "REQ-" + Date.now(),
+        cedula: usuarioEnSesion.cedula,
+        nombre: usuarioEnSesion.nombre,
+        celular: usuarioEnSesion.celular,
+        tipo: document.getElementById('req-tipo-servicio').value,
+        routerModelo: "Seleccionado",
+        routerPrecio: 0,
+        fecha: obtenerFechaHoraActual(),
+        estado: "Pendiente por validar"
+      });
+      localStorage.setItem('conectado2_requerimientos', JSON.stringify(requerimientosClientes));
+      toggleModalClienteRequerimientos(false);
+      alert("¡Solicitud enviada con éxito!");
+    }
+
+    function abrirModalAdminRequerimientos() {
+      const tbody = document.getElementById('tabla-admin-requerimientos');
+      tbody.innerHTML = "";
+      if (!requerimientosClientes.length) {
+        tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">No hay requerimientos.</td></tr>`;
+      } else {
+        requerimientosClientes.forEach((req, idx) => {
+          tbody.innerHTML += `<tr class="border-b"><td class="p-3 font-bold">${req.nombre}</td><td class="p-3">${req.tipo}</td><td class="p-3">${req.fecha}</td><td class="p-3 font-bold text-amber-600">${req.estado}</td><td class="p-3 text-center"><button onclick="requerimientosClientes[${idx}].estado='Aprobado';localStorage.setItem('conectado2_requerimientos',JSON.stringify(requerimientosClientes));abrirModalAdminRequerimientos();" class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded text-xs font-bold">Aprobar</button></td></tr>`;
+        });
+      }
+      toggleModalAdminRequerimientos(true);
+    }
+
+    // SUBIR COMPROBANTE CLIENTE CON MENSAJE DE ÉXITO CLARO
+    function subirComprobanteCliente(e) {
       e.preventDefault();
       const archivo = document.getElementById('cli-pago-archivo').files[0];
       const fechaPago = document.getElementById('cli-pago-fecha').value;
 
       if (archivo && fechaPago && usuarioEnSesion) {
-        let urlCloud = await subirArchivoAStorage(archivo, `pago_${usuarioEnSesion.cedula}`);
-
         const reader = new FileReader();
         reader.onload = function(evt) {
           usuarioEnSesion.comprobanteSubido = archivo.name;
-          usuarioEnSesion.comprobanteDataUrl = urlCloud || evt.target.result;
+          usuarioEnSesion.comprobanteDataUrl = evt.target.result;
           usuarioEnSesion.fechaPagoCliente = fechaPago;
           usuarioEnSesion.fechaHoraSubidaComprobante = obtenerFechaHoraActual();
           usuarioEnSesion.pagoAprobadoAdmin = false;
           usuarioEnSesion.motivoRechazo = null;
 
           localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-          guardarClienteEnNube(usuarioEnSesion);
-
           actualizarVistaEstadoCliente(usuarioEnSesion);
-          alert("¡Comprobante enviado a revisión con éxito!");
+          
+          // Mensaje de éxito claro solicitado
+          alert("¡Comprobante enviado con éxito a revisión! La administración lo validará pronto.");
         };
         reader.readAsDataURL(archivo);
       }
     }
 
-    async function guardarComprobanteDesdeAdmin(e) {
+    function guardarComprobanteDesdeAdmin(e) {
       e.preventDefault();
       const idx = document.getElementById('wa-user-index').value;
       const user = clientes[idx];
@@ -1328,21 +1556,16 @@
 
       if (!archivo || !fechaPago) return alert("Completa los datos.");
 
-      let urlCloud = await subirArchivoAStorage(archivo, `pago_admin_${user.cedula}`);
-
       const reader = new FileReader();
       reader.onload = function(evt) {
         const fechaHoraActual = obtenerFechaHoraActual();
-        const finalUrl = urlCloud || evt.target.result;
-
         user.comprobanteSubido = archivo.name;
-        user.comprobanteDataUrl = finalUrl;
+        user.comprobanteDataUrl = evt.target.result;
         user.fechaPagoCliente = fechaPago;
         user.fechaHoraSubidaComprobante = fechaHoraActual + " (WhatsApp)";
         user.pagoAprobadoAdmin = true;
         user.mesAprobado = new Date().getMonth() + 1;
         user.estado = "Activo";
-        user.alertaUltimatumActiva = false;
 
         comprobantesAprobados.unshift({
           cedula: user.cedula,
@@ -1352,120 +1575,40 @@
           fechaHoraSubida: fechaHoraActual + " (WhatsApp)",
           fechaHoraAprobacion: fechaHoraActual,
           archivo: archivo.name,
-          dataUrl: finalUrl
+          dataUrl: evt.target.result
         });
 
         localStorage.setItem('conectado2_comprobantes_aprobados', JSON.stringify(comprobantesAprobados));
         localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-        guardarClienteEnNube(user);
 
         toggleModalSubirComprobanteAdmin(false);
         cargarTablaAdmin();
-        alert(`¡Comprobante guardado! ${user.nombre} está AL DÍA.`);
+        alert(`¡Comprobante guardado con éxito! ${user.nombre} quedó AL DÍA.`);
       };
       reader.readAsDataURL(archivo);
-    }
-
-    function toggleModalCrearUsuario(a) { document.getElementById('modal-crear-usuario').classList.toggle('hidden', !a); }
-    function toggleModalEditarUsuario(a) { document.getElementById('modal-editar-usuario').classList.toggle('hidden', !a); }
-    function toggleModalAuditar(a) { document.getElementById('modal-auditar-pago').classList.toggle('hidden', !a); }
-    function toggleModalAuditarCedula(a) { document.getElementById('modal-auditar-cedula').classList.toggle('hidden', !a); }
-    function toggleModalHistorialComprobantes(a) { document.getElementById('modal-historial-comprobantes').classList.toggle('hidden', !a); }
-    function toggleModalVisor(a) { document.getElementById('modal-visor-comprobante').classList.toggle('hidden', !a); }
-    function toggleModalSubirComprobanteAdmin(a) { document.getElementById('modal-subir-comprobante-admin').classList.toggle('hidden', !a); }
-    function toggleModalAlertaCorte(a) { document.getElementById('modal-enviar-alerta-corte').classList.toggle('hidden', !a); }
-    function toggleModalGestionRouters(a) { document.getElementById('modal-gestion-routers').classList.toggle('hidden', !a); }
-    function toggleModalAdminRequerimientos(a) { document.getElementById('modal-admin-requerimientos').classList.toggle('hidden', !a); }
-    function toggleModalClienteRequerimientos(a) { document.getElementById('modal-cliente-requerimientos').classList.toggle('hidden', !a); }
-
-    function abrirModalAdminRequerimientos() { toggleModalAdminRequerimientos(true); }
-    function abrirModalGestionRouters() { renderizarRoutersAdmin(); toggleModalGestionRouters(true); }
-    function abrirModalHistorialComprobantes() { toggleModalHistorialComprobantes(true); }
-    function abrirModalClienteRequerimientos() { abrirModalClienteRequerimientosLocal(); }
-
-    function abrirModalClienteRequerimientosLocal() {
-      const cont = document.getElementById('lista-routers-cliente');
-      cont.innerHTML = "";
-      catalogoRouters.forEach(r => {
-        const div = document.createElement('div');
-        div.className = "p-2 border rounded cursor-pointer bg-slate-50";
-        div.onclick = () => {
-          document.getElementById('router-seleccionado-id').value = r.id;
-          alert(`Router seleccionado: ${r.modelo}`);
-        };
-        div.innerHTML = `<b class="text-xs">${r.modelo}</b><br><span class="text-xs text-emerald-700">${formatearDinero(r.precio)}</span>`;
-        cont.appendChild(div);
-      });
-      toggleModalClienteRequerimientos(true);
-    }
-
-    function cambiarTipoRequerimientoCliente() {}
-    function enviarRequerimientoCliente(e) {
-      e.preventDefault();
-      alert("Requerimiento enviado con éxito.");
-      toggleModalClienteRequerimientos(false);
-    }
-
-    function abrirModalPerfilAdmin() {
-      document.getElementById('mi-nombre-admin').value = adminPrincipal.nombre;
-      document.getElementById('mi-correo-admin').value = adminPrincipal.email;
-      document.getElementById('mi-clave-admin').value = "";
-      renderizarListaSociosAdmin();
-      document.getElementById('modal-perfil-admin').classList.remove('hidden');
-    }
-    function toggleModalPerfilAdmin(abrir) { document.getElementById('modal-perfil-admin').classList.toggle('hidden', !abrir); }
-
-    function actualizarAdminPrincipal(e) {
-      e.preventDefault();
-      adminPrincipal.nombre = document.getElementById('mi-nombre-admin').value.trim();
-      adminPrincipal.email = document.getElementById('mi-correo-admin').value.trim();
-      const p = document.getElementById('mi-clave-admin').value.trim();
-      if (p) adminPrincipal.clave = p;
-      localStorage.setItem('conectado2_admin_principal', JSON.stringify(adminPrincipal));
-      toggleModalPerfilAdmin(false);
-      alert("¡Datos actualizados!");
-    }
-
-    function renderizarListaSociosAdmin() {
-      const cont = document.getElementById('lista-socios-admin');
-      cont.innerHTML = "";
-      administradoresSocios.forEach((s, idx) => {
-        const div = document.createElement('div');
-        div.className = "flex justify-between items-center p-2 bg-white border rounded text-xs";
-        div.innerHTML = `<span><b>${s.nombre}</b> (${s.usuario})</span> <button onclick="eliminarSocioAdmin(${idx})" class="text-red-600 font-bold">Eliminar</button>`;
-        cont.appendChild(div);
-      });
-    }
-
-    function guardarNuevoSocio(e) {
-      e.preventDefault();
-      administradoresSocios.push({
-        nombre: document.getElementById('socio-nombre').value.trim(),
-        usuario: document.getElementById('socio-usuario').value.trim().toUpperCase(),
-        clave: document.getElementById('socio-clave').value.trim(),
-        rol: "Solo Lectura"
-      });
-      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
-      toggleModalCrearSocio(false);
-      renderizarListaSociosAdmin();
-      alert("¡Socio creado!");
-    }
-
-    function eliminarSocioAdmin(idx) {
-      administradoresSocios.splice(idx, 1);
-      localStorage.setItem('conectado2_socios', JSON.stringify(administradoresSocios));
-      renderizarListaSociosAdmin();
     }
 
     function abrirPanelAdmin(nombreUsuario = "Janier Mazo", rolTexto = "Administrador Principal") {
       document.getElementById('view-auth').classList.add('hidden');
       document.getElementById('view-client').classList.add('hidden');
       document.getElementById('view-admin').classList.remove('hidden');
-      document.getElementById('nav-bienvenida-box').classList.remove('hidden');
-      document.getElementById('nav-bienvenida-texto').innerText = `¡Bienvenido ${nombreUsuario}!`;
+
+      const navBienvenidaBox = document.getElementById('nav-bienvenida-box');
+      const navBienvenidaTexto = document.getElementById('nav-bienvenida-texto');
+      navBienvenidaBox.classList.remove('hidden');
+
+      if (esAdminPrincipal) {
+        navBienvenidaTexto.innerHTML = `<i class="fa-solid fa-crown text-yellow-300 mr-1.5"></i> ¡Bienvenido ${nombreUsuario} - Administrador Principal a Conectado2!`;
+        document.getElementById('nav-user-badge').innerHTML = `<i class="fa-solid fa-crown text-yellow-300"></i> ${nombreUsuario}`;
+      } else {
+        navBienvenidaTexto.innerHTML = `<i class="fa-solid fa-handshake text-yellow-300 mr-1.5"></i> ¡Bienvenido ${nombreUsuario} - Administrador (Solo Lectura) a Conectado2!`;
+        document.getElementById('nav-user-badge').innerHTML = `<i class="fa-solid fa-user-tie"></i> ${nombreUsuario}`;
+      }
+
       document.getElementById('nav-user-box').classList.remove('hidden');
-      document.getElementById('nav-user-badge').innerText = nombreUsuario;
       document.getElementById('admin-subtitulo-rol').innerText = `Sesión activa como: ${nombreUsuario} (${rolTexto})`;
+      document.getElementById('box-acciones-admin-principal').classList.toggle('hidden', esSocioSoloLectura);
+
       cargarTablaAdmin();
     }
 
@@ -1476,24 +1619,33 @@
     function cargarTablaAdmin(filtroTexto = "") {
       const tbody = document.getElementById('tabla-usuarios');
       tbody.innerHTML = "";
-      const filtrados = clientes.filter(c => !filtroTexto || String(c.cedula).includes(filtroTexto) || String(c.nombre).toLowerCase().includes(filtroTexto));
+      document.getElementById('count-historial-comprobantes').innerText = comprobantesAprobados.length;
+
+      const filtrados = clientes.filter(c => !filtroTexto || String(c.cedula).toLowerCase().includes(filtroTexto) || String(c.nombre).toLowerCase().includes(filtroTexto));
       document.getElementById('admin-contador').innerText = `${filtrados.length} clientes`;
 
       filtrados.forEach((user, index) => {
+        const estadoCalculado = calcularEstadoAutomatico(user);
+        const montoNum = parseMonto(user.tarifa);
+        const tieneDeuda = (estadoCalculado === "Pendiente por pagar" || estadoCalculado === "Servicio cortado por falta de pago");
+
+        let cedulaBadge = user.estadoCedula === 'Aprobada' ? `<button onclick="abrirAuditoriaCedula(${index})" class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[11px] font-bold">Cédula Aprobada</button>` : `<button onclick="abrirAuditoriaCedula(${index})" class="bg-amber-500 text-white px-2 py-0.5 rounded text-[11px] font-bold">Validar Cédula</button>`;
+        let auditoriaHTML = user.pagoAprobadoAdmin ? `<span class="text-[11px] text-emerald-700 font-bold"><i class="fa-solid fa-circle-check"></i> Al Día</span>` : `<button onclick="abrirAuditoriaPago(${index})" class="bg-amber-500 text-white px-2.5 py-1 rounded text-[11px] font-bold">Validar Pago</button>`;
+
         const tr = document.createElement('tr');
         tr.className = "hover:bg-slate-50";
         tr.innerHTML = `
-          <td class="p-3 font-bold">${user.nombre}</td>
-          <td class="p-3">${user.cedula}</td>
-          <td class="p-3">${user.celular}</td>
-          <td class="p-3">${formatearDinero(user.tarifa)}</td>
-          <td class="p-3"><button onclick="abrirAuditoriaCedula(${index})" class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-[11px] font-bold">Ver Cédula</button></td>
-          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold">${calcularEstadoAutomatico(user)}</span></td>
-          <td class="p-3"><button onclick="abrirAuditoriaPago(${index})" class="bg-amber-500 text-white px-2.5 py-1 rounded text-[11px] font-bold">Validar Pago</button></td>
+          <td class="p-3 font-bold text-slate-800">${user.nombre}</td>
+          <td class="p-3 text-slate-600">${user.cedula}</td>
+          <td class="p-3 text-slate-600">${user.celular}<br><span class="text-[11px] text-slate-400">${user.email}</span></td>
+          <td class="p-3 font-bold">${formatearDinero(montoNum)} COP</td>
+          <td class="p-3">${cedulaBadge}</td>
+          <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-100 text-emerald-800 font-bold">${estadoCalculado}</span></td>
+          <td class="p-3">${auditoriaHTML}</td>
           <td class="p-3 text-center space-x-1">
-            <button onclick="abrirModalEditar(${index})" class="bg-slate-100 px-2 py-1 rounded text-xs font-bold" title="Editar"><i class="fa-solid fa-pen"></i></button>
-            <button onclick="generarFacturaPDF(clientes[${index}])" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-bold" title="PDF"><i class="fa-solid fa-file-pdf"></i></button>
-            <button onclick="eliminarUsuario(${index})" class="bg-red-50 text-red-700 px-2 py-1 rounded text-xs font-bold" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
+            ${!esSocioSoloLectura ? `<button onclick="abrirModalEditar(${index})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded text-[11px] font-bold"><i class="fa-solid fa-pen"></i></button>` : ''}
+            <button onclick="generarFacturaPDF(clientes[${index}])" class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-[11px] font-bold"><i class="fa-solid fa-file-pdf"></i></button>
+            ${!esSocioSoloLectura ? `<button onclick="eliminarUsuario(${index})" class="bg-red-50 hover:bg-red-100 text-red-700 px-2 py-1 rounded text-[11px] font-bold"><i class="fa-solid fa-trash"></i></button>` : ''}
           </td>
         `;
         tbody.appendChild(tr);
@@ -1501,7 +1653,7 @@
     }
 
     function eliminarUsuario(idx) {
-      if (confirm("¿Eliminar cliente?")) {
+      if (confirm("¿Deseas eliminar este cliente?")) {
         clientes.splice(idx, 1);
         localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
         cargarTablaAdmin();
@@ -1513,7 +1665,7 @@
       document.getElementById('view-admin').classList.add('hidden');
       document.getElementById('view-client').classList.remove('hidden');
       document.getElementById('nav-bienvenida-box').classList.remove('hidden');
-      document.getElementById('nav-bienvenida-texto').innerText = `¡Bienvenido ${cli.nombre}!`;
+      document.getElementById('nav-bienvenida-texto').innerText = `¡Bienvenido ${cli.nombre} a Conectado2!`;
       document.getElementById('nav-user-box').classList.remove('hidden');
       document.getElementById('nav-user-badge').innerText = `C.C: ${cli.cedula}`;
       document.getElementById('client-nombre').innerText = cli.nombre;
@@ -1524,69 +1676,19 @@
       actualizarVistaEstadoCliente(cli);
     }
 
-    function registrarSolicitudPublica(e) {
-      e.preventDefault();
-      const cedulaVal = document.getElementById('reg-cedula').value.trim();
-      clientes.push({
-        nombre: document.getElementById('reg-nombre').value.trim(),
-        cedula: cedulaVal,
-        celular: document.getElementById('reg-celular').value.trim(),
-        email: document.getElementById('reg-email').value.trim() || "Sin correo",
-        clave: cedulaVal,
-        tarifa: 50000,
-        estado: "Activo",
-        estadoCedula: "Aprobada",
-        pagoAprobadoAdmin: true,
-        mesAprobado: new Date().getMonth() + 1
-      });
-      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-      alert("¡Solicitud registrada con éxito!");
-      cambiarPestana('login-user');
-    }
+    function actualizarVistaEstadoCliente(cli) {
+      const estaAlDia = (cli.pagoAprobadoAdmin && cli.mesAprobado === (new Date().getMonth() + 1));
+      document.getElementById('box-cliente-al-dia').classList.toggle('hidden', !estaAlDia);
+      document.getElementById('box-cliente-factura-descarga').classList.toggle('hidden', estaAlDia);
 
-    function crearUsuarioAdmin(e) {
-      e.preventDefault();
-      clientes.push({
-        nombre: document.getElementById('admin-new-nombre').value.trim(),
-        cedula: document.getElementById('admin-new-cedula').value.trim(),
-        celular: document.getElementById('admin-new-celular').value.trim(),
-        email: document.getElementById('admin-new-email').value.trim() || "Sin correo",
-        clave: document.getElementById('admin-new-cedula').value.trim(),
-        tarifa: parseMonto(document.getElementById('admin-new-tarifa').value),
-        estado: "Activo",
-        estadoCedula: "Aprobada",
-        pagoAprobadoAdmin: true,
-        mesAprobado: new Date().getMonth() + 1
-      });
-      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-      toggleModalCrearUsuario(false);
-      cargarTablaAdmin();
-      alert("Cliente creado.");
-    }
-
-    function abrirModalEditar(index) {
-      const user = clientes[index];
-      document.getElementById('edit-user-index').value = index;
-      document.getElementById('edit-nombre').value = user.nombre;
-      document.getElementById('edit-cedula').value = user.cedula;
-      document.getElementById('edit-celular').value = user.celular;
-      document.getElementById('edit-email').value = user.email || "Sin correo";
-      document.getElementById('edit-tarifa-num').value = parseMonto(user.tarifa);
-      toggleModalEditarUsuario(true);
-    }
-
-    function guardarEdicionUsuario(e) {
-      e.preventDefault();
-      const idx = document.getElementById('edit-user-index').value;
-      clientes[idx].nombre = document.getElementById('edit-nombre').value.trim();
-      clientes[idx].cedula = document.getElementById('edit-cedula').value.trim();
-      clientes[idx].celular = document.getElementById('edit-celular').value.trim();
-      clientes[idx].email = document.getElementById('edit-email').value.trim() || "Sin correo";
-      clientes[idx].tarifa = parseMonto(document.getElementById('edit-tarifa-num').value);
-      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-      toggleModalEditarUsuario(false);
-      cargarTablaAdmin();
-      alert("Cliente actualizado.");
+      const statusBox = document.getElementById('cli-status-comprobante');
+      if (estaAlDia) {
+        statusBox.innerHTML = `<div class="p-3 bg-emerald-50 text-emerald-800 font-bold rounded-xl">Comprobante aprobado. Estás al día este mes.</div>`;
+      } else if (cli.comprobanteSubido) {
+        statusBox.innerHTML = `<div class="p-3 bg-blue-50 text-blue-800 font-medium rounded-xl">Comprobante enviado con éxito (${cli.comprobanteSubido}). En revisión por la administración.</div>`;
+      } else {
+        statusBox.innerHTML = `<div class="text-slate-400 italic">No has subido ningún comprobante para este mes.</div>`;
+      }
     }
 
     function abrirAuditoriaCedula(index) {
@@ -1625,7 +1727,7 @@
       document.getElementById('audit-archivo-nombre').innerText = user.comprobanteSubido || "Sin archivo";
       const box = document.getElementById('audit-preview-box');
       if (user.comprobanteDataUrl) {
-        box.innerHTML = `<img src="${user.comprobanteDataUrl}" class="max-h-56 object-contain" />`;
+        box.innerHTML = `<img src="${user.comprobanteDataUrl}" class="max-h-56 object-contain cursor-pointer" onclick="window.open('${user.comprobanteDataUrl}')" />`;
       } else {
         box.innerHTML = "Sin comprobante";
       }
@@ -1652,84 +1754,64 @@
       cargarTablaAdmin();
     }
 
+    function abrirModalSubirComprobanteAdmin(index) {
+      if (esSocioSoloLectura) return alert("Modo Solo Lectura.");
+      const user = clientes[index];
+      document.getElementById('wa-user-index').value = index;
+      document.getElementById('wa-cliente-nombre').innerText = user.nombre;
+      document.getElementById('wa-cliente-cedula').innerText = user.cedula;
+      document.getElementById('wa-cliente-tarifa').innerText = formatearDinero(user.tarifa) + " COP";
+      document.getElementById('wa-fecha-pago').value = new Date().toISOString().split('T')[0];
+      toggleModalSubirComprobanteAdmin(true);
+    }
+
+    function abrirModalHistorialComprobantes() {
+      const tbody = document.getElementById('tabla-historial-comprobantes');
+      tbody.innerHTML = "";
+      if (!comprobantesAprobados.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400">No hay comprobantes aprobados.</td></tr>`;
+      } else {
+        comprobantesAprobados.forEach((r, idx) => {
+          tbody.innerHTML += `<tr class="border-b"><td class="p-3 font-bold">${r.nombre}</td><td class="p-3">${formatearDinero(r.monto)}</td><td class="p-3">${r.fechaDeclarada}</td><td class="p-3">${r.fechaHoraSubida}</td><td class="p-3">${r.fechaHoraAprobacion}</td><td class="p-3 text-center"><button onclick="window.open('${r.dataUrl}')" class="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-bold">Ver</button></td></tr>`;
+        });
+      }
+      toggleModalHistorialComprobantes(true);
+    }
+
+    function abrirModalEditar(index) {
+      const user = clientes[index];
+      document.getElementById('edit-user-index').value = index;
+      document.getElementById('edit-nombre').value = user.nombre;
+      document.getElementById('edit-cedula').value = user.cedula;
+      document.getElementById('edit-celular').value = user.celular;
+      document.getElementById('edit-email').value = user.email || "Sin correo";
+      document.getElementById('edit-tarifa-num').value = parseMonto(user.tarifa);
+      toggleModalEditarUsuario(true);
+    }
+
+    function guardarEdicionUsuario(e) {
+      e.preventDefault();
+      const idx = document.getElementById('edit-user-index').value;
+      clientes[idx].nombre = document.getElementById('edit-nombre').value.trim();
+      clientes[idx].cedula = document.getElementById('edit-cedula').value.trim();
+      clientes[idx].celular = document.getElementById('edit-celular').value.trim();
+      clientes[idx].email = document.getElementById('edit-email').value.trim() || "Sin correo";
+      clientes[idx].tarifa = parseMonto(document.getElementById('edit-tarifa-num').value);
+      localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
+      toggleModalEditarUsuario(false);
+      cargarTablaAdmin();
+      alert("Cliente actualizado.");
+    }
+
     function generarFacturaPDF(user) {
       document.getElementById('pdf-factura-num').innerText = `FACT-24-${String(user.cedula).slice(-4)}`;
+      document.getElementById('pdf-factura-fecha').innerText = `Fecha Límite: 24 de este mes`;
       document.getElementById('pdf-cliente-nombre').innerText = user.nombre;
       document.getElementById('pdf-cliente-cedula').innerText = `C.C: ${user.cedula}`;
       document.getElementById('pdf-total-cobro').innerText = formatearDinero(user.tarifa) + " COP";
       const el = document.getElementById('plantilla-factura');
       el.classList.remove('hidden');
       html2pdf().from(el).save(`Factura_${user.cedula}.pdf`).then(() => el.classList.add('hidden'));
-    }
-
-    function exportarClientesExcel() {
-      const hoja = XLSX.utils.json_to_sheet(clientes);
-      const libro = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(libro, hoja, "Clientes");
-      XLSX.writeFile(libro, `Clientes_Conectado2.xlsx`);
-    }
-
-    function exportarHistorialComprobantesExcel() {
-      if (!comprobantesAprobados.length) return alert("No hay comprobantes.");
-      const hoja = XLSX.utils.json_to_sheet(comprobantesAprobados);
-      const libro = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(libro, hoja, "Comprobantes");
-      XLSX.writeFile(libro, `Comprobantes.xlsx`);
-    }
-
-    function importarExcelClientes(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const json = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], { defval: "" });
-        json.forEach(row => {
-          const cc = String(row.CÉDULA || row.cedula || row.CC || "").replace(/[^0-9]/g, "");
-          if (cc && !clientes.some(c => c.cedula === cc)) {
-            clientes.push({
-              nombre: `${row.NOMBRE || ""} ${row.APELLIDOS || ""}`.trim() || "Cliente",
-              cedula: cc,
-              celular: String(row.CELULAR || "3000000000"),
-              email: row.CORREO || "Sin correo",
-              clave: cc,
-              plan: row['CANTIDAD MEGAS'] || "20 MB",
-              tarifa: parseMonto(row['VALOR SERVICIO'] || 50000),
-              estado: "Activo",
-              estadoCedula: "Aprobada",
-              pagoAprobadoAdmin: true,
-              mesAprobado: new Date().getMonth() + 1
-            });
-          }
-        });
-        localStorage.setItem('conectado2_usuarios', JSON.stringify(clientes));
-        cargarTablaAdmin();
-        alert("Excel importado con éxito.");
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    function renderizarRoutersAdmin() {
-      const cont = document.getElementById('contenedor-routers-admin');
-      cont.innerHTML = "";
-      catalogoRouters.forEach((r, idx) => {
-        cont.innerHTML += `<div class="p-2 border rounded flex justify-between items-center text-xs"><b>${r.modelo}</b> - ${formatearDinero(r.precio)} <button onclick="catalogoRouters.splice(${idx},1);renderizarRoutersAdmin();" class="text-red-600 font-bold">Eliminar</button></div>`;
-      });
-    }
-
-    function guardarNuevoRouterAdmin(e) {
-      e.preventDefault();
-      catalogoRouters.push({
-        id: "R" + Date.now(),
-        modelo: document.getElementById('router-modelo').value,
-        precio: parseMonto(document.getElementById('router-precio').value),
-        descripcion: document.getElementById('router-descripcion').value,
-        foto: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=400&q=80"
-      });
-      localStorage.setItem('conectado2_catalogo_routers', JSON.stringify(catalogoRouters));
-      renderizarRoutersAdmin();
-      alert("Router guardado.");
     }
 
     function cerrarSesion() { window.location.reload(); }
