@@ -101,42 +101,56 @@
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <div>
                     <h2 class="text-2xl font-bold text-slate-900" id="admin-title-panel">Panel de Administración</h2>
-                    <p class="text-sm text-slate-500">Gestión de clientes activos, solicitudes de instalación y aprobaciones.</p>
+                    <p class="text-sm text-slate-500">Gestión de clientes activos, control de cobros mensuales y solicitudes.</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-3">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="reiniciarMesCobros()" class="bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-1" title="Marca a todos los activos en Pendiente de Pago el día 24">
+                        🔄 Reiniciar Mes (Marcar Pendientes)
+                    </button>
                     <button onclick="exportarExcelAdmin()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm">📤 Exportar Excel</button>
                     <label class="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-2">
-                        📂 Importar Excel
+                        📂 Cargar / Ver Excel
                         <input type="file" id="excel-file" accept=".xlsx, .xls" class="hidden" onchange="importarExcel(event)">
                     </label>
-                    <button onclick="abrirModalPermisos()" id="btn-permisos-config" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium px-4 py-2.5 rounded-xl text-sm transition">⚙️ Permisos Esteban</button>
+                    <button onclick="vaciarBaseDatosAdmin()" class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm">
+                        🗑️ Vaciar BD
+                    </button>
+                    <button onclick="abrirModalPermisos()" id="btn-permisos-config" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium px-4 py-2.5 rounded-xl text-sm transition">⚙️ Permisos</button>
                     <button onclick="cargarDatosAdmin(); cargarSolicitudesNuevasAdmin();" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-4 py-2.5 rounded-xl text-sm transition border border-blue-200">🔄 Actualizar</button>
                 </div>
             </div>
 
-            <!-- Pestañas Internas del Admin: Activos vs Solicitudes Nuevas -->
+            <!-- Pestañas Principales del Panel Admin -->
             <div class="flex border-b border-slate-200">
-                <button onclick="cambiarTabAdmin('activos')" id="tab-admin-activos" class="px-6 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600">👥 Clientes Activos</button>
-                <button onclick="cambiarTabAdmin('solicitudes')" id="tab-admin-solicitudes" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">📋 Solicitudes y Visitas Técnicas Pendientes</button>
+                <button onclick="cambiarTabAdmin('activos')" id="tab-admin-activos" class="px-6 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600">👥 Clientes</button>
+                <button onclick="cambiarTabAdmin('solicitudes')" id="tab-admin-solicitudes" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">📋 Solicitudes Nuevas</button>
             </div>
 
-            <!-- 2.1 TABLA DE CLIENTES ACTIVOS -->
-            <div id="seccion-admin-activos" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-4 border-b border-slate-100 flex justify-between items-center">
-                    <h3 class="font-semibold text-slate-800">Listado de Clientes Activos</h3>
-                    <input type="text" id="search-admin" onkeyup="filtrarTablaAdmin()" placeholder="Buscar por cédula o nombre..." class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64">
+            <!-- 2.1 TABLA DE CLIENTES (CON FILTROS INTERNOS) -->
+            <div id="seccion-admin-activos" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden space-y-4">
+                
+                <!-- Sub-Filtros de Estado de Cobro / Servicio -->
+                <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50">
+                    <div class="flex rounded-lg bg-slate-200 p-1 text-xs font-medium">
+                        <button onclick="filtrarEstadoCobro('todos')" id="filter-cobro-todos" class="px-4 py-2 rounded-md bg-white text-slate-800 shadow-sm font-bold">Todos Activos (<span id="cnt-todos">0</span>)</button>
+                        <button onclick="filtrarEstadoCobro('pendiente')" id="filter-cobro-pendiente" class="px-4 py-2 rounded-md text-amber-700 font-semibold">⏳ Pendientes de Pago (<span id="cnt-pendientes">0</span>)</button>
+                        <button onclick="filtrarEstadoCobro('pagado')" id="filter-cobro-pagado" class="px-4 py-2 rounded-md text-emerald-700 font-semibold">✅ Pagados (<span id="cnt-pagados">0</span>)</button>
+                        <button onclick="filtrarEstadoCobro('suspendido')" id="filter-cobro-suspendido" class="px-4 py-2 rounded-md text-red-700 font-semibold">🚫 Suspendidos (<span id="cnt-suspendidos">0</span>)</button>
+                    </div>
+                    <input type="text" id="search-admin" onkeyup="filtrarTablaAdminText()" placeholder="Buscar por cédula o nombre..." class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-64">
                 </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr class="bg-slate-50 text-slate-600 uppercase text-xs tracking-wider border-b border-slate-200">
-                                <th class="p-3">Estado</th>
-                                <th class="p-3">Cédula (Docs)</th>
+                                <th class="p-3">Estado Servicio</th>
+                                <th class="p-3">Estado Pago</th>
+                                <th class="p-3">Cédula / Docs</th>
                                 <th class="p-3">Cliente</th>
-                                <th class="p-3">Servicio</th>
-                                <th class="p-3">Valor / Promo</th>
-                                <th class="p-3">Comprobante y Gestión</th>
-                                <th class="p-3 text-center">Acciones y Factura</th>
+                                <th class="p-3">Plan / Valor</th>
+                                <th class="p-3 text-center">Acciones de Pago</th>
+                                <th class="p-3 text-center">Gestión Cliente</th>
                             </tr>
                         </thead>
                         <tbody id="admin-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
@@ -144,7 +158,7 @@
                 </div>
             </div>
 
-            <!-- 2.2 TABLA DE SOLICITUDES NUEVAS (SEPARADAS) -->
+            <!-- 2.2 TABLA DE SOLICITUDES NUEVAS -->
             <div id="seccion-admin-solicitudes" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hidden">
                 <div class="p-4 border-b border-slate-100">
                     <h3 class="font-semibold text-slate-800">Solicitudes Nuevas de Instalación ($90.000)</h3>
@@ -174,40 +188,27 @@
                 
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-slate-900" id="client-name-title">Hola, Cliente</h2>
-                    <p class="text-sm text-slate-500" id="subtext-periodo-factura">Consulta tu factura mensual, descarga el PDF oficial y reporta tus pagos.</p>
+                    <p class="text-sm text-slate-500" id="subtext-periodo-factura">Consulta tu estado de cuenta y descarga tu factura mensual oficial.</p>
                 </div>
 
                 <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 space-y-4 mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div><span class="block text-xs font-semibold text-slate-400 uppercase">Cédula</span><span id="bill-cedula" class="font-medium text-slate-800"></span></div>
-                        <div><span class="block text-xs font-semibold text-slate-400 uppercase">Estado</span><span id="bill-estado" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold"></span></div>
-                        <div><span class="block text-xs font-semibold text-slate-400 uppercase">Plan</span><span id="bill-megas" class="font-medium text-slate-800"></span></div>
+                        <div><span class="block text-xs font-semibold text-slate-400 uppercase">Estado del Servicio</span><span id="bill-estado" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold"></span></div>
+                        <div><span class="block text-xs font-semibold text-slate-400 uppercase">Estado de Pago del Mes</span><span id="bill-pago-estado" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold"></span></div>
+                        <div><span class="block text-xs font-semibold text-slate-400 uppercase">Plan Contratado</span><span id="bill-megas" class="font-medium text-slate-800"></span></div>
                         <div><span class="block text-xs font-semibold text-slate-400 uppercase">Promoción</span><span id="bill-promo" class="font-medium text-slate-800"></span></div>
-                        <div><span class="block text-xs font-semibold text-slate-400 uppercase">Fecha Límite</span><span class="font-medium text-red-600">Día 24 al 30 de cada mes</span></div>
-                        <div><span class="block text-xs font-semibold text-slate-400 uppercase">Valor a Pagar</span><span id="bill-valor" class="text-xl font-bold text-blue-600"></span></div>
+                        <div><span class="block text-xs font-semibold text-slate-400 uppercase">Valor Mensual</span><span id="bill-valor" class="text-xl font-bold text-blue-600"></span></div>
                     </div>
                     <div class="pt-4 border-t flex flex-wrap gap-3">
                         <button onclick="generarPDFFactura(usuarioActual)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition shadow-sm">📥 Descargar Factura PDF</button>
                     </div>
                 </div>
 
-                <!-- Subir Comprobante Cliente -->
-                <div class="border-t border-slate-100 pt-6">
-                    <h3 class="font-semibold text-slate-800 mb-2">Comprobante de Pago Mensual</h3>
-                    <p class="text-xs text-slate-500 mb-4">Bancolombia Ahorros: <strong>91295240372</strong> a nombre de <strong>Janier Mazo</strong>.</p>
-                    <div id="current-comprobante-container" class="mb-4 hidden">
-                        <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl flex justify-between items-center text-xs">
-                            <span id="info-comprobante-fecha" class="text-emerald-700 font-medium">✅ Comprobante registrado</span>
-                            <div class="space-x-2">
-                                <a id="link-ver-comprobante" href="#" target="_blank" class="bg-emerald-600 text-white px-2.5 py-1 rounded-lg font-semibold">Ver</a>
-                                <button onclick="eliminarComprobanteActual()" class="bg-red-100 hover:bg-red-200 text-red-700 px-2 py-1 rounded-lg font-semibold">Eliminar</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col sm:flex-row items-center gap-3">
-                        <input type="file" id="comprobante-file" accept="image/*,application/pdf" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 border border-slate-200 rounded-xl p-1">
-                        <button onclick="subirComprobanteCliente()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm transition whitespace-nowrap">Subir Comprobante</button>
-                    </div>
+                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-xs text-blue-900 space-y-1">
+                    <p class="font-bold">📌 Información para realización de pagos:</p>
+                    <p>• Bancolombia Ahorros: <strong>91295240372</strong> a nombre de <strong>Janier Mazo</strong>.</p>
+                    <p>• Fecha límite habitual de pago: Del 24 al 30 de cada mes.</p>
                 </div>
             </div>
 
@@ -215,18 +216,41 @@
             <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 space-y-4">
                 <h3 class="text-xl font-bold text-slate-900">🛒 Catálogo de Equipos y Accesorios</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="catalogo-productos"></div>
-                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3 mt-4">
-                    <h4 class="font-semibold text-sm text-slate-800">Solicitar Producto</h4>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase">Tu Número de WhatsApp</label>
-                        <input type="text" id="whatsapp-solicitud" class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Ej: 3001234567">
-                    </div>
-                    <button onclick="enviarSolicitudTienda()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition">Enviar a WhatsApp y Administradores</button>
-                </div>
             </div>
         </section>
 
     </main>
+
+    <!-- MODAL VISTA PREVIA EXCEL -->
+    <div id="modal-preview-excel" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 border border-slate-100 space-y-4 flex flex-col max-h-[85vh]">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-xl font-bold text-slate-900">Vista Previa del Excel Cargado</h3>
+                <span id="preview-count-badge" class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">0 Registros</span>
+            </div>
+            <p class="text-xs text-slate-500">Revisa los datos del archivo antes de registrarlos o actualizar la base de datos.</p>
+            <div class="overflow-auto flex-grow border rounded-xl">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead class="bg-slate-100 text-slate-700 uppercase font-semibold sticky top-0">
+                        <tr>
+                            <th class="p-2 border-b">Cédula</th>
+                            <th class="p-2 border-b">Nombre</th>
+                            <th class="p-2 border-b">Apellido</th>
+                            <th class="p-2 border-b">Estado</th>
+                            <th class="p-2 border-b">Valor</th>
+                            <th class="p-2 border-b">Megas</th>
+                            <th class="p-2 border-b">Celular</th>
+                        </tr>
+                    </thead>
+                    <tbody id="preview-excel-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+            <div class="flex justify-end space-x-3 pt-3 border-t">
+                <button onclick="cerrarModalPreviewExcel()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium">Cancelar</button>
+                <button id="btn-confirmar-importar" onclick="procesarImportacionConfirmada()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold shadow-md">✅ Confirmar y Guardar en Supabase</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL LIBRE DE SOLICITUD -->
     <div id="modal-solicitud" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
@@ -269,7 +293,7 @@
                 </div>
                 <div class="flex justify-end space-x-3 pt-3 border-t">
                     <button type="button" onclick="cerrarModalSolicitud()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">Enviar Solicitud</button>
+                    <button id="btn-enviar-sol" type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">Enviar Solicitud</button>
                 </div>
             </form>
         </div>
@@ -352,17 +376,6 @@
         </div>
     </div>
 
-    <!-- MODAL HISTORIAL COMPROBANTES CON BOTÓN DE ELIMINAR -->
-    <div id="modal-historial" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 space-y-4">
-            <h3 class="text-xl font-bold text-slate-900">Historial de Comprobantes de Pago</h3>
-            <div id="contenido-historial" class="space-y-2 max-h-64 overflow-y-auto"></div>
-            <div class="flex justify-end pt-3 border-t">
-                <button onclick="document.getElementById('modal-historial').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL CONFIGURACIÓN PERMISOS ESTEBAN -->
     <div id="modal-permisos" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 space-y-4">
@@ -389,6 +402,8 @@
         let usuarioActual = null;
         let adminActual = null;
         let listaUsuariosGlobal = [];
+        let filtroCobroActual = 'todos';
+        let datosExcelPendientes = [];
 
         const catalogoProductos = [
             { id: 'router_wifi6', nombre: 'Router Wi-Fi 6 Gigabit', precio: 120000, desc: 'Alta potencia para cobertura total.', img: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=300&auto=format&fit=crop' },
@@ -501,7 +516,6 @@
             cargarSolicitudesNuevasAdmin();
         }
 
-        // LOGIN DE CLIENTES (ACTIVOS ENTRAN NORMAL, NUEVOS OBLIGAN CÉDULA, CANCELADOS PREGUNTAN SÍ / NO)
         async function loginUser(e) {
             e.preventDefault();
             const cedula = document.getElementById('user-cedula').value.trim();
@@ -512,7 +526,6 @@
                 .eq('cedula', cedula)
                 .single();
 
-            // CASO 1: Si la cédula NO existe en activos, es un cliente NUEVO -> Obligar a subir cédula
             if (error || !data) {
                 let { data: solData } = await supabaseClient
                     .from('solicitudes_nuevas')
@@ -531,7 +544,6 @@
                 return;
             }
 
-            // CASO 2: Si el servicio está cancelado -> Preguntar Sí o No
             if (data.estado_servicio && data.estado_servicio.toLowerCase() === 'cancelado') {
                 let quiereReabrir = confirm('Su servicio anterior se encuentra cancelado. ¿Desea solicitar el servicio nuevamente?');
                 if (quiereReabrir) {
@@ -545,7 +557,6 @@
                 return;
             }
 
-            // CASO 3: Cliente Activo o Suspendido -> Entra con total normalidad a su perfil
             usuarioActual = data;
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('user-dashboard').classList.remove('hidden');
@@ -557,22 +568,16 @@
             document.getElementById('client-name-title').innerText = `Hola, ${data.nombre} ${data.apellido}`;
             document.getElementById('bill-cedula').innerText = data.cedula;
             document.getElementById('bill-estado').innerText = data.estado_servicio || 'Activo';
+            
+            const estadoPago = data.estado_pago || 'Pendiente';
+            document.getElementById('bill-pago-estado').innerText = estadoPago;
+            document.getElementById('bill-pago-estado').className = estadoPago === 'Pagado' ? 'inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800' : 'inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800';
+
             document.getElementById('bill-megas').innerText = data.cantidad_megas || '20 Mbps';
             document.getElementById('bill-promo').innerText = (data.promocion === 'Sí') ? '✨ SÍ (Tarifa Preferencial)' : 'No';
             document.getElementById('bill-valor').innerText = `$ ${Number(data.valor_servicio || 0).toLocaleString()} COP`;
 
-            actualizarVistaComprobanteCliente();
             renderCatalogoTienda();
-        }
-
-        function actualizarVistaComprobanteCliente() {
-            if(usuarioActual.comprobante_url) {
-                document.getElementById('current-comprobante-container').classList.remove('hidden');
-                document.getElementById('link-ver-comprobante').href = usuarioActual.comprobante_url;
-                document.getElementById('info-comprobante-fecha').innerText = `✅ Subido el: ${usuarioActual.comprobante_fecha || 'Fecha reciente'}`;
-            } else {
-                document.getElementById('current-comprobante-container').classList.add('hidden');
-            }
         }
 
         async function consultarEstadoSolicitud(e) {
@@ -617,130 +622,296 @@
 
         async function enviarNuevaSolicitudLibre(e) {
             e.preventDefault();
+            const btn = document.getElementById('btn-enviar-sol');
             const cedula = document.getElementById('sol-cedula').value.trim();
             const fileFront = document.getElementById('sol-file-frontal').files[0];
             const fileBack = document.getElementById('sol-file-trasera').files[0];
 
             if(!fileFront || !fileBack) { alert('Debes adjuntar la cédula por ambos lados.'); return; }
 
-            const nameFront = `${cedula}_frontal_${Date.now()}_${fileFront.name}`;
-            const nameBack = `${cedula}_trasera_${Date.now()}_${fileBack.name}`;
+            btn.disabled = true;
+            btn.innerText = 'Enviando...';
 
-            await supabaseClient.storage.from('comprobantes').upload(nameFront, fileFront);
-            await supabaseClient.storage.from('comprobantes').upload(nameBack, fileBack);
+            try {
+                const nameFront = `${cedula}_frontal_${Date.now()}_${fileFront.name}`;
+                const nameBack = `${cedula}_trasera_${Date.now()}_${fileBack.name}`;
 
-            const urlFront = supabaseClient.storage.from('comprobantes').getPublicUrl(nameFront).data.publicUrl;
-            const urlBack = supabaseClient.storage.from('comprobantes').getPublicUrl(nameBack).data.publicUrl;
+                await supabaseClient.storage.from('comprobantes').upload(nameFront, fileFront);
+                await supabaseClient.storage.from('comprobantes').upload(nameBack, fileBack);
 
-            const nuevaSolicitud = {
-                cedula: cedula,
-                nombre: document.getElementById('sol-nombre').value.trim(),
-                apellido: document.getElementById('sol-apellido').value.trim(),
-                celular: document.getElementById('sol-celular').value.trim(),
-                correo: document.getElementById('sol-correo').value.trim(),
-                cedula_frontal_url: urlFront,
-                cedula_trasera_url: urlBack,
-                estado: 'Pendiente'
-            };
+                const urlFront = supabaseClient.storage.from('comprobantes').getPublicUrl(nameFront).data.publicUrl;
+                const urlBack = supabaseClient.storage.from('comprobantes').getPublicUrl(nameBack).data.publicUrl;
 
-            const { error } = await supabaseClient.from('solicitudes_nuevas').upsert([nuevaSolicitud]);
-            if(error) { alert('Error al enviar la solicitud.'); console.error(error); return; }
+                const nuevaSolicitud = {
+                    cedula: cedula,
+                    nombre: document.getElementById('sol-nombre').value.trim(),
+                    apellido: document.getElementById('sol-apellido').value.trim(),
+                    celular: document.getElementById('sol-celular').value.trim(),
+                    correo: document.getElementById('sol-correo').value.trim(),
+                    cedula_frontal_url: urlFront,
+                    cedula_trasera_url: urlBack,
+                    estado: 'Pendiente'
+                };
 
-            alert('¡Solicitud enviada con éxito! Un técnico se comunicará con usted para coordinar la visita.');
-            cerrarModalSolicitud();
-            document.getElementById('form-seguimiento').reset();
+                const { error } = await supabaseClient.from('solicitudes_nuevas').upsert([nuevaSolicitud]);
+                if(error) throw error;
+
+                alert('¡Solicitud enviada con éxito! Un técnico se comunicará con usted para coordinar la visita.');
+                cerrarModalSolicitud();
+                document.getElementById('form-seguimiento').reset();
+            } catch(err) {
+                alert('Error al enviar la solicitud.');
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Enviar Solicitud';
+            }
         }
 
         async function cargarDatosAdmin() {
             const { data } = await supabaseClient.from('usuarios_conectado2').select('*');
             listaUsuariosGlobal = data || [];
+            actualizarContadoresFiltros();
+            renderTablaAdmin();
+        }
+
+        function actualizarContadoresFiltros() {
+            const activos = listaUsuariosGlobal.filter(u => (u.estado_servicio || 'Activo') === 'Activo');
+            const pendientes = listaUsuariosGlobal.filter(u => (u.estado_servicio || 'Activo') === 'Activo' && (u.estado_pago || 'Pendiente') === 'Pendiente');
+            const pagados = listaUsuariosGlobal.filter(u => (u.estado_servicio || 'Activo') === 'Activo' && u.estado_pago === 'Pagado');
+            const suspendidos = listaUsuariosGlobal.filter(u => u.estado_servicio === 'Suspendido');
+
+            document.getElementById('cnt-todos').innerText = activos.length;
+            document.getElementById('cnt-pendientes').innerText = pendientes.length;
+            document.getElementById('cnt-pagados').innerText = pagados.length;
+            document.getElementById('cnt-suspendidos').innerText = suspendidos.length;
+        }
+
+        function filtrarEstadoCobro(tipo) {
+            filtroCobroActual = tipo;
+            const bTodos = document.getElementById('filter-cobro-todos');
+            const bPend = document.getElementById('filter-cobro-pendiente');
+            const bPag = document.getElementById('filter-cobro-pagado');
+            const bSusp = document.getElementById('filter-cobro-suspendido');
+
+            bTodos.className = "px-4 py-2 rounded-md text-slate-600 font-medium";
+            bPend.className = "px-4 py-2 rounded-md text-slate-600 font-medium";
+            bPag.className = "px-4 py-2 rounded-md text-slate-600 font-medium";
+            bSusp.className = "px-4 py-2 rounded-md text-slate-600 font-medium";
+
+            if(tipo === 'todos') bTodos.className = "px-4 py-2 rounded-md bg-white text-slate-800 shadow-sm font-bold";
+            if(tipo === 'pendiente') bPend.className = "px-4 py-2 rounded-md bg-white text-amber-700 shadow-sm font-bold";
+            if(tipo === 'pagado') bPag.className = "px-4 py-2 rounded-md bg-white text-emerald-700 shadow-sm font-bold";
+            if(tipo === 'suspendido') bSusp.className = "px-4 py-2 rounded-md bg-white text-red-700 shadow-sm font-bold";
+
+            renderTablaAdmin();
+        }
+
+        function renderTablaAdmin() {
             const tbody = document.getElementById('admin-table-body');
             tbody.innerHTML = '';
 
-            listaUsuariosGlobal.forEach(user => {
+            let listaFiltrada = listaUsuariosGlobal.filter(u => {
+                const estServicio = u.estado_servicio || 'Activo';
+                const estPago = u.estado_pago || 'Pendiente';
+
+                if (filtroCobroActual === 'todos') return estServicio === 'Activo';
+                if (filtroCobroActual === 'pendiente') return estServicio === 'Activo' && estPago === 'Pendiente';
+                if (filtroCobroActual === 'pagado') return estServicio === 'Activo' && estPago === 'Pagado';
+                if (filtroCobroActual === 'suspendido') return estServicio === 'Suspendido';
+                return true;
+            });
+
+            if(!listaFiltrada.length) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">No hay clientes registrados en esta sección.</td></tr>`;
+                return;
+            }
+
+            listaFiltrada.forEach(user => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                
+                const esActivo = (user.estado_servicio || 'Activo') === 'Activo';
+                const esPagado = user.estado_pago === 'Pagado';
+
+                const badgeServicio = esActivo 
+                    ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Activo</span>`
+                    : `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">Suspendido</span>`;
+
+                const badgePago = esPagado
+                    ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">✅ Pagado</span>`
+                    : `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">⏳ Pendiente</span>`;
+
+                const botonEstadoPago = esPagado
+                    ? `<button onclick='cambiarEstadoPago("${user.cedula}", "Pendiente")' class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded text-xs font-semibold">↩️ Marcar Pendiente</button>`
+                    : `<button onclick='cambiarEstadoPago("${user.cedula}", "Pagado")' class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-semibold shadow-sm">💵 Marcar Pagado</button>`;
+
+                const botonSuspender = esActivo
+                    ? `<button onclick='cambiarEstadoServicio("${user.cedula}", "Suspendido")' class="bg-red-100 hover:bg-red-200 text-red-800 px-2 py-1 rounded text-xs">🚫 Suspender</button>`
+                    : `<button onclick='cambiarEstadoServicio("${user.cedula}", "Activo")' class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2 py-1 rounded text-xs font-semibold">✅ Reactivar</button>`;
+
                 tr.innerHTML = `
-                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Activo</span></td>
-                    <td class="p-3"><button onclick='abrirModalCedulaAdmin(${JSON.stringify(user)})' class="bg-indigo-100 text-indigo-800 px-3 py-1 rounded text-xs font-bold">🪪 Ver Cédula</button></td>
-                    <td class="p-3 font-medium">${user.nombre} ${user.apellido} (${user.cedula})</td>
-                    <td class="p-3">${user.estado_servicio || 'Activo'}</td>
-                    <td class="p-3">$ ${Number(user.valor_servicio || 0).toLocaleString()}</td>
+                    <td class="p-3">${badgeServicio}</td>
+                    <td class="p-3">${badgePago}</td>
                     <td class="p-3">
-                        ${user.comprobante_url ? `
-                            <a href="${user.comprobante_url}" target="_blank" class="text-blue-600 underline text-xs">Ver</a>
-                            <button onclick='eliminarComprobanteAdmin("${user.cedula}")' class="text-xs text-red-600 underline ml-2">Eliminar</button>
-                        ` : 'Sin subir'}
-                        <div class="mt-1">
-                            <label class="cursor-pointer text-xs bg-slate-100 hover:bg-slate-200 px-2 py-0.5 rounded">Subir
-                                <input type="file" accept="image/*,pdf" class="hidden" onchange='adminSubirComprobanteParaUsuario(event, "${user.cedula}")'>
-                            </label>
-                            <button onclick='verHistorialComprobantes("${user.cedula}")' class="text-xs text-purple-700 underline ml-1">Historial</button>
-                        </div>
+                        <button onclick='abrirModalCedulaAdmin(${JSON.stringify(user)})' class="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded text-xs font-bold">🪪 Ver Cédula</button>
                     </td>
+                    <td class="p-3 font-medium">${user.nombre} ${user.apellido} <br><span class="text-xs text-slate-400">${user.cedula}</span></td>
+                    <td class="p-3">${user.cantidad_megas || '20 Mbps'} <br><span class="font-bold text-blue-600">$ ${Number(user.valor_servicio || 0).toLocaleString()}</span></td>
+                    <td class="p-3 text-center">${botonEstadoPago}</td>
                     <td class="p-3 text-center space-x-1">
-                        <button onclick='validarYGenerarPDF(${JSON.stringify(user)})' class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded text-xs font-bold">📄 PDF</button>
+                        <button onclick='validarYGenerarPDF(${JSON.stringify(user)})' class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">📄 PDF</button>
                         <button onclick='abrirModalEditar(${JSON.stringify(user)})' class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs">Editar</button>
-                        <button onclick='eliminarUsuario("${user.cedula}")' class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Eliminar</button>
+                        ${botonSuspender}
+                        <button onclick='eliminarUsuario("${user.cedula}")' class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded text-xs">Eliminar</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        async function eliminarComprobanteAdmin(cedula) {
+        // --- ACCIONES RÁPIDAS DE PAGO Y SUSPENSIÓN ---
+        async function cambiarEstadoPago(cedula, nuevoEstado) {
             if(!verificarPermisoEsteban('editar')) return;
-            if(confirm('¿Estás seguro de eliminar el comprobante actual de este usuario?')) {
-                await supabaseClient.from('usuarios_conectado2').update({ comprobante_url: null, comprobante_fecha: null }).eq('cedula', cedula);
-                alert('Comprobante eliminado.');
+            await supabaseClient.from('usuarios_conectado2').update({ estado_pago: nuevoEstado }).eq('cedula', cedula);
+            cargarDatosAdmin();
+        }
+
+        async function cambiarEstadoServicio(cedula, nuevoEstado) {
+            if(!verificarPermisoEsteban('editar')) return;
+            if(confirm(`¿Deseas cambiar el estado del servicio a "${nuevoEstado}"?`)) {
+                await supabaseClient.from('usuarios_conectado2').update({ estado_servicio: nuevoEstado }).eq('cedula', cedula);
                 cargarDatosAdmin();
             }
         }
 
-        async function eliminarComprobanteActual() {
-            if(confirm('¿Deseas eliminar el comprobante subido?')) {
-                await supabaseClient.from('usuarios_conectado2').update({ comprobante_url: null, comprobante_fecha: null }).eq('cedula', usuarioActual.cedula);
-                usuarioActual.comprobante_url = null;
-                usuarioActual.comprobante_fecha = null;
-                actualizarVistaComprobanteCliente();
-                alert('Comprobante eliminado.');
-            }
-        }
-
-        async function verHistorialComprobantes(cedula) {
-            const { data } = await supabaseClient.from('historial_comprobantes').select('*').eq('cedula', cedula).order('fecha_subida', { ascending: false });
-            const contenedor = document.getElementById('contenido-historial');
-            contenedor.innerHTML = '';
-
-            if(data && data.length > 0) {
-                data.forEach(h => {
-                    contenedor.innerHTML += `
-                        <div class="bg-slate-50 p-3 rounded-xl border flex justify-between items-center text-xs">
-                            <div>
-                                <span class="font-bold text-slate-700">${h.mes_correspondiente || 'Mes anterior'}</span><br>
-                                <span class="text-slate-400">${new Date(h.fecha_subida).toLocaleString()}</span>
-                            </div>
-                            <div class="space-x-2">
-                                <a href="${h.comprobante_url}" target="_blank" class="bg-blue-600 text-white px-3 py-1 rounded">Ver</a>
-                                <button onclick='eliminarHistorialItem(${h.id}, "${cedula}")' class="bg-red-100 text-red-700 px-2 py-1 rounded">Eliminar</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            } else {
-                contenedor.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">No hay historial de comprobantes.</p>`;
-            }
-
-            document.getElementById('modal-historial').classList.remove('hidden');
-            document.getElementById('modal-historial').classList.add('flex');
-        }
-
-        async function eliminarHistorialItem(id, cedula) {
+        // --- REINICIAR MES EL DÍA 24 ---
+        async function reiniciarMesCobros() {
             if(!verificarPermisoEsteban('editar')) return;
-            if(confirm('¿Eliminar este registro del historial?')) {
-                await supabaseClient.from('historial_comprobantes').delete().eq('id', id);
-                alert('Registro eliminado del historial.');
-                verHistorialComprobantes(cedula);
+            const confirmacion = confirm('📅 ¿Deseas reiniciar los cobros del mes?\n\nEsta acción marcará a TODOS los clientes activos como "Pendiente de Pago" para iniciar el nuevo ciclo del 24.');
+            
+            if(confirmacion) {
+                const { error } = await supabaseClient
+                    .from('usuarios_conectado2')
+                    .update({ estado_pago: 'Pendiente' })
+                    .eq('estado_servicio', 'Activo');
+
+                if(error) {
+                    alert('Error al reiniciar mes: ' + error.message);
+                } else {
+                    alert('¡Listo! Todos los clientes activos pasaron a estado "Pendiente de Pago".');
+                    cargarDatosAdmin();
+                }
+            }
+        }
+
+        // --- VACIAR BASE DE DATOS COMPLETA ---
+        async function vaciarBaseDatosAdmin() {
+            if(!verificarPermisoEsteban('editar')) return;
+            const confirmacion = confirm('⚠️ ATENCIÓN: ¿Estás seguro de que deseas ELIMINAR TODOS los clientes de la base de datos?\nEsta acción borra la información actual para que puedas cargar un archivo totalmente nuevo.');
+            
+            if(confirmacion) {
+                const dobleConfirm = prompt('Para confirmar la eliminación escribe "BORRAR":');
+                if(dobleConfirm && dobleConfirm.trim() === 'BORRAR') {
+                    const { error } = await supabaseClient.from('usuarios_conectado2').delete().neq('cedula', '0');
+                    if(error) {
+                        alert('Error al vaciar la base de datos: ' + error.message);
+                    } else {
+                        alert('🗑️ La base de datos ha sido vaciada correctamente.');
+                        cargarDatosAdmin();
+                    }
+                } else {
+                    alert('Acción cancelada.');
+                }
+            }
+        }
+
+        // --- IMPORTACIÓN Y VISTA PREVIA EXCEL ---
+        function importarExcel(event) {
+            if(!verificarPermisoEsteban('editar')) return;
+            const file = event.target.files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheetName = workbook.SheetNames[0];
+                    const sheet = workbook.Sheets[sheetName];
+                    const json = XLSX.utils.sheet_to_json(sheet);
+
+                    if(!json.length) { alert('El archivo Excel está vacío.'); return; }
+
+                    datosExcelPendientes = json.map(fila => ({
+                        cedula: String(fila['CÉDULA'] || fila['cedula'] || ''),
+                        nombre: fila['NOMBRE'] || fila['nombre'] || '',
+                        apellido: fila['APELLIDOS'] || fila['apellido'] || '',
+                        estado_servicio: fila['ESTADO'] || fila['estado'] || 'Activo',
+                        estado_pago: fila['ESTADO_PAGO'] || fila['estado_pago'] || 'Pendiente',
+                        valor_servicio: parseFloat(fila['VALOR'] || fila['valor'] || 50000),
+                        cantidad_megas: fila['MEGAS'] || fila['megas'] || '20 Mbps',
+                        celular: String(fila['CELULAR'] || fila['celular'] || '')
+                    })).filter(u => u.cedula.trim() !== '');
+
+                    renderModalPreviewExcel();
+                } catch(err) {
+                    alert('Error al leer el archivo Excel. Asegúrate de usar un formato válido.');
+                    console.error(err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            event.target.value = '';
+        }
+
+        function renderModalPreviewExcel() {
+            const tbody = document.getElementById('preview-excel-body');
+            tbody.innerHTML = '';
+            document.getElementById('preview-count-badge').innerText = `${datosExcelPendientes.length} Registros Encontrados`;
+
+            datosExcelPendientes.forEach(u => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="p-2 font-semibold text-slate-900">${u.cedula}</td>
+                    <td class="p-2">${u.nombre}</td>
+                    <td class="p-2">${u.apellido}</td>
+                    <td class="p-2"><span class="px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800 font-medium">${u.estado_servicio}</span></td>
+                    <td class="p-2">$ ${u.valor_servicio.toLocaleString()}</td>
+                    <td class="p-2">${u.cantidad_megas}</td>
+                    <td class="p-2">${u.celular || 'N/A'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('modal-preview-excel').classList.remove('hidden');
+            document.getElementById('modal-preview-excel').classList.add('flex');
+        }
+
+        function cerrarModalPreviewExcel() {
+            document.getElementById('modal-preview-excel').classList.add('hidden');
+            datosExcelPendientes = [];
+        }
+
+        async function procesarImportacionConfirmada() {
+            if(!datosExcelPendientes.length) return;
+            const btn = document.getElementById('btn-confirmar-importar');
+            btn.disabled = true;
+            btn.innerText = 'Guardando en Supabase...';
+
+            try {
+                const { error } = await supabaseClient.from('usuarios_conectado2').upsert(datosExcelPendientes);
+                if(error) throw error;
+
+                alert(`¡Éxito! Se han cargado y actualizado ${datosExcelPendientes.length} clientes en Supabase.`);
+                cerrarModalPreviewExcel();
+                cargarDatosAdmin();
+            } catch(err) {
+                alert('Error al guardar datos en Supabase: ' + err.message);
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = '✅ Confirmar y Guardar en Supabase';
             }
         }
 
@@ -808,6 +979,7 @@
                     cedula_frontal_url: solicitud.cedula_frontal_url,
                     cedula_trasera_url: solicitud.cedula_trasera_url,
                     estado_servicio: 'Activo',
+                    estado_pago: 'Pendiente',
                     valor_servicio: 50000,
                     cantidad_megas: '20 Mbps',
                     fecha_corte: '24',
@@ -897,12 +1069,12 @@
             if(!listaUsuariosGlobal.length) { alert('No hay usuarios activos.'); return; }
             const datos = listaUsuariosGlobal.map(u => ({
                 'CÉDULA': u.cedula, 'NOMBRE': u.nombre, 'APELLIDOS': u.apellido,
-                'ESTADO': u.estado_servicio, 'VALOR': u.valor_servicio, 'MEGAS': u.cantidad_megas, 'CELULAR': u.celular
+                'ESTADO': u.estado_servicio, 'PAGO': u.estado_pago || 'Pendiente', 'VALOR': u.valor_servicio, 'MEGAS': u.cantidad_megas, 'CELULAR': u.celular
             }));
             const ws = XLSX.utils.json_to_sheet(datos);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Activos");
-            XLSX.writeFile(wb, `Clientes_Activos_${new Date().toISOString().slice(0,10)}.xlsx`);
+            XLSX.utils.book_append_sheet(wb, ws, "Clientes");
+            XLSX.writeFile(wb, `Clientes_Conectado2_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
         function generarPDFFactura(clienteObj) {
@@ -934,81 +1106,54 @@
             doc.text(`Plan Megas: ${clienteObj.cantidad_megas || '20 Mbps'}`, 14, 92);
             doc.text(`Promoción Activa: ${clienteObj.promocion === 'Sí' ? '✨ SÍ' : 'No'}`, 14, 99);
             doc.text(`Estado del Servicio: ${clienteObj.estado_servicio || 'Activo'}`, 14, 106);
+            doc.text(`Estado de Pago: ${clienteObj.estado_pago || 'Pendiente'}`, 14, 113);
 
             doc.setFillColor(240, 243, 246);
-            doc.roundedRect(14, 115, 182, 30, 3, 3, "F");
+            doc.roundedRect(14, 122, 182, 28, 3, 3, "F");
             doc.setFontSize(12);
-            doc.text(`Total a Pagar:`, 20, 130);
+            doc.text(`Total a Pagar:`, 20, 137);
             doc.setFontSize(16);
             doc.setTextColor(30, 64, 175);
-            doc.text(`$ ${Number(clienteObj.valor_servicio || 0).toLocaleString()} COP`, 60, 131);
+            doc.text(`$ ${Number(clienteObj.valor_servicio || 0).toLocaleString()} COP`, 60, 138);
 
             doc.setTextColor(50, 50, 50);
             doc.setFontSize(10);
-            doc.text(`Información de Pago:`, 14, 158);
-            doc.text(`• Banco: Bancolombia (Cuenta de Ahorros)`, 14, 165);
-            doc.text(`• Número de Cuenta: 91295240372`, 14, 172);
-            doc.text(`• A nombre de: Janier Mazo`, 14, 179);
+            doc.text(`Información de Pago:`, 14, 162);
+            doc.text(`• Banco: Bancolombia (Cuenta de Ahorros)`, 14, 169);
+            doc.text(`• Número de Cuenta: 91295240372`, 14, 176);
+            doc.text(`• A nombre de: Janier Mazo`, 14, 183);
 
             doc.setFontSize(9);
             doc.setTextColor(100, 100, 100);
-            doc.text(`Backhaul Proveedor Tecnológico: Starlink Empresarial`, 14, 195);
-            doc.text(`¡Gracias por pertenecer a la familia Conectado2!`, 14, 205);
+            doc.text(`Backhaul Proveedor Tecnológico: Starlink Empresarial`, 14, 198);
+            doc.text(`¡Gracias por pertenecer a la familia Conectado2!`, 14, 208);
 
             doc.save(`Factura_Conectado2_${clienteObj.cedula}_${periodo.mes}.pdf`);
         }
 
-        async function adminSubirComprobanteParaUsuario(e, cedula) {
-            if(!verificarPermisoEsteban('editar')) return;
-            const file = e.target.files[0];
-            if(!file) return;
-            const fechaHora = new Date().toLocaleString();
-            const fileName = `${cedula}_${Date.now()}_admin_${file.name}`;
-            
-            const { error: storageError } = await supabaseClient.storage.from('comprobantes').upload(fileName, file);
-            if(storageError) { alert('Error al subir archivo'); return; }
-            const { data } = supabaseClient.storage.from('comprobantes').getPublicUrl(fileName);
-            
-            await supabaseClient.from('usuarios_conectado2').update({ 
-                comprobante_url: data.publicUrl,
-                comprobante_fecha: fechaHora 
-            }).eq('cedula', cedula);
-
-            await supabaseClient.from('historial_comprobantes').insert([{
-                cedula: cedula,
-                comprobante_url: data.publicUrl,
-                mes_correspondiente: obtenerPeriodoFacturacion().mes
-            }]);
-
-            alert('¡Comprobante subido y registrado!');
-            cargarDatosAdmin();
+        function renderCatalogoTienda() {
+            const container = document.getElementById('catalogo-productos');
+            container.innerHTML = '';
+            catalogoProductos.forEach(p => {
+                container.innerHTML += `
+                    <div class="border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:shadow-md transition">
+                        <img src="${p.img}" alt="${p.nombre}" class="h-32 w-full object-cover rounded-lg mb-3">
+                        <div>
+                            <h4 class="font-bold text-slate-800 text-sm">${p.nombre}</h4>
+                            <p class="text-xs text-slate-500 mt-1">${p.desc}</p>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center">
+                            <span class="font-bold text-blue-600 text-sm">$${p.precio.toLocaleString()}</span>
+                            <button onclick="solicitarProductoDirecto('${p.nombre}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-semibold border border-blue-200">Pedir</button>
+                        </div>
+                    </div>
+                `;
+            });
         }
 
-        async function subirComprobanteCliente() {
-            const file = document.getElementById('comprobante-file').files[0];
-            if(!file) { alert('Selecciona un archivo.'); return; }
-            const fechaHora = new Date().toLocaleString();
-            const periodoActual = obtenerPeriodoFacturacion().mes;
-            const fileName = `${usuarioActual.cedula}_${Date.now()}_${file.name}`;
-            
-            await supabaseClient.storage.from('comprobantes').upload(fileName, file);
-            const { data } = supabaseClient.storage.from('comprobantes').getPublicUrl(fileName);
-
-            await supabaseClient.from('usuarios_conectado2').update({ 
-                comprobante_url: data.publicUrl,
-                comprobante_fecha: fechaHora
-            }).eq('cedula', usuarioActual.cedula);
-
-            await supabaseClient.from('historial_comprobantes').insert([{
-                cedula: usuarioActual.cedula,
-                comprobante_url: data.publicUrl,
-                mes_correspondiente: periodoActual
-            }]);
-
-            alert('¡Comprobante subido con éxito!');
-            usuarioActual.comprobante_url = data.publicUrl;
-            usuarioActual.comprobante_fecha = fechaHora;
-            actualizarVistaComprobanteCliente();
+        function solicitarProductoDirecto(nombreProd) {
+            const msg = `Hola Conectado2, soy ${usuarioActual.nombre} ${usuarioActual.apellido} (Cédula: ${usuarioActual.cedula}) y me interesa adquirir: ${nombreProd}.`;
+            window.open(`https://wa.me/573000000000?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         function abrirModalCedulaAdmin(user) {
@@ -1019,7 +1164,7 @@
             document.getElementById('modal-cedula-admin').classList.remove('hidden');
         }
 
-        function filtrarTablaAdmin() {
+        function filtrarTablaAdminText() {
             const query = document.getElementById('search-admin').value.toLowerCase();
             document.querySelectorAll('#admin-table-body tr').forEach(row => {
                 row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
