@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conectado2 - Portal de Gestión y Solicitudes</title>
+    <title>Conectado2 - Internet Rural</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Librería SheetJS para Excel -->
@@ -19,104 +19,105 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- ENCABEZADO Y LOGO -->
-    <header class="bg-blue-600 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="bg-white p-2 rounded-xl text-blue-600 font-bold text-xl shadow flex items-center justify-center w-12 h-12">
-                    🌐
-                </div>
-                <div>
-                    <h1 class="text-2xl font-bold tracking-wide">Conectado2</h1>
-                    <p class="text-xs text-blue-200">Internet Rural de Alta Velocidad (Backhaul Starlink Empresarial)</p>
-                </div>
+    <!-- ENCABEZADO MINIMALISTA Y MENÚ NAVEGACIÓN -->
+    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
+            
+            <!-- Logo Banner Adaptado -->
+            <div class="flex items-center justify-center cursor-pointer" onclick="irInicio()">
+                <img src="https://vebsnjvihcxigmkvcsem.supabase.co/storage/v1/object/public/branding/LOGO.jpeg" 
+                     alt="Conectado2 Internet Rural Logo" 
+                     class="h-14 md:h-16 w-auto object-contain drop-shadow-sm">
             </div>
-            <div id="user-session-info" class="hidden flex items-center space-x-4">
-                <span id="welcome-msg" class="text-sm font-medium"></span>
-                <button onclick="cerrarSesion()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm transition font-medium shadow-sm">Cerrar Sesión</button>
+
+            <!-- Botones de Navegación Minimalistas al lado del Logo -->
+            <div class="flex flex-wrap items-center gap-2" id="nav-publica">
+                <button onclick="abrirModalAuthExclusivo('user')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+                    👤 Ingreso Clientes
+                </button>
+                <button onclick="abrirModalAuthExclusivo('seguimiento')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition">
+                    📋 Estado Solicitud
+                </button>
+                <button onclick="abrirModalAuthExclusivo('admin')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition">
+                    🔐 Admin
+                </button>
+                <button onclick="abrirTiendaPublica()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+                    🛒 Tienda
+                </button>
+            </div>
+
+            <!-- Sesión Activa -->
+            <div id="user-session-info" class="hidden flex items-center space-x-4 bg-slate-100 px-4 py-2 rounded-xl">
+                <span id="welcome-msg" class="text-sm font-semibold text-slate-800"></span>
+                <button onclick="cerrarSesion()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs transition font-semibold shadow-sm">Cerrar Sesión</button>
             </div>
         </div>
     </header>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
+    <main class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full space-y-8">
 
-        <!-- 1. VISTA DE LOGIN Y ACCESO PÚBLICO -->
-        <section id="login-section" class="max-w-md mx-auto space-y-6 mt-6">
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 p-8">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-slate-900">Portal Conectado2</h2>
-                    <p class="text-sm text-slate-500 mt-1">Acceso Clientes, Administradores o Seguimiento de Solicitudes</p>
-                </div>
-
-                <!-- Pestañas de Navegación Externa -->
-                <div class="flex rounded-lg bg-slate-100 p-1 mb-6 text-xs font-medium">
-                    <button onclick="cambiarTabLogin('user')" id="tab-user" class="flex-1 py-2 rounded-md transition bg-white text-emerald-600 shadow-sm">Clientes</button>
-                    <button onclick="cambiarTabLogin('seguimiento')" id="tab-seguimiento" class="flex-1 py-2 rounded-md transition text-slate-600">Estado Solicitud</button>
-                    <button onclick="cambiarTabLogin('admin')" id="tab-admin" class="flex-1 py-2 rounded-md transition text-slate-600">Admin</button>
-                </div>
-
-                <!-- Formulario Cliente -->
-                <form id="form-user" onsubmit="loginUser(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Número de Cédula (Cliente)</label>
-                        <input type="text" id="user-cedula" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ingrese su cédula">
-                    </div>
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Ingresar a mi Perfil</button>
-                </form>
-
-                <!-- Formulario Seguimiento de Solicitud -->
-                <form id="form-seguimiento" onsubmit="consultarEstadoSolicitud(event)" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Número de Cédula (Nueva Solicitud)</label>
-                        <input type="text" id="seg-cedula" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Ingrese la cédula registrada">
-                    </div>
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Consultar Estado de Visita</button>
-                </form>
-
-                <!-- Formulario Admin -->
-                <form id="form-admin" onsubmit="loginAdmin(event)" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Usuario Administrador</label>
-                        <input type="text" id="admin-user-input" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Usuario autorizado">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Contraseña</label>
-                        <input type="password" id="admin-pass" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••••••">
-                    </div>
-                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Ingresar al Panel</button>
-                </form>
+        <!-- VISTA DE INICIO PÚBLICA -->
+        <section id="vista-home-publica" class="max-w-4xl mx-auto space-y-8">
+            
+            <!-- Imagen Banner Grande de Supabase (1200x400) -->
+            <div class="w-full rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-white">
+                <img src="https://vebsnjvihcxigmkvcsem.supabase.co/storage/v1/object/public/branding/banner_principal.jpeg" 
+                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=1200&auto=format&fit=crop';" 
+                     alt="Conectado2 Cobertura Internet Rural" 
+                     class="w-full h-56 md:h-80 object-cover">
             </div>
 
-            <!-- Botón para Nuevos Clientes -->
-            <div class="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center shadow-sm">
-                <h3 class="font-bold text-blue-900 mb-2">¿Quieres contratar Conectado2?</h3>
-                <p class="text-xs text-blue-700 mb-4">Solicita tu servicio de internet rural Ubiquiti con respaldo Starlink Empresarial ahora mismo.</p>
-                <button onclick="abrirModalSolicitud()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition shadow-sm">📝 Solicitar Nuevo Servicio</button>
+            <!-- Tarjeta Principal: ¿Quieres Contratar? -->
+            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 text-white text-center shadow-xl space-y-4">
+                <h2 class="text-3xl font-extrabold tracking-tight">¿Quieres contratar Conectado2?</h2>
+                <p class="text-blue-100 text-sm md:text-base max-w-xl mx-auto">
+                    Conéctate al mejor internet rural de alta velocidad con tecnología Ubiquiti y respaldo Starlink Empresarial en Toledo, Antioquia.
+                </p>
+                <div class="pt-2">
+                    <button onclick="abrirModalSolicitud()" class="bg-white text-blue-700 hover:bg-blue-50 font-bold px-8 py-3.5 rounded-2xl text-base shadow-lg transition transform hover:-translate-y-0.5">
+                        📝 Solicitar Nuevo Servicio
+                    </button>
+                </div>
             </div>
         </section>
 
-        <!-- 2. PANEL DE ADMINISTRADOR -->
+        <!-- TIENDA PÚBLICA -->
+        <section id="vista-tienda-publica" class="hidden max-w-5xl mx-auto space-y-6">
+            <div class="flex justify-between items-center border-b pb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">🛒 Tienda y Equipos Conectado2</h2>
+                    <p class="text-xs text-slate-500">Routers Wi-Fi, antenas Ubiquiti y cámaras de seguridad para tu hogar o finca.</p>
+                </div>
+                <button onclick="irInicio()" class="text-xs text-blue-600 hover:underline font-semibold">← Volver al Inicio</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="catalogo-productos-publico"></div>
+        </section>
+
+        <!-- PANEL DE ADMINISTRADOR -->
         <section id="admin-dashboard" class="hidden space-y-6">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <div>
                     <h2 class="text-2xl font-bold text-slate-900" id="admin-title-panel">Panel de Administración</h2>
-                    <p class="text-sm text-slate-500">Gestión de clientes activos, control de cobros mensuales y solicitudes.</p>
+                    <p class="text-sm text-slate-500">Gestión de clientes activos, control de cobros mensuales y catálogo de tienda.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
                     <button onclick="reiniciarMesCobros()" class="bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-1" title="Marca a todos los activos en Pendiente de Pago el día 24">
                         🔄 Reiniciar Mes (Marcar Pendientes)
                     </button>
+                    <button onclick="abrirModalNuevoProducto()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-1">
+                        📷 ➕ Agregar Producto / Cámara
+                    </button>
                     <button onclick="exportarExcelAdmin()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm">📤 Exportar Excel</button>
-                    <label class="cursor-pointer bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-2">
-                        📂 Cargar / Ver Excel
+                    <label class="cursor-pointer bg-slate-700 hover:bg-slate-800 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-2">
+                        📂 Cargar Excel
                         <input type="file" id="excel-file" accept=".xlsx, .xls" class="hidden" onchange="importarExcel(event)">
                     </label>
                     <button onclick="vaciarBaseDatosAdmin()" class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm">
                         🗑️ Vaciar BD
                     </button>
                     <button onclick="abrirModalPermisos()" id="btn-permisos-config" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium px-4 py-2.5 rounded-xl text-sm transition">⚙️ Permisos</button>
-                    <button onclick="cargarDatosAdmin(); cargarSolicitudesNuevasAdmin();" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-4 py-2.5 rounded-xl text-sm transition border border-blue-200">🔄 Actualizar</button>
+                    <button onclick="cargarDatosAdmin(); cargarSolicitudesNuevasAdmin(); cargarProductosTienda();" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-4 py-2.5 rounded-xl text-sm transition border border-blue-200">🔄 Actualizar</button>
                 </div>
             </div>
 
@@ -124,14 +125,13 @@
             <div class="flex border-b border-slate-200">
                 <button onclick="cambiarTabAdmin('activos')" id="tab-admin-activos" class="px-6 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600">👥 Clientes</button>
                 <button onclick="cambiarTabAdmin('solicitudes')" id="tab-admin-solicitudes" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">📋 Solicitudes Nuevas</button>
+                <button onclick="cambiarTabAdmin('tienda')" id="tab-admin-tienda" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">🛒 Tienda y Equipos</button>
             </div>
 
-            <!-- 2.1 TABLA DE CLIENTES (CON FILTROS INTERNOS) -->
+            <!-- TABLA DE CLIENTES -->
             <div id="seccion-admin-activos" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden space-y-4">
-                
-                <!-- Sub-Filtros de Estado de Cobro / Servicio -->
                 <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50">
-                    <div class="flex rounded-lg bg-slate-200 p-1 text-xs font-medium">
+                    <div class="flex flex-wrap rounded-lg bg-slate-200 p-1 text-xs font-medium gap-1">
                         <button onclick="filtrarEstadoCobro('todos')" id="filter-cobro-todos" class="px-4 py-2 rounded-md bg-white text-slate-800 shadow-sm font-bold">Todos Activos (<span id="cnt-todos">0</span>)</button>
                         <button onclick="filtrarEstadoCobro('pendiente')" id="filter-cobro-pendiente" class="px-4 py-2 rounded-md text-amber-700 font-semibold">⏳ Pendientes de Pago (<span id="cnt-pendientes">0</span>)</button>
                         <button onclick="filtrarEstadoCobro('pagado')" id="filter-cobro-pagado" class="px-4 py-2 rounded-md text-emerald-700 font-semibold">✅ Pagados (<span id="cnt-pagados">0</span>)</button>
@@ -158,7 +158,7 @@
                 </div>
             </div>
 
-            <!-- 2.2 TABLA DE SOLICITUDES NUEVAS -->
+            <!-- TABLA DE SOLICITUDES NUEVAS -->
             <div id="seccion-admin-solicitudes" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hidden">
                 <div class="p-4 border-b border-slate-100">
                     <h3 class="font-semibold text-slate-800">Solicitudes Nuevas de Instalación ($90.000)</h3>
@@ -179,9 +179,23 @@
                     </table>
                 </div>
             </div>
+
+            <!-- GESTIÓN DE TIENDA Y EQUIPOS (ADMIN) -->
+            <div id="seccion-admin-tienda" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hidden space-y-4">
+                <div class="flex justify-between items-center border-b pb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg">Catálogo de Productos y Cámaras</h3>
+                        <p class="text-xs text-slate-500">Sube routers, antenas, cámaras y accesorios con sus precios y ofertas.</p>
+                    </div>
+                    <button onclick="abrirModalNuevoProducto()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm">
+                        ➕ Agregar Nuevo Producto
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="admin-tienda-grid"></div>
+            </div>
         </section>
 
-        <!-- 3. PANEL DE USUARIO / CLIENTE -->
+        <!-- PANEL DE USUARIO / CLIENTE LOGUEADO -->
         <section id="user-dashboard" class="hidden space-y-6 max-w-4xl mx-auto">
             <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 relative overflow-hidden">
                 <div class="absolute top-0 right-0 bg-blue-600 text-white text-xs px-4 py-1.5 rounded-bl-xl font-bold uppercase tracking-wider" id="badge-periodo-factura">Factura Conectado2</div>
@@ -201,7 +215,9 @@
                         <div><span class="block text-xs font-semibold text-slate-400 uppercase">Valor Mensual</span><span id="bill-valor" class="text-xl font-bold text-blue-600"></span></div>
                     </div>
                     <div class="pt-4 border-t flex flex-wrap gap-3">
-                        <button onclick="generarPDFFactura(usuarioActual)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition shadow-sm">📥 Descargar Factura PDF</button>
+                        <button onclick="generarPDFFactura(usuarioActual)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm flex items-center gap-2">
+                            📄 Descargar Factura PDF (Oficial)
+                        </button>
                     </div>
                 </div>
 
@@ -209,17 +225,123 @@
                     <p class="font-bold">📌 Información para realización de pagos:</p>
                     <p>• Bancolombia Ahorros: <strong>91295240372</strong> a nombre de <strong>Janier Mazo</strong>.</p>
                     <p>• Fecha límite habitual de pago: Del 24 al 30 de cada mes.</p>
+                    <p>• WhatsApp Soporte / Comprobantes: <strong>3024472764</strong></p>
                 </div>
             </div>
 
-            <!-- TIENDA / EQUIPOS ADICIONALES -->
+            <!-- TIENDA PARA EL CLIENTE LOGUEADO -->
             <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 space-y-4">
-                <h3 class="text-xl font-bold text-slate-900">🛒 Catálogo de Equipos y Accesorios</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="catalogo-productos"></div>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-900">🛒 Catálogo de Equipos y Cámaras</h3>
+                        <p class="text-xs text-slate-500">Adquiere routers adicionales, antenas y cámaras directamente.</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="catalogo-productos"></div>
             </div>
         </section>
 
     </main>
+
+    <!-- MODAL EMERGENTE INDEPENDIENTE DE ACCESO (CLIENTES, SEGUIMIENTO O ADMIN) -->
+    <div id="modal-auth-container" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100 relative">
+            <button onclick="cerrarModalAuth()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+            
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-900" id="modal-auth-titulo">Acceso a Clientes</h2>
+                <p class="text-xs text-slate-500 mt-1" id="modal-auth-subtitulo">Ingrese sus datos para continuar</p>
+            </div>
+
+            <!-- FORMULARIO CLIENTE EXCLUSIVO -->
+            <form id="form-user" onsubmit="loginUser(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Número de Cédula (Cliente)</label>
+                    <input type="text" id="user-cedula" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Ingrese su cédula">
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Ingresar a mi Perfil</button>
+                <div class="text-center pt-2">
+                    <button type="button" onclick="abrirModalAuthExclusivo('seguimiento')" class="text-xs text-slate-500 hover:text-slate-800 underline">¿Consultar estado de solicitud?</button>
+                </div>
+            </form>
+
+            <!-- FORMULARIO SEGUIMIENTO EXCLUSIVO -->
+            <form id="form-seguimiento" onsubmit="consultarEstadoSolicitud(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Número de Cédula (Solicitante)</label>
+                    <input type="text" id="seg-cedula" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Ingrese la cédula registrada">
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Consultar Estado de Visita</button>
+                <div class="text-center pt-2">
+                    <button type="button" onclick="abrirModalAuthExclusivo('user')" class="text-xs text-slate-500 hover:text-slate-800 underline">Volver a ingreso de clientes</button>
+                </div>
+            </form>
+
+            <!-- FORMULARIO ADMIN EXCLUSIVO -->
+            <form id="form-admin" onsubmit="loginAdmin(event)" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Usuario Administrador</label>
+                    <input type="text" id="admin-user-input" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Usuario autorizado">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Contraseña</label>
+                    <input type="password" id="admin-pass" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••••••">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Ingresar al Panel Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL AGREGAR / EDITAR PRODUCTO TIENDA -->
+    <div id="modal-producto" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 space-y-4">
+            <h3 class="text-xl font-bold text-slate-900" id="titulo-modal-producto">Agregar Producto a la Tienda</h3>
+            <form onsubmit="guardarProductoTienda(event)" class="space-y-3">
+                <input type="hidden" id="prod-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase">Nombre del Producto / Equipo</label>
+                    <input type="text" id="prod-nombre" required class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Ej: Cámara IP Wi-Fi Exterior 1080p">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Categoría</label>
+                        <select id="prod-categoria" class="w-full px-3 py-2 border rounded-lg text-sm">
+                            <option value="Routers">Routers Wi-Fi</option>
+                            <option value="Antenas">Antenas Ubiquiti</option>
+                            <option value="Cámaras">Cámaras de Seguridad</option>
+                            <option value="Accesorios">Accesorios y Cables</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Precio Normal ($ COP)</label>
+                        <input type="number" id="prod-precio" required class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="150000">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Precio Promo / Oferta ($)</label>
+                        <input type="number" id="prod-precio-oferta" class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Opcional (Ej: 120000)">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Seleccionar Foto (Archivo)</label>
+                        <input type="file" id="prod-file-foto" accept="image/*" class="w-full text-xs text-slate-500 file:py-1.5 file:px-2.5 file:rounded-lg file:bg-blue-50 file:text-blue-700 file:font-semibold">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase">O pegar URL de foto existente</label>
+                    <input type="url" id="prod-imagen" class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="https://... (Si no subes archivo)">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase">Descripción</label>
+                    <textarea id="prod-desc" rows="2" class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Detalles técnicos, garantía o especificaciones..."></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-3 border-t">
+                    <button type="button" onclick="cerrarModalProducto()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm">Cancelar</button>
+                    <button id="btn-guardar-prod" type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold shadow-sm">Guardar Producto</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- MODAL VISTA PREVIA EXCEL -->
     <div id="modal-preview-excel" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
@@ -299,7 +421,7 @@
         </div>
     </div>
 
-    <!-- MODAL SEGUIMIENTO -->
+    <!-- MODAL SEGUIMIENTO RESULTADO -->
     <div id="modal-seguimiento-res" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 space-y-4 text-center">
             <div class="bg-blue-100 text-blue-800 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl font-bold">ℹ️</div>
@@ -393,6 +515,87 @@
         </div>
     </div>
 
+    <!-- PIE DE PÁGINA (FOOTER) PROFESIONAL -->
+    <footer class="bg-slate-900 text-slate-300 pt-12 pb-8 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 space-y-8">
+            
+            <!-- Fila Superior: Título y Acción Directa -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-8 gap-4">
+                <div>
+                    <span class="text-blue-400 text-xs font-bold uppercase tracking-widest">CONECTEMOS TU ZONA</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-white mt-1">Internet local, infraestructura propia y soporte cercano.</h3>
+                </div>
+                <a href="https://wa.me/573024472764?text=Hola%20Conectado2,%20deseo%20más%20información%20sobre%20el%20servicio%20de%20internet" 
+                   target="_blank" 
+                   class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition shadow-lg flex items-center gap-2">
+                    💬 Hablar con Conectado2 →
+                </a>
+            </div>
+
+            <!-- Fila Media: Secciones e Información Institucional -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-xs">
+                
+                <!-- Columna 1: Logo e Info Empresa -->
+                <div class="space-y-3">
+                    <div class="bg-white p-2 rounded-xl inline-block">
+                        <img src="https://vebsnjvihcxigmkvcsem.supabase.co/storage/v1/object/public/branding/LOGO.jpeg" alt="Conectado2 Logo" class="h-8 w-auto object-contain">
+                    </div>
+                    <p class="text-slate-400 leading-relaxed">
+                        Conectado2 S.A.S. Red inalámbrica y radioenlace de alta velocidad con respaldo Starlink Empresarial para Toledo, Antioquia y sus zonas rurales.
+                    </p>
+                </div>
+
+                <!-- Columna 2: Enlaces Rápidos -->
+                <div class="space-y-2">
+                    <h4 class="font-bold text-white text-sm">Enlaces rápidos</h4>
+                    <ul class="space-y-1.5 text-slate-400">
+                        <li><a href="#" onclick="irInicio(); return false;" class="hover:text-white transition">Inicio</a></li>
+                        <li><a href="#" onclick="abrirModalSolicitud(); return false;" class="hover:text-white transition">Solicitar Servicio</a></li>
+                        <li><a href="#" onclick="abrirTiendaPublica(); return false;" class="hover:text-white transition">Tienda y Equipos</a></li>
+                        <li><a href="#" onclick="abrirModalAuthExclusivo('user'); return false;" class="hover:text-white transition">Portal Clientes</a></li>
+                    </ul>
+                </div>
+
+                <!-- Columna 3: Legalidad -->
+                <div class="space-y-2">
+                    <h4 class="font-bold text-white text-sm">Legalidad</h4>
+                    <ul class="space-y-1.5 text-slate-400">
+                        <li><a href="#" class="hover:text-white transition">Normativa del servicio</a></li>
+                        <li><a href="#" class="hover:text-white transition">Protección infantil</a></li>
+                        <li><a href="#" class="hover:text-white transition">Control parental</a></li>
+                        <li><a href="#" class="hover:text-white transition">Términos y condiciones</a></li>
+                    </ul>
+                </div>
+
+                <!-- Columna 4: Contacto -->
+                <div class="space-y-2">
+                    <h4 class="font-bold text-white text-sm">Contacto Directo</h4>
+                    <ul class="space-y-1.5 text-slate-400">
+                        <li>📞 +57 302 447 2764</li>
+                        <li>✉️ soporte@conectado2.online</li>
+                        <li>📍 Toledo, Antioquia, Colombia</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Fila Inferior: Copyright -->
+            <div class="border-t border-slate-800/60 pt-6 flex flex-col md:flex-row justify-between items-center text-[11px] text-slate-500 gap-2">
+                <p>© 2026 Conectado2 S.A.S. - NIT 901.654.321-8</p>
+                <p>Todos los derechos reservados. Toledo, Antioquia</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- BOTÓN FLOTANTE DE WHATSAPP DIRECCIÓN DIRECTA (3024472764) -->
+    <a href="https://wa.me/573024472764?text=Hola%20Conectado2,%20necesito%20asistencia%20o%20soporte%20técnico" 
+       target="_blank" 
+       title="Chatear por WhatsApp"
+       class="fixed bottom-6 right-6 bg-emerald-500 hover:bg-emerald-600 text-white p-3.5 rounded-full shadow-2xl z-50 transition transform hover:scale-110 flex items-center justify-center">
+        <svg class="w-7 h-7 fill-current" viewBox="0 0 24 24">
+            <path d="M12.031 0C5.385 0 0 5.385 0 12.031c0 2.124.553 4.197 1.603 6.014L.062 24l6.096-1.599c1.761.96 3.754 1.465 5.873 1.465 6.645 0 12.03-5.385 12.03-12.035C24.061 5.385 18.676 0 12.031 0zm0 22.003c-1.819 0-3.602-.489-5.158-1.414l-.37-.22-3.834 1.006 1.024-3.737-.242-.385a9.957 9.957 0 01-1.528-5.222c0-5.502 4.476-9.978 9.978-9.978 5.502 0 9.978 4.476 9.978 9.978 0 5.502-4.476 9.978-9.978 9.978zm5.474-7.48c-.3-.15-1.774-.875-2.049-.975-.275-.1-.475-.15-.675.15-.2.3-.775.975-.95 1.175-.175.2-.35.225-.65.075-.3-.15-1.266-.466-2.411-1.488-.891-.795-1.493-1.777-1.668-2.077-.175-.3-.018-.462.13-.61.135-.133.3-.35.45-.525.15-.175.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.675-1.625-.925-2.225-.243-.585-.49-.506-.675-.515-.175-.008-.375-.008-.575-.008s-.525.075-.8.375c-.275.3-1.05 1.025-1.05 2.5s1.075 2.898 1.225 3.1c.15.2 2.113 3.227 5.12 4.526.715.309 1.273.494 1.708.632.718.228 1.372.196 1.888.119.576-.086 1.774-.725 2.024-1.425.25-.7.25-1.3.175-1.425-.075-.125-.275-.2-.575-.35z"/>
+        </svg>
+    </a>
+
     <!-- SCRIPT LÓGICA Y CONEXIÓN -->
     <script>
         const supabaseUrl = 'https://vebsnjvihcxigmkvcsem.supabase.co';
@@ -402,25 +605,73 @@
         let usuarioActual = null;
         let adminActual = null;
         let listaUsuariosGlobal = [];
+        let listaProductosTienda = [];
         let filtroCobroActual = 'todos';
         let datosExcelPendientes = [];
 
-        const catalogoProductos = [
-            { id: 'router_wifi6', nombre: 'Router Wi-Fi 6 Gigabit', precio: 120000, desc: 'Alta potencia para cobertura total.', img: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=300&auto=format&fit=crop' },
-            { id: 'cable_utp', nombre: 'Metro de Cable UTP Blindado', precio: 2500, desc: 'Ideal para exteriores.', img: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=300&auto=format&fit=crop' },
-            { id: 'antena_extra', nombre: 'Antena Ubiquiti Adicional', precio: 280000, desc: 'Para enlaces de largo alcance.', img: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&auto=format&fit=crop' }
-        ];
+        function irInicio() {
+            document.getElementById('vista-home-publica').classList.remove('hidden');
+            document.getElementById('vista-tienda-publica').classList.add('hidden');
+            if(!usuarioActual && !adminActual) {
+                document.getElementById('nav-publica').classList.remove('hidden');
+                document.getElementById('user-dashboard').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.add('hidden');
+            }
+        }
+
+        // APERTURA DE MODAL INDEPENDIENTE Y EXCLUSIVO SEGÚN LA SELECCIÓN
+        function abrirModalAuthExclusivo(tipo) {
+            const formUser = document.getElementById('form-user');
+            const formSeg = document.getElementById('form-seguimiento');
+            const formAdmin = document.getElementById('form-admin');
+            
+            const titulo = document.getElementById('modal-auth-titulo');
+            const subtitulo = document.getElementById('modal-auth-subtitulo');
+
+            formUser.classList.add('hidden');
+            formSeg.classList.add('hidden');
+            formAdmin.classList.add('hidden');
+
+            if(tipo === 'user') {
+                titulo.innerText = "Ingreso a Portal Clientes";
+                subtitulo.innerText = "Ingrese su número de cédula para consultar su factura y cuenta";
+                formUser.classList.remove('hidden');
+            } else if(tipo === 'seguimiento') {
+                titulo.innerText = "Consulta Estado de Solicitud";
+                subtitulo.innerText = "Ingrese la cédula registrada para verificar la fecha de visita";
+                formSeg.classList.remove('hidden');
+            } else if(tipo === 'admin') {
+                titulo.innerText = "Acceso Administrador";
+                subtitulo.innerText = "Ingrese sus credenciales de administrador autorizado";
+                formAdmin.classList.remove('hidden');
+            }
+
+            document.getElementById('modal-auth-container').classList.remove('hidden');
+            document.getElementById('modal-auth-container').classList.add('flex');
+        }
+
+        function cerrarModalAuth() {
+            document.getElementById('modal-auth-container').classList.add('hidden');
+        }
+
+        function abrirTiendaPublica() {
+            document.getElementById('vista-home-publica').classList.add('hidden');
+            document.getElementById('user-dashboard').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('vista-tienda-publica').classList.remove('hidden');
+            cargarProductosTienda();
+        }
 
         function verificarPermisoEsteban(accion) {
             if(adminActual === 'janier') return true;
             const permisos = JSON.parse(localStorage.getItem('permisos_esteban') || '{"verFacturas":true,"editarUsuarios":false,"aprobarSolicitudes":true}');
             
             if(accion === 'editar' && !permisos.editarUsuarios) {
-                alert('⚠️ No tienes permiso para esta acción (Editar usuarios). Contacta al administrador principal (Janier Mazo).');
+                alert('⚠️ No tienes permiso para esta acción (Editar usuarios/productos). Contacta al administrador principal (Janier Mazo).');
                 return false;
             }
             if(accion === 'aprobar' && !permisos.aprobarSolicitudes) {
-                alert('⚠️ No tienes permiso para esta acción (Aprobar solicitudes). Contacta al administrador principal (Janier Mazo).');
+                alert('⚠️ No tienes permiso para esta acción. Contacta al administrador principal (Janier Mazo).');
                 return false;
             }
             if(accion === 'factura' && !permisos.verFacturas) {
@@ -436,49 +687,32 @@
             return { mes: meses[hoy.getMonth()], anio: hoy.getFullYear() };
         }
 
-        function cambiarTabLogin(tipo) {
-            const btnUser = document.getElementById('tab-user');
-            const btnSeg = document.getElementById('tab-seguimiento');
-            const btnAdmin = document.getElementById('tab-admin');
-            const formUser = document.getElementById('form-user');
-            const formSeg = document.getElementById('form-seguimiento');
-            const formAdmin = document.getElementById('form-admin');
-
-            btnUser.className = "flex-1 py-2 rounded-md transition text-slate-600";
-            btnSeg.className = "flex-1 py-2 rounded-md transition text-slate-600";
-            btnAdmin.className = "flex-1 py-2 rounded-md transition text-slate-600";
-            formUser.classList.add('hidden');
-            formSeg.classList.add('hidden');
-            formAdmin.classList.add('hidden');
-
-            if(tipo === 'user') {
-                btnUser.className = "flex-1 py-2 rounded-md transition bg-white text-emerald-600 shadow-sm";
-                formUser.classList.remove('hidden');
-            } else if(tipo === 'seguimiento') {
-                btnSeg.className = "flex-1 py-2 rounded-md transition bg-white text-indigo-600 shadow-sm";
-                formSeg.classList.remove('hidden');
-            } else {
-                btnAdmin.className = "flex-1 py-2 rounded-md transition bg-white text-blue-600 shadow-sm";
-                formAdmin.classList.remove('hidden');
-            }
-        }
-
         function cambiarTabAdmin(seccion) {
             const tabActivos = document.getElementById('tab-admin-activos');
             const tabSolicitudes = document.getElementById('tab-admin-solicitudes');
+            const tabTienda = document.getElementById('tab-admin-tienda');
+            
             const secActivos = document.getElementById('seccion-admin-activos');
             const secSolicitudes = document.getElementById('seccion-admin-solicitudes');
+            const secTienda = document.getElementById('seccion-admin-tienda');
+
+            tabActivos.className = "px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700";
+            tabSolicitudes.className = "px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700";
+            tabTienda.className = "px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700";
+            
+            secActivos.classList.add('hidden');
+            secSolicitudes.classList.add('hidden');
+            secTienda.classList.add('hidden');
 
             if(seccion === 'activos') {
                 tabActivos.className = "px-6 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600";
-                tabSolicitudes.className = "px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700";
                 secActivos.classList.remove('hidden');
-                secSolicitudes.classList.add('hidden');
-            } else {
+            } else if(seccion === 'solicitudes') {
                 tabSolicitudes.className = "px-6 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600";
-                tabActivos.className = "px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700";
                 secSolicitudes.classList.remove('hidden');
-                secActivos.classList.add('hidden');
+            } else {
+                tabTienda.className = "px-6 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600";
+                secTienda.classList.remove('hidden');
             }
         }
 
@@ -499,7 +733,10 @@
         }
 
         function iniciarPanelAdmin(nombreMsg) {
-            document.getElementById('login-section').classList.add('hidden');
+            cerrarModalAuth();
+            document.getElementById('vista-home-publica').classList.add('hidden');
+            document.getElementById('vista-tienda-publica').classList.add('hidden');
+            document.getElementById('nav-publica').classList.add('hidden');
             document.getElementById('admin-dashboard').classList.remove('hidden');
             document.getElementById('user-session-info').classList.remove('hidden');
             document.getElementById('welcome-msg').innerText = nombreMsg;
@@ -514,6 +751,7 @@
 
             cargarDatosAdmin();
             cargarSolicitudesNuevasAdmin();
+            cargarProductosTienda();
         }
 
         async function loginUser(e) {
@@ -540,6 +778,7 @@
 
                 alert('Su cédula no se encuentra registrada. Por favor complete su solicitud de nuevo servicio adjuntando su documento de identidad.');
                 document.getElementById('sol-cedula').value = cedula;
+                cerrarModalAuth();
                 abrirModalSolicitud();
                 return;
             }
@@ -552,13 +791,17 @@
                     document.getElementById('sol-apellido').value = data.apellido || '';
                     document.getElementById('sol-celular').value = data.celular || '';
                     document.getElementById('sol-correo').value = data.correo || '';
+                    cerrarModalAuth();
                     abrirModalSolicitud();
                 }
                 return;
             }
 
             usuarioActual = data;
-            document.getElementById('login-section').classList.add('hidden');
+            cerrarModalAuth();
+            document.getElementById('vista-home-publica').classList.add('hidden');
+            document.getElementById('vista-tienda-publica').classList.add('hidden');
+            document.getElementById('nav-publica').classList.add('hidden');
             document.getElementById('user-dashboard').classList.remove('hidden');
             document.getElementById('user-session-info').classList.remove('hidden');
             document.getElementById('welcome-msg').innerText = `Usuario: ${data.nombre} ${data.apellido}`;
@@ -577,7 +820,7 @@
             document.getElementById('bill-promo').innerText = (data.promocion === 'Sí') ? '✨ SÍ (Tarifa Preferencial)' : 'No';
             document.getElementById('bill-valor').innerText = `$ ${Number(data.valor_servicio || 0).toLocaleString()} COP`;
 
-            renderCatalogoTienda();
+            cargarProductosTienda();
         }
 
         async function consultarEstadoSolicitud(e) {
@@ -600,6 +843,7 @@
                     <p class="mt-2 bg-blue-50 p-3 rounded-xl border border-blue-200 text-blue-900">${fechaVisitaTexto}</p>
                 `;
             }
+            cerrarModalAuth();
             document.getElementById('modal-seguimiento-res').classList.remove('hidden');
             document.getElementById('modal-seguimiento-res').classList.add('flex');
         }
@@ -610,7 +854,8 @@
             document.getElementById('admin-dashboard').classList.add('hidden');
             document.getElementById('user-dashboard').classList.add('hidden');
             document.getElementById('user-session-info').classList.add('hidden');
-            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('nav-publica').classList.remove('hidden');
+            irInicio();
             document.getElementById('admin-pass').value = '';
             document.getElementById('admin-user-input').value = '';
             document.getElementById('user-cedula').value = '';
@@ -770,63 +1015,49 @@
             });
         }
 
-        // --- ACCIONES RÁPIDAS DE PAGO Y SUSPENSIÓN ---
         async function cambiarEstadoPago(cedula, nuevoEstado) {
             if(!verificarPermisoEsteban('editar')) return;
-            await supabaseClient.from('usuarios_conectado2').update({ estado_pago: nuevoEstado }).eq('cedula', cedula);
-            cargarDatosAdmin();
+            const { error } = await supabaseClient.from('usuarios_conectado2').update({ estado_pago: nuevoEstado }).eq('cedula', cedula);
+            if(error) { alert('⚠️ Error al actualizar estado de pago: ' + error.message); return; }
+            const user = listaUsuariosGlobal.find(u => u.cedula === cedula);
+            if(user) user.estado_pago = nuevoEstado;
+            actualizarContadoresFiltros();
+            renderTablaAdmin();
         }
 
         async function cambiarEstadoServicio(cedula, nuevoEstado) {
             if(!verificarPermisoEsteban('editar')) return;
             if(confirm(`¿Deseas cambiar el estado del servicio a "${nuevoEstado}"?`)) {
-                await supabaseClient.from('usuarios_conectado2').update({ estado_servicio: nuevoEstado }).eq('cedula', cedula);
-                cargarDatosAdmin();
+                const { error } = await supabaseClient.from('usuarios_conectado2').update({ estado_servicio: nuevoEstado }).eq('cedula', cedula);
+                if(error) { alert('⚠️ Error al actualizar estado: ' + error.message); return; }
+                const user = listaUsuariosGlobal.find(u => u.cedula === cedula);
+                if(user) user.estado_servicio = nuevoEstado;
+                actualizarContadoresFiltros();
+                renderTablaAdmin();
             }
         }
 
-        // --- REINICIAR MES EL DÍA 24 ---
         async function reiniciarMesCobros() {
             if(!verificarPermisoEsteban('editar')) return;
-            const confirmacion = confirm('📅 ¿Deseas reiniciar los cobros del mes?\n\nEsta acción marcará a TODOS los clientes activos como "Pendiente de Pago" para iniciar el nuevo ciclo del 24.');
-            
-            if(confirmacion) {
-                const { error } = await supabaseClient
-                    .from('usuarios_conectado2')
-                    .update({ estado_pago: 'Pendiente' })
-                    .eq('estado_servicio', 'Activo');
-
-                if(error) {
-                    alert('Error al reiniciar mes: ' + error.message);
-                } else {
-                    alert('¡Listo! Todos los clientes activos pasaron a estado "Pendiente de Pago".');
-                    cargarDatosAdmin();
-                }
+            if(confirm('📅 ¿Deseas reiniciar los cobros del mes? Todos los activos pasarán a Pendiente.')) {
+                const { error } = await supabaseClient.from('usuarios_conectado2').update({ estado_pago: 'Pendiente' }).eq('estado_servicio', 'Activo');
+                if(error) alert('Error: ' + error.message);
+                else { alert('¡Listo! Todos en Pendiente de Pago.'); cargarDatosAdmin(); }
             }
         }
 
-        // --- VACIAR BASE DE DATOS COMPLETA ---
         async function vaciarBaseDatosAdmin() {
             if(!verificarPermisoEsteban('editar')) return;
-            const confirmacion = confirm('⚠️ ATENCIÓN: ¿Estás seguro de que deseas ELIMINAR TODOS los clientes de la base de datos?\nEsta acción borra la información actual para que puedas cargar un archivo totalmente nuevo.');
-            
-            if(confirmacion) {
-                const dobleConfirm = prompt('Para confirmar la eliminación escribe "BORRAR":');
+            if(confirm('⚠️ ATENCIÓN: ¿Deseas eliminar TODOS los clientes?')) {
+                const dobleConfirm = prompt('Escribe "BORRAR" para confirmar:');
                 if(dobleConfirm && dobleConfirm.trim() === 'BORRAR') {
                     const { error } = await supabaseClient.from('usuarios_conectado2').delete().neq('cedula', '0');
-                    if(error) {
-                        alert('Error al vaciar la base de datos: ' + error.message);
-                    } else {
-                        alert('🗑️ La base de datos ha sido vaciada correctamente.');
-                        cargarDatosAdmin();
-                    }
-                } else {
-                    alert('Acción cancelada.');
+                    if(error) alert('Error: ' + error.message);
+                    else { alert('🗑️ Base de datos vaciada.'); cargarDatosAdmin(); }
                 }
             }
         }
 
-        // --- IMPORTACIÓN Y VISTA PREVIA EXCEL ---
         function importarExcel(event) {
             if(!verificarPermisoEsteban('editar')) return;
             const file = event.target.files[0];
@@ -837,11 +1068,8 @@
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
-                    const sheetName = workbook.SheetNames[0];
-                    const sheet = workbook.Sheets[sheetName];
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const json = XLSX.utils.sheet_to_json(sheet);
-
-                    if(!json.length) { alert('El archivo Excel está vacío.'); return; }
 
                     datosExcelPendientes = json.map(fila => ({
                         cedula: String(fila['CÉDULA'] || fila['cedula'] || ''),
@@ -856,8 +1084,7 @@
 
                     renderModalPreviewExcel();
                 } catch(err) {
-                    alert('Error al leer el archivo Excel. Asegúrate de usar un formato válido.');
-                    console.error(err);
+                    alert('Error al leer Excel.');
                 }
             };
             reader.readAsArrayBuffer(file);
@@ -867,23 +1094,20 @@
         function renderModalPreviewExcel() {
             const tbody = document.getElementById('preview-excel-body');
             tbody.innerHTML = '';
-            document.getElementById('preview-count-badge').innerText = `${datosExcelPendientes.length} Registros Encontrados`;
+            document.getElementById('preview-count-badge').innerText = `${datosExcelPendientes.length} Registros`;
 
             datosExcelPendientes.forEach(u => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 border-b border-slate-100";
-                tr.innerHTML = `
-                    <td class="p-2 font-semibold text-slate-900">${u.cedula}</td>
-                    <td class="p-2">${u.nombre}</td>
-                    <td class="p-2">${u.apellido}</td>
-                    <td class="p-2"><span class="px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800 font-medium">${u.estado_servicio}</span></td>
-                    <td class="p-2">$ ${u.valor_servicio.toLocaleString()}</td>
-                    <td class="p-2">${u.cantidad_megas}</td>
-                    <td class="p-2">${u.celular || 'N/A'}</td>
-                `;
-                tbody.appendChild(tr);
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="p-2 font-semibold text-slate-900">${u.cedula}</td>
+                        <td class="p-2">${u.nombre}</td>
+                        <td class="p-2">${u.apellido}</td>
+                        <td class="p-2"><span class="px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-800 font-medium">${u.estado_servicio}</span></td>
+                        <td class="p-2">$ ${u.valor_servicio.toLocaleString()}</td>
+                        <td class="p-2">${u.cantidad_megas}</td>
+                        <td class="p-2">${u.celular || 'N/A'}</td>
+                    </tr>`;
             });
-
             document.getElementById('modal-preview-excel').classList.remove('hidden');
             document.getElementById('modal-preview-excel').classList.add('flex');
         }
@@ -897,18 +1121,17 @@
             if(!datosExcelPendientes.length) return;
             const btn = document.getElementById('btn-confirmar-importar');
             btn.disabled = true;
-            btn.innerText = 'Guardando en Supabase...';
+            btn.innerText = 'Guardando...';
 
             try {
                 const { error } = await supabaseClient.from('usuarios_conectado2').upsert(datosExcelPendientes);
                 if(error) throw error;
 
-                alert(`¡Éxito! Se han cargado y actualizado ${datosExcelPendientes.length} clientes en Supabase.`);
+                alert(`¡Se guardaron ${datosExcelPendientes.length} clientes!`);
                 cerrarModalPreviewExcel();
                 cargarDatosAdmin();
             } catch(err) {
-                alert('Error al guardar datos en Supabase: ' + err.message);
-                console.error(err);
+                alert('Error: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerText = '✅ Confirmar y Guardar en Supabase';
@@ -926,23 +1149,21 @@
             }
 
             data.forEach(s => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
-                tr.innerHTML = `
-                    <td class="p-3">
-                        <a href="${s.cedula_frontal_url}" target="_blank" class="text-blue-600 underline text-xs">Frontal</a> | 
-                        <a href="${s.cedula_trasera_url}" target="_blank" class="text-blue-600 underline text-xs">Trasera</a>
-                    </td>
-                    <td class="p-3 font-medium">${s.nombre} ${s.apellido} (${s.cedula})</td>
-                    <td class="p-3">${s.celular}</td>
-                    <td class="p-3 font-semibold text-blue-600">${s.fecha_visita ? new Date(s.fecha_visita).toLocaleString() : '<span class="text-amber-600 font-normal">Sin fecha asignada</span>'}</td>
-                    <td class="p-3 text-center space-x-2">
-                        <button onclick='abrirModalAgendarVisita("${s.cedula}")' class="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">📅 Agendar Visita</button>
-                        <button onclick='aprobarYSonarClienteActivo(${JSON.stringify(s)})' class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-semibold">✅ Aprobar a Activo</button>
-                        <button onclick='eliminarSolicitudNueva("${s.cedula}")' class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Rechazar</button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100">
+                        <td class="p-3">
+                            <a href="${s.cedula_frontal_url}" target="_blank" class="text-blue-600 underline text-xs">Frontal</a> | 
+                            <a href="${s.cedula_trasera_url}" target="_blank" class="text-blue-600 underline text-xs">Trasera</a>
+                        </td>
+                        <td class="p-3 font-medium">${s.nombre} ${s.apellido} (${s.cedula})</td>
+                        <td class="p-3">${s.celular}</td>
+                        <td class="p-3 font-semibold text-blue-600">${s.fecha_visita ? new Date(s.fecha_visita).toLocaleString() : '<span class="text-amber-600 font-normal">Sin fecha</span>'}</td>
+                        <td class="p-3 text-center space-x-2">
+                            <button onclick='abrirModalAgendarVisita("${s.cedula}")' class="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">📅 Visita</button>
+                            <button onclick='aprobarYSonarClienteActivo(${JSON.stringify(s)})' class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-semibold">✅ Aprobar</button>
+                            <button onclick='eliminarSolicitudNueva("${s.cedula}")' class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Rechazar</button>
+                        </td>
+                    </tr>`;
             });
         }
 
@@ -957,19 +1178,16 @@
             if(!verificarPermisoEsteban('aprobar')) return;
             const cedula = document.getElementById('agendar-cedula-target').value;
             const fecha = document.getElementById('input-fecha-visita').value;
-
-            if(!fecha) { alert('Selecciona una fecha y hora.'); return; }
-
+            if(!fecha) { alert('Selecciona una fecha.'); return; }
             await supabaseClient.from('solicitudes_nuevas').update({ fecha_visita: fecha }).eq('cedula', cedula);
-            alert('¡Fecha de visita técnica guardada con éxito!');
+            alert('¡Fecha guardada!');
             document.getElementById('modal-agendar-visita').classList.add('hidden');
             cargarSolicitudesNuevasAdmin();
         }
 
         async function aprobarYSonarClienteActivo(solicitud) {
             if(!verificarPermisoEsteban('aprobar')) return;
-
-            if(confirm(`¿Deseas aprobar a ${solicitud.nombre} ${solicitud.apellido} y pasarlo automáticamente a clientes activos?`)) {
+            if(confirm(`¿Aprobar a ${solicitud.nombre} ${solicitud.apellido}?`)) {
                 const nuevoCliente = {
                     cedula: solicitud.cedula,
                     nombre: solicitud.nombre,
@@ -990,7 +1208,7 @@
                 await supabaseClient.from('usuarios_conectado2').upsert([nuevoCliente]);
                 await supabaseClient.from('solicitudes_nuevas').delete().eq('cedula', solicitud.cedula);
 
-                alert('¡Cliente aprobado y agregado exitosamente a la base de datos de activos!');
+                alert('¡Cliente aprobado!');
                 cargarDatosAdmin();
                 cargarSolicitudesNuevasAdmin();
             }
@@ -998,7 +1216,7 @@
 
         async function eliminarSolicitudNueva(cedula) {
             if(!verificarPermisoEsteban('aprobar')) return;
-            if(confirm('¿Rechazar y eliminar esta solicitud?')) {
+            if(confirm('¿Eliminar solicitud?')) {
                 await supabaseClient.from('solicitudes_nuevas').delete().eq('cedula', cedula);
                 cargarSolicitudesNuevasAdmin();
             }
@@ -1027,7 +1245,6 @@
         async function guardarEdicionAdmin(e) {
             e.preventDefault();
             if(!verificarPermisoEsteban('editar')) return;
-
             const cedulaOrig = document.getElementById('edit-cedula-original').value;
             const datos = {
                 nombre: document.getElementById('edit-nombre').value,
@@ -1045,7 +1262,7 @@
 
         async function eliminarUsuario(cedula) {
             if(!verificarPermisoEsteban('editar')) return;
-            if(confirm('¿Eliminar este usuario?')) {
+            if(confirm('¿Eliminar usuario?')) {
                 await supabaseClient.from('usuarios_conectado2').delete().eq('cedula', cedula);
                 cargarDatosAdmin();
             }
@@ -1077,83 +1294,180 @@
             XLSX.writeFile(wb, `Clientes_Conectado2_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
-        function generarPDFFactura(clienteObj) {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const periodo = obtenerPeriodoFacturacion();
+        // --- CARGAR PRODUCTOS TIENDA ---
+        async function cargarProductosTienda() {
+            const { data } = await supabaseClient.from('productos_tienda').select('*').order('id', { ascending: true });
+            listaProductosTienda = data || [];
 
-            doc.setFillColor(30, 64, 175);
-            doc.rect(0, 0, 210, 35, "F");
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(22);
-            doc.text("CONECTADO2", 14, 22);
-            doc.setFontSize(10);
-            doc.text("Internet Rural de Alta Velocidad", 150, 22);
-
-            doc.setTextColor(50, 50, 50);
-            doc.setFontSize(12);
-            doc.text(`Factura Mensual - Período: ${periodo.mes} ${periodo.anio}`, 14, 48);
-            doc.setFontSize(10);
-            doc.text(`Fecha de emisión: ${new Date().toLocaleDateString()}`, 14, 55);
-            doc.text(`Período de pago: Día 24 al 30 de cada mes`, 14, 62);
-
-            doc.setDrawColor(200, 200, 200);
-            doc.line(14, 68, 196, 68);
-
-            doc.setFontSize(11);
-            doc.text(`Cliente: ${clienteObj.nombre} ${clienteObj.apellido}`, 14, 78);
-            doc.text(`Cédula: ${clienteObj.cedula}`, 14, 85);
-            doc.text(`Plan Megas: ${clienteObj.cantidad_megas || '20 Mbps'}`, 14, 92);
-            doc.text(`Promoción Activa: ${clienteObj.promocion === 'Sí' ? '✨ SÍ' : 'No'}`, 14, 99);
-            doc.text(`Estado del Servicio: ${clienteObj.estado_servicio || 'Activo'}`, 14, 106);
-            doc.text(`Estado de Pago: ${clienteObj.estado_pago || 'Pendiente'}`, 14, 113);
-
-            doc.setFillColor(240, 243, 246);
-            doc.roundedRect(14, 122, 182, 28, 3, 3, "F");
-            doc.setFontSize(12);
-            doc.text(`Total a Pagar:`, 20, 137);
-            doc.setFontSize(16);
-            doc.setTextColor(30, 64, 175);
-            doc.text(`$ ${Number(clienteObj.valor_servicio || 0).toLocaleString()} COP`, 60, 138);
-
-            doc.setTextColor(50, 50, 50);
-            doc.setFontSize(10);
-            doc.text(`Información de Pago:`, 14, 162);
-            doc.text(`• Banco: Bancolombia (Cuenta de Ahorros)`, 14, 169);
-            doc.text(`• Número de Cuenta: 91295240372`, 14, 176);
-            doc.text(`• A nombre de: Janier Mazo`, 14, 183);
-
-            doc.setFontSize(9);
-            doc.setTextColor(100, 100, 100);
-            doc.text(`Backhaul Proveedor Tecnológico: Starlink Empresarial`, 14, 198);
-            doc.text(`¡Gracias por pertenecer a la familia Conectado2!`, 14, 208);
-
-            doc.save(`Factura_Conectado2_${clienteObj.cedula}_${periodo.mes}.pdf`);
+            renderTiendaGeneral('catalogo-productos-publico');
+            renderTiendaGeneral('catalogo-productos');
+            if(adminActual) renderTiendaAdmin();
         }
 
-        function renderCatalogoTienda() {
-            const container = document.getElementById('catalogo-productos');
+        function renderTiendaGeneral(contenedorId) {
+            const container = document.getElementById(contenedorId);
+            if(!container) return;
             container.innerHTML = '';
-            catalogoProductos.forEach(p => {
+
+            if(!listaProductosTienda.length) {
+                container.innerHTML = `<p class="col-span-3 text-center text-slate-400 py-6">No hay productos disponibles por el momento.</p>`;
+                return;
+            }
+
+            listaProductosTienda.forEach(p => {
+                const tieneOferta = p.precio_oferta && p.precio_oferta < p.precio;
+                const precioMostrar = tieneOferta ? p.precio_oferta : p.precio;
+                const imagen = p.imagen_url || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=300&auto=format&fit=crop';
+
                 container.innerHTML += `
-                    <div class="border border-slate-200 rounded-xl p-4 flex flex-col justify-between hover:shadow-md transition">
-                        <img src="${p.img}" alt="${p.nombre}" class="h-32 w-full object-cover rounded-lg mb-3">
+                    <div class="border border-slate-200 rounded-2xl p-4 flex flex-col justify-between hover:shadow-lg transition bg-white relative">
+                        ${tieneOferta ? `<span class="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider z-10">🔥 Promo</span>` : ''}
                         <div>
-                            <h4 class="font-bold text-slate-800 text-sm">${p.nombre}</h4>
-                            <p class="text-xs text-slate-500 mt-1">${p.desc}</p>
+                            <div class="h-44 w-full bg-slate-50 rounded-xl mb-3 overflow-hidden flex items-center justify-center p-2 border">
+                                <img src="${imagen}" alt="${p.nombre}" class="max-h-full max-w-full object-contain">
+                            </div>
+                            <span class="text-[10px] font-bold uppercase text-blue-600 tracking-wider">${p.categoria || 'Equipos'}</span>
+                            <h4 class="font-bold text-slate-900 text-sm mt-0.5">${p.nombre}</h4>
+                            <p class="text-xs text-slate-500 mt-1 line-clamp-2">${p.descripcion || 'Sin descripción disponible.'}</p>
                         </div>
-                        <div class="mt-4 flex justify-between items-center">
-                            <span class="font-bold text-blue-600 text-sm">$${p.precio.toLocaleString()}</span>
-                            <button onclick="solicitarProductoDirecto('${p.nombre}')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-xs font-semibold border border-blue-200">Pedir</button>
+                        <div class="mt-4 pt-3 border-t flex justify-between items-center">
+                            <div>
+                                ${tieneOferta ? `<span class="text-xs text-slate-400 line-through block">$${Number(p.precio).toLocaleString()}</span>` : ''}
+                                <span class="font-extrabold text-blue-600 text-base">$${Number(precioMostrar).toLocaleString()} COP</span>
+                            </div>
+                            <button onclick="solicitarProductoDirecto('${p.nombre}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-sm transition">Pedir</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
+        function renderTiendaAdmin() {
+            const container = document.getElementById('admin-tienda-grid');
+            if(!container) return;
+            container.innerHTML = '';
+
+            if(!listaProductosTienda.length) {
+                container.innerHTML = `<p class="col-span-3 text-center text-slate-400 py-6">No has registrado ningún producto.</p>`;
+                return;
+            }
+
+            listaProductosTienda.forEach(p => {
+                const tieneOferta = p.precio_oferta && p.precio_oferta < p.precio;
+                const imagen = p.imagen_url || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=300&auto=format&fit=crop';
+
+                container.innerHTML += `
+                    <div class="border border-slate-200 rounded-2xl p-4 flex flex-col justify-between bg-slate-50 relative">
+                        ${tieneOferta ? `<span class="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase z-10">Promo Activa</span>` : ''}
+                        <div>
+                            <div class="h-40 w-full bg-white rounded-xl mb-3 overflow-hidden flex items-center justify-center border p-2">
+                                <img src="${imagen}" alt="${p.nombre}" class="max-h-full max-w-full object-contain">
+                            </div>
+                            <span class="text-[10px] font-bold uppercase text-blue-600 tracking-wider">${p.categoria || 'Equipos'}</span>
+                            <h4 class="font-bold text-slate-900 text-sm mt-0.5">${p.nombre}</h4>
+                            <p class="text-xs text-slate-500 mt-1 line-clamp-2">${p.descripcion || ''}</p>
+                            <div class="mt-2 text-xs">
+                                <span class="font-bold text-slate-800">Precio Normal:</span> $${Number(p.precio).toLocaleString()} <br>
+                                ${tieneOferta ? `<span class="font-bold text-emerald-600">Oferta:</span> $${Number(p.precio_oferta).toLocaleString()}` : '<span class="text-slate-400">Sin oferta activa</span>'}
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-3 border-t flex justify-end space-x-2">
+                            <button onclick='abrirModalEditarProducto(${JSON.stringify(p)})' class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded-lg text-xs font-semibold">Editar</button>
+                            <button onclick='eliminarProductoTienda(${p.id})' class="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded-lg text-xs font-semibold">Eliminar</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function abrirModalNuevoProducto() {
+            if(!verificarPermisoEsteban('editar')) return;
+            document.getElementById('titulo-modal-producto').innerText = "Agregar Producto a la Tienda";
+            document.getElementById('prod-id').value = '';
+            document.getElementById('prod-nombre').value = '';
+            document.getElementById('prod-categoria').value = 'Routers';
+            document.getElementById('prod-precio').value = '';
+            document.getElementById('prod-precio-oferta').value = '';
+            document.getElementById('prod-file-foto').value = '';
+            document.getElementById('prod-imagen').value = '';
+            document.getElementById('prod-desc').value = '';
+            document.getElementById('modal-producto').classList.remove('hidden');
+            document.getElementById('modal-producto').classList.add('flex');
+        }
+
+        function abrirModalEditarProducto(p) {
+            if(!verificarPermisoEsteban('editar')) return;
+            document.getElementById('titulo-modal-producto').innerText = "Editar Producto / Oferta";
+            document.getElementById('prod-id').value = p.id;
+            document.getElementById('prod-nombre').value = p.nombre;
+            document.getElementById('prod-categoria').value = p.categoria || 'Routers';
+            document.getElementById('prod-precio').value = p.precio;
+            document.getElementById('prod-precio-oferta').value = p.precio_oferta || '';
+            document.getElementById('prod-file-foto').value = '';
+            document.getElementById('prod-imagen').value = p.imagen_url || '';
+            document.getElementById('prod-desc').value = p.descripcion || '';
+            document.getElementById('modal-producto').classList.remove('hidden');
+            document.getElementById('modal-producto').classList.add('flex');
+        }
+
+        function cerrarModalProducto() { document.getElementById('modal-producto').classList.add('hidden'); }
+
+        async function guardarProductoTienda(e) {
+            e.preventDefault();
+            if(!verificarPermisoEsteban('editar')) return;
+
+            const btn = document.getElementById('btn-guardar-prod');
+            btn.disabled = true;
+            btn.innerText = 'Guardando...';
+
+            try {
+                const id = document.getElementById('prod-id').value;
+                const fileFoto = document.getElementById('prod-file-foto').files[0];
+                let finalUrl = document.getElementById('prod-imagen').value.trim();
+
+                if (fileFoto) {
+                    const fileName = `prod_${Date.now()}_${fileFoto.name.replace(/\s+/g, '_')}`;
+                    await supabaseClient.storage.from('productos').upload(fileName, fileFoto);
+                    finalUrl = supabaseClient.storage.from('productos').getPublicUrl(fileName).data.publicUrl;
+                }
+
+                const producto = {
+                    nombre: document.getElementById('prod-nombre').value.trim(),
+                    categoria: document.getElementById('prod-categoria').value,
+                    precio: parseFloat(document.getElementById('prod-precio').value),
+                    precio_oferta: document.getElementById('prod-precio-oferta').value ? parseFloat(document.getElementById('prod-precio-oferta').value) : null,
+                    imagen_url: finalUrl,
+                    descripcion: document.getElementById('prod-desc').value.trim()
+                };
+
+                if(id) {
+                    await supabaseClient.from('productos_tienda').update(producto).eq('id', id);
+                } else {
+                    await supabaseClient.from('productos_tienda').insert([producto]);
+                }
+
+                alert('¡Producto guardado!');
+                cerrarModalProducto();
+                cargarProductosTienda();
+            } catch(err) {
+                alert('⚠️ Error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Guardar Producto';
+            }
+        }
+
+        async function eliminarProductoTienda(id) {
+            if(!verificarPermisoEsteban('editar')) return;
+            if(confirm('¿Eliminar producto?')) {
+                await supabaseClient.from('productos_tienda').delete().eq('id', id);
+                cargarProductosTienda();
+            }
+        }
+
         function solicitarProductoDirecto(nombreProd) {
-            const msg = `Hola Conectado2, soy ${usuarioActual.nombre} ${usuarioActual.apellido} (Cédula: ${usuarioActual.cedula}) y me interesa adquirir: ${nombreProd}.`;
-            window.open(`https://wa.me/573000000000?text=${encodeURIComponent(msg)}`, '_blank');
+            const clienteNombre = usuarioActual ? `${usuarioActual.nombre} ${usuarioActual.apellido}` : 'Cliente Conectado2';
+            const clienteCedula = usuarioActual ? usuarioActual.cedula : 'N/A';
+            const msg = `Hola Conectado2, soy ${clienteNombre} (Cédula: ${clienteCedula}) y me interesa adquirir el producto: ${nombreProd}.`;
+            window.open(`https://wa.me/573024472764?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         function abrirModalCedulaAdmin(user) {
@@ -1170,6 +1484,198 @@
                 row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
             });
         }
+
+        // --- FACTURA PDF ---
+        function generarPDFFactura(clienteObj) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const periodo = obtenerPeriodoFacturacion();
+
+            const azulOscuro = [15, 23, 42]; 
+            const azulCobalto = [30, 64, 175]; 
+            const grisFondo = [248, 250, 252]; 
+            const grisBorde = [226, 232, 240]; 
+
+            const tarifaBaseEstandard = 50000;
+            const totalAPagar = Number(clienteObj.valor_servicio || 50000);
+            
+            let descuentoAplicado = 0;
+            if (totalAPagar < tarifaBaseEstandard) {
+                descuentoAplicado = tarifaBaseEstandard - totalAPagar;
+            } else if (clienteObj.promocion === 'Sí') {
+                descuentoAplicado = 10000;
+            }
+
+            const valorBrutoPlan = totalAPagar + descuentoAplicado;
+            const subtotalSinIva = Math.round(valorBrutoPlan / 1.19);
+            const valorIva19 = valorBrutoPlan - subtotalSinIva;
+
+            doc.setFillColor(...azulCobalto);
+            doc.rect(0, 0, 210, 32, "F");
+
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(20);
+            doc.text("CONECTADOS", 14, 16);
+            
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+            doc.text("SERVICIOS DE INTERNET & TELECOMUNICACIONES", 14, 22);
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text("FACTURA DE COBRO", 196, 15, { align: "right" });
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text(`N° FC-${periodo.anio}-${clienteObj.cedula.slice(-4)}`, 196, 21, { align: "right" });
+            doc.text(`Periodo: ${periodo.mes} ${periodo.anio}`, 196, 26, { align: "right" });
+
+            doc.setFillColor(239, 68, 68); 
+            doc.rect(14, 38, 182, 12, "F");
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text("FECHA LÍMITE DE PAGO:", 20, 45);
+            doc.setFontSize(11);
+            doc.text(`24 ${periodo.mes.toUpperCase()} ${periodo.anio}`, 80, 45);
+            doc.setFontSize(8);
+            doc.setFont("helvetica", "normal");
+            doc.text("Pague a tiempo para evitar la suspensión del servicio", 190, 45, { align: "right" });
+
+            doc.setFillColor(...grisFondo);
+            doc.setDrawColor(...grisBorde);
+            doc.roundedRect(14, 55, 88, 48, 2, 2, "FD");
+            
+            doc.setFillColor(...azulCobalto);
+            doc.rect(14, 55, 88, 7, "F");
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9);
+            doc.text("DATOS DEL SUSCRIPTOR", 18, 60);
+
+            doc.setTextColor(50, 50, 50);
+            doc.setFontSize(8.5);
+            doc.setFont("helvetica", "bold"); doc.text("Nombre / Razón Social:", 18, 68);
+            doc.setFont("helvetica", "normal"); doc.text(`${clienteObj.nombre} ${clienteObj.apellido}`, 18, 73);
+
+            doc.setFont("helvetica", "bold"); doc.text("Cédula / Documento:", 18, 80);
+            doc.setFont("helvetica", "normal"); doc.text(`${clienteObj.cedula}`, 18, 85);
+
+            doc.setFont("helvetica", "bold"); doc.text("Teléfono Contacto:", 18, 92);
+            doc.setFont("helvetica", "normal"); doc.text(`${clienteObj.celular || '3024472764'}`, 48, 92);
+
+            doc.setFont("helvetica", "bold"); doc.text("Correo Electrónico:", 18, 98);
+            doc.setFont("helvetica", "normal"); doc.text(`${clienteObj.correo || 'soporte@conectados.com'}`, 48, 98);
+
+            doc.setFillColor(...grisFondo);
+            doc.roundedRect(108, 55, 88, 48, 2, 2, "FD");
+
+            doc.setFillColor(...azulCobalto);
+            doc.rect(108, 55, 88, 7, "F");
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9);
+            doc.text("DETALLES DE LA CUENTA", 112, 60);
+
+            doc.setTextColor(50, 50, 50);
+            doc.setFontSize(8.5);
+            doc.setFont("helvetica", "bold"); doc.text("Estado de Cuenta:", 112, 68);
+            doc.setFont("helvetica", "normal"); doc.text(`${(clienteObj.estado_servicio || 'ACTIVO').toUpperCase()}`, 155, 68);
+
+            doc.setFont("helvetica", "bold"); doc.text("Fecha de Inicio Contrato:", 112, 76);
+            doc.setFont("helvetica", "normal"); doc.text("3/3/2026", 155, 76);
+
+            doc.setFont("helvetica", "bold"); doc.text("Ciclo de Facturación:", 112, 84);
+            doc.setFont("helvetica", "normal"); doc.text("24 CADA MES", 155, 84);
+
+            doc.setFont("helvetica", "bold"); doc.text("Referencia Pago:", 112, 92);
+            doc.setFont("helvetica", "normal"); doc.text(`REF-${clienteObj.cedula}`, 155, 92);
+
+            const startY = 110;
+            doc.setFillColor(...azulOscuro);
+            doc.rect(14, startY, 182, 8, "F");
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(8.5);
+            doc.text("DESCRIPCIÓN DEL SERVICIO", 18, startY + 5.5);
+            doc.text("ANCHO DE BANDA", 100, startY + 5.5);
+            doc.text("PERIODO", 140, startY + 5.5);
+            doc.text("VALOR", 190, startY + 5.5, { align: "right" });
+
+            doc.setFillColor(255, 255, 255);
+            doc.setDrawColor(...grisBorde);
+            doc.rect(14, startY + 8, 182, 16, "FD");
+
+            doc.setTextColor(30, 41, 59);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(8.5);
+            doc.text("Servicio de Internet Banda Ancha RESIDENCIAL", 18, startY + 14);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.text("Plan Conectado2 Internet por Radioenlace", 18, startY + 19);
+
+            doc.text(`${clienteObj.cantidad_megas || 'Hasta 20 MB'}`, 100, startY + 16);
+            doc.text(`${periodo.mes} ${periodo.anio}`, 140, startY + 16);
+            doc.setFont("helvetica", "bold");
+            doc.text(`$ ${valorBrutoPlan.toLocaleString('es-CO')},00`, 190, startY + 16, { align: "right" });
+
+            const resumenY = startY + 30;
+
+            doc.setFillColor(...grisFondo);
+            doc.roundedRect(14, resumenY, 105, 38, 2, 2, "FD");
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(9);
+            doc.setTextColor(...azulCobalto);
+            doc.text("MEDIO DE PAGO HABILITADO", 18, resumenY + 7);
+
+            doc.setTextColor(50, 50, 50);
+            doc.setFontSize(8.5);
+            doc.text("Cuenta de Ahorros Bancolombia", 18, resumenY + 14);
+            doc.setFont("helvetica", "normal");
+            doc.text("Tipo de Cuenta: Ahorros", 18, resumenY + 20);
+            doc.text("Banco: Bancolombia", 18, resumenY + 25);
+            doc.setFont("helvetica", "bold");
+            doc.text("Número de Cuenta: 91295240372", 18, resumenY + 30);
+            doc.setFont("helvetica", "italic");
+            doc.setFontSize(7.5);
+            doc.text("* Recuerde enviar el comprobante de pago al WhatsApp (3024472764).", 18, resumenY + 35);
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8.5);
+            doc.setTextColor(50, 50, 50);
+            doc.text("Subtotal Servicio (Base):", 125, resumenY + 8);
+            doc.text(`$ ${subtotalSinIva.toLocaleString('es-CO')},00`, 190, resumenY + 8, { align: "right" });
+
+            doc.text("IVA / Impuestos (19%):", 125, resumenY + 15);
+            doc.text(`$ ${valorIva19.toLocaleString('es-CO')},00`, 190, resumenY + 15, { align: "right" });
+
+            doc.text("Descuentos / Reajustes:", 125, resumenY + 22);
+            doc.text(`- $ ${descuentoAplicado.toLocaleString('es-CO')},00`, 190, resumenY + 22, { align: "right" });
+
+            doc.setFillColor(...azulCobalto);
+            doc.rect(122, resumenY + 27, 74, 11, "F");
+            doc.setTextColor(255, 255, 255);
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text("TOTAL A PAGAR:", 125, resumenY + 34);
+            doc.setFontSize(11);
+            doc.text(`$ ${totalAPagar.toLocaleString('es-CO')},00`, 193, resumenY + 34, { align: "right" });
+
+            doc.setDrawColor(...grisBorde);
+            doc.line(14, 275, 196, 275);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text("CONECTADOS Telecomunicaciones - Facturación Mensual", 14, 280);
+            doc.text("Único Medio Oficial", 105, 280, { align: "center" });
+            doc.text("Atención al cliente: 3024472764 | soporte@conectados.com", 196, 280, { align: "right" });
+
+            doc.save(`Factura_Conectado2_${clienteObj.cedula}_${periodo.mes}.pdf`);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarProductosTienda();
+        });
     </script>
 </body>
 </html>
