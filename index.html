@@ -19,15 +19,15 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
 
-    <!-- ENCABEZADO MINIMALISTA Y MENÚ NAVEGACIÓN -->
-    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
+    <!-- ENCABEZADO MINIMALISTA EN VERDE CLARO SUAVE -->
+    <header class="bg-emerald-50/80 backdrop-blur-md border-b border-emerald-100 shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row justify-between items-center gap-4">
             
             <!-- Logo Banner Adaptado -->
             <div class="flex items-center justify-center cursor-pointer" onclick="irInicio()">
                 <img src="https://vebsnjvihcxigmkvcsem.supabase.co/storage/v1/object/public/branding/LOGO.jpeg" 
                      alt="Conectado2 Internet Rural Logo" 
-                     class="h-14 md:h-16 w-auto object-contain drop-shadow-sm">
+                     class="h-14 md:h-16 w-auto object-contain drop-shadow-sm rounded-lg">
             </div>
 
             <!-- Botones de Navegación Minimalistas al lado del Logo -->
@@ -35,20 +35,20 @@
                 <button onclick="abrirModalAuthExclusivo('user')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
                     👤 Ingreso Clientes
                 </button>
-                <button onclick="abrirModalAuthExclusivo('seguimiento')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition">
+                <button onclick="abrirModalAuthExclusivo('seguimiento')" class="bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-semibold px-4 py-2 rounded-xl transition">
                     📋 Estado Solicitud
                 </button>
-                <button onclick="abrirModalAuthExclusivo('admin')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl transition">
+                <button onclick="abrirModalAuthExclusivo('admin')" class="bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-semibold px-4 py-2 rounded-xl transition">
                     🔐 Admin
                 </button>
-                <button onclick="abrirTiendaPublica()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+                <button onclick="abrirTiendaPublica()" class="bg-green-700 hover:bg-green-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
                     🛒 Tienda
                 </button>
             </div>
 
             <!-- Sesión Activa -->
-            <div id="user-session-info" class="hidden flex items-center space-x-4 bg-slate-100 px-4 py-2 rounded-xl">
-                <span id="welcome-msg" class="text-sm font-semibold text-slate-800"></span>
+            <div id="user-session-info" class="hidden flex items-center space-x-4 bg-white/80 px-4 py-2 rounded-xl border border-emerald-200">
+                <span id="welcome-msg" class="text-sm font-semibold text-emerald-950"></span>
                 <button onclick="cerrarSesion()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs transition font-semibold shadow-sm">Cerrar Sesión</button>
             </div>
         </div>
@@ -68,14 +68,14 @@
                      class="w-full h-56 md:h-80 object-cover">
             </div>
 
-            <!-- Tarjeta Principal: ¿Quieres Contratar? -->
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-3xl p-8 text-white text-center shadow-xl space-y-4">
+            <!-- Tarjeta Principal: ¿Quieres Contratar? (AHORA EN VERDE DEGRADADO CAMPESTRE) -->
+            <div class="bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 rounded-3xl p-8 text-white text-center shadow-xl space-y-4 border border-emerald-500/30">
                 <h2 class="text-3xl font-extrabold tracking-tight">¿Quieres contratar Conectado2?</h2>
-                <p class="text-blue-100 text-sm md:text-base max-w-xl mx-auto">
+                <p class="text-emerald-50 text-sm md:text-base max-w-xl mx-auto">
                     Conéctate al mejor internet rural de alta velocidad con tecnología Ubiquiti y respaldo Starlink Empresarial en Toledo, Antioquia.
                 </p>
                 <div class="pt-2">
-                    <button onclick="abrirModalSolicitud()" class="bg-white text-blue-700 hover:bg-blue-50 font-bold px-8 py-3.5 rounded-2xl text-base shadow-lg transition transform hover:-translate-y-0.5">
+                    <button onclick="abrirModalSolicitud()" class="bg-white text-emerald-800 hover:bg-emerald-50 font-bold px-8 py-3.5 rounded-2xl text-base shadow-lg transition transform hover:-translate-y-0.5">
                         📝 Solicitar Nuevo Servicio
                     </button>
                 </div>
@@ -89,7 +89,7 @@
                     <h2 class="text-2xl font-bold text-slate-900">🛒 Tienda y Equipos Conectado2</h2>
                     <p class="text-xs text-slate-500">Routers Wi-Fi, antenas Ubiquiti y cámaras de seguridad para tu hogar o finca.</p>
                 </div>
-                <button onclick="irInicio()" class="text-xs text-blue-600 hover:underline font-semibold">← Volver al Inicio</button>
+                <button onclick="irInicio()" class="text-xs text-emerald-600 hover:underline font-semibold">← Volver al Inicio</button>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="catalogo-productos-publico"></div>
         </section>
@@ -117,13 +117,13 @@
                         🗑️ Vaciar BD
                     </button>
                     <button onclick="abrirModalPermisos()" id="btn-permisos-config" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium px-4 py-2.5 rounded-xl text-sm transition">⚙️ Permisos</button>
-                    <button onclick="cargarDatosAdmin(); cargarSolicitudesNuevasAdmin(); cargarProductosTienda();" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium px-4 py-2.5 rounded-xl text-sm transition border border-blue-200">🔄 Actualizar</button>
+                    <button onclick="cargarDatosAdmin(); cargarSolicitudesNuevasAdmin(); cargarProductosTienda();" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium px-4 py-2.5 rounded-xl text-sm transition border border-emerald-200">🔄 Actualizar</button>
                 </div>
             </div>
 
-            <!-- Pestañas Principales del Panel Admin -->
+            <!-- Pestañas Principales Admin -->
             <div class="flex border-b border-slate-200">
-                <button onclick="cambiarTabAdmin('activos')" id="tab-admin-activos" class="px-6 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600">👥 Clientes</button>
+                <button onclick="cambiarTabAdmin('activos')" id="tab-admin-activos" class="px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700">👥 Clientes</button>
                 <button onclick="cambiarTabAdmin('solicitudes')" id="tab-admin-solicitudes" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">📋 Solicitudes Nuevas</button>
                 <button onclick="cambiarTabAdmin('tienda')" id="tab-admin-tienda" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">🛒 Tienda y Equipos</button>
             </div>
@@ -137,7 +137,7 @@
                         <button onclick="filtrarEstadoCobro('pagado')" id="filter-cobro-pagado" class="px-4 py-2 rounded-md text-emerald-700 font-semibold">✅ Pagados (<span id="cnt-pagados">0</span>)</button>
                         <button onclick="filtrarEstadoCobro('suspendido')" id="filter-cobro-suspendido" class="px-4 py-2 rounded-md text-red-700 font-semibold">🚫 Suspendidos (<span id="cnt-suspendidos">0</span>)</button>
                     </div>
-                    <input type="text" id="search-admin" onkeyup="filtrarTablaAdminText()" placeholder="Buscar por cédula o nombre..." class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-64">
+                    <input type="text" id="search-admin" onkeyup="filtrarTablaAdminText()" placeholder="Buscar por cédula o nombre..." class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full md:w-64">
                 </div>
 
                 <div class="overflow-x-auto">
@@ -198,7 +198,7 @@
         <!-- PANEL DE USUARIO / CLIENTE LOGUEADO -->
         <section id="user-dashboard" class="hidden space-y-6 max-w-4xl mx-auto">
             <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-blue-600 text-white text-xs px-4 py-1.5 rounded-bl-xl font-bold uppercase tracking-wider" id="badge-periodo-factura">Factura Conectado2</div>
+                <div class="absolute top-0 right-0 bg-emerald-600 text-white text-xs px-4 py-1.5 rounded-bl-xl font-bold uppercase tracking-wider" id="badge-periodo-factura">Factura Conectado2</div>
                 
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-slate-900" id="client-name-title">Hola, Cliente</h2>
@@ -212,7 +212,7 @@
                         <div><span class="block text-xs font-semibold text-slate-400 uppercase">Estado de Pago del Mes</span><span id="bill-pago-estado" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold"></span></div>
                         <div><span class="block text-xs font-semibold text-slate-400 uppercase">Plan Contratado</span><span id="bill-megas" class="font-medium text-slate-800"></span></div>
                         <div><span class="block text-xs font-semibold text-slate-400 uppercase">Promoción</span><span id="bill-promo" class="font-medium text-slate-800"></span></div>
-                        <div><span class="block text-xs font-semibold text-slate-400 uppercase">Valor Mensual</span><span id="bill-valor" class="text-xl font-bold text-blue-600"></span></div>
+                        <div><span class="block text-xs font-semibold text-slate-400 uppercase">Valor Mensual</span><span id="bill-valor" class="text-xl font-bold text-emerald-600"></span></div>
                     </div>
                     <div class="pt-4 border-t flex flex-wrap gap-3">
                         <button onclick="generarPDFFactura(usuarioActual)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm flex items-center gap-2">
@@ -221,7 +221,7 @@
                     </div>
                 </div>
 
-                <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl text-xs text-blue-900 space-y-1">
+                <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl text-xs text-emerald-950 space-y-1">
                     <p class="font-bold">📌 Información para realización de pagos:</p>
                     <p>• Bancolombia Ahorros: <strong>91295240372</strong> a nombre de <strong>Janier Mazo</strong>.</p>
                     <p>• Fecha límite habitual de pago: Del 24 al 30 de cada mes.</p>
@@ -243,7 +243,7 @@
 
     </main>
 
-    <!-- MODAL EMERGENTE INDEPENDIENTE DE ACCESO (CLIENTES, SEGUIMIENTO O ADMIN) -->
+    <!-- MODAL EMERGENTE INDEPENDIENTE DE ACCESO -->
     <div id="modal-auth-container" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 border border-slate-100 relative">
             <button onclick="cerrarModalAuth()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
@@ -269,9 +269,9 @@
             <form id="form-seguimiento" onsubmit="consultarEstadoSolicitud(event)" class="space-y-4 hidden">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Número de Cédula (Solicitante)</label>
-                    <input type="text" id="seg-cedula" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Ingrese la cédula registrada">
+                    <input type="text" id="seg-cedula" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Ingrese la cédula registrada">
                 </div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Consultar Estado de Visita</button>
+                <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Consultar Estado de Visita</button>
                 <div class="text-center pt-2">
                     <button type="button" onclick="abrirModalAuthExclusivo('user')" class="text-xs text-slate-500 hover:text-slate-800 underline">Volver a ingreso de clientes</button>
                 </div>
@@ -281,13 +281,13 @@
             <form id="form-admin" onsubmit="loginAdmin(event)" class="space-y-4 hidden">
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Usuario Administrador</label>
-                    <input type="text" id="admin-user-input" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Usuario autorizado">
+                    <input type="text" id="admin-user-input" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Usuario autorizado">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Contraseña</label>
-                    <input type="password" id="admin-pass" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="••••••••••••">
+                    <input type="password" id="admin-pass" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="••••••••••••">
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Ingresar al Panel Admin</button>
+                <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Ingresar al Panel Admin</button>
             </form>
         </div>
     </div>
@@ -324,7 +324,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 uppercase">Seleccionar Foto (Archivo)</label>
-                        <input type="file" id="prod-file-foto" accept="image/*" class="w-full text-xs text-slate-500 file:py-1.5 file:px-2.5 file:rounded-lg file:bg-blue-50 file:text-blue-700 file:font-semibold">
+                        <input type="file" id="prod-file-foto" accept="image/*" class="w-full text-xs text-slate-500 file:py-1.5 file:px-2.5 file:rounded-lg file:bg-emerald-50 file:text-emerald-700 file:font-semibold">
                     </div>
                 </div>
                 <div>
@@ -348,7 +348,7 @@
         <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 border border-slate-100 space-y-4 flex flex-col max-h-[85vh]">
             <div class="flex justify-between items-center border-b pb-3">
                 <h3 class="text-xl font-bold text-slate-900">Vista Previa del Excel Cargado</h3>
-                <span id="preview-count-badge" class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">0 Registros</span>
+                <span id="preview-count-badge" class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">0 Registros</span>
             </div>
             <p class="text-xs text-slate-500">Revisa los datos del archivo antes de registrarlos o actualizar la base de datos.</p>
             <div class="overflow-auto flex-grow border rounded-xl">
@@ -401,21 +401,21 @@
                 <div class="grid grid-cols-2 gap-3 pt-2">
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Cédula Frontal</label>
-                        <input type="file" id="sol-file-frontal" accept="image/*" required class="w-full text-xs text-slate-500 file:py-1 file:px-2 file:rounded file:bg-blue-50 file:text-blue-700">
+                        <input type="file" id="sol-file-frontal" accept="image/*" required class="w-full text-xs text-slate-500 file:py-1 file:px-2 file:rounded file:bg-emerald-50 file:text-emerald-700">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Cédula Trasera</label>
-                        <input type="file" id="sol-file-trasera" accept="image/*" required class="w-full text-xs text-slate-500 file:py-1 file:px-2 file:rounded file:bg-blue-50 file:text-blue-700">
+                        <input type="file" id="sol-file-trasera" accept="image/*" required class="w-full text-xs text-slate-500 file:py-1 file:px-2 file:rounded file:bg-emerald-50 file:text-emerald-700">
                     </div>
                 </div>
 
                 <div class="flex items-center gap-2 pt-2">
-                    <input type="checkbox" id="sol-acepto" required class="w-4 h-4 text-blue-600 rounded">
+                    <input type="checkbox" id="sol-acepto" required class="w-4 h-4 text-emerald-600 rounded">
                     <label for="sol-acepto" class="text-xs text-slate-700">Acepto condiciones de instalación y responsabilidad de equipos.</label>
                 </div>
                 <div class="flex justify-end space-x-3 pt-3 border-t">
                     <button type="button" onclick="cerrarModalSolicitud()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm">Cancelar</button>
-                    <button id="btn-enviar-sol" type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">Enviar Solicitud</button>
+                    <button id="btn-enviar-sol" type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold">Enviar Solicitud</button>
                 </div>
             </form>
         </div>
@@ -424,10 +424,10 @@
     <!-- MODAL SEGUIMIENTO RESULTADO -->
     <div id="modal-seguimiento-res" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 space-y-4 text-center">
-            <div class="bg-blue-100 text-blue-800 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl font-bold">ℹ️</div>
+            <div class="bg-emerald-100 text-emerald-800 w-12 h-12 rounded-full flex items-center justify-center mx-auto text-xl font-bold">ℹ️</div>
             <h3 class="text-xl font-bold text-slate-900">Estado de tu Solicitud</h3>
             <div id="contenido-estado-solicitud" class="text-sm text-slate-600 space-y-2 py-2"></div>
-            <button onclick="document.getElementById('modal-seguimiento-res').classList.add('hidden')" class="w-full py-2 bg-blue-600 text-white rounded-xl text-sm font-semibold">Cerrar</button>
+            <button onclick="document.getElementById('modal-seguimiento-res').classList.add('hidden')" class="w-full py-2 bg-emerald-600 text-white rounded-xl text-sm font-semibold">Cerrar</button>
         </div>
     </div>
 
@@ -442,7 +442,7 @@
             </div>
             <div class="flex justify-end space-x-2 pt-3 border-t">
                 <button onclick="document.getElementById('modal-agendar-visita').classList.add('hidden')" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-xs">Cancelar</button>
-                <button onclick="guardarFechaVisitaAdmin()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold">Guardar Fecha</button>
+                <button onclick="guardarFechaVisitaAdmin()" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-semibold">Guardar Fecha</button>
             </div>
         </div>
     </div>
@@ -472,7 +472,7 @@
                 </div>
                 <div class="flex justify-end space-x-3 pt-3 border-t">
                     <button type="button" onclick="cerrarModalEditar()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold">Guardar</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold">Guardar</button>
                 </div>
             </form>
         </div>
@@ -504,9 +504,9 @@
             <h3 class="text-xl font-bold text-slate-900">Permisos de Administrador - Esteban Isaza</h3>
             <p class="text-xs text-slate-500">Selecciona qué acciones puede realizar Esteban en su panel secundario:</p>
             <div class="space-y-3 py-2">
-                <label class="flex items-center gap-3"><input type="checkbox" id="perm-ver-facturas" class="w-4 h-4 text-blue-600 rounded"> <span class="text-sm">Ver documentos y facturas de clientes</span></label>
-                <label class="flex items-center gap-3"><input type="checkbox" id="perm-editar-usuarios" class="w-4 h-4 text-blue-600 rounded"> <span class="text-sm">Editar datos de usuarios y promociones</span></label>
-                <label class="flex items-center gap-3"><input type="checkbox" id="perm-aprobar-solicitudes" class="w-4 h-4 text-blue-600 rounded"> <span class="text-sm">Aprobar solicitudes y nuevos servicios</span></label>
+                <label class="flex items-center gap-3"><input type="checkbox" id="perm-ver-facturas" class="w-4 h-4 text-emerald-600 rounded"> <span class="text-sm">Ver documentos y facturas de clientes</span></label>
+                <label class="flex items-center gap-3"><input type="checkbox" id="perm-editar-usuarios" class="w-4 h-4 text-emerald-600 rounded"> <span class="text-sm">Editar datos de usuarios y promociones</span></label>
+                <label class="flex items-center gap-3"><input type="checkbox" id="perm-aprobar-solicitudes" class="w-4 h-4 text-emerald-600 rounded"> <span class="text-sm">Aprobar solicitudes y nuevos servicios</span></label>
             </div>
             <div class="flex justify-end space-x-3 pt-3 border-t">
                 <button type="button" onclick="cerrarModalPermisos()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm">Cerrar</button>
@@ -515,14 +515,14 @@
         </div>
     </div>
 
-    <!-- PIE DE PÁGINA (FOOTER) PROFESIONAL -->
-    <footer class="bg-slate-900 text-slate-300 pt-12 pb-8 border-t border-slate-800 mt-12">
+    <!-- PIE DE PÁGINA (FOOTER) EN VERDE OSCURO PROFUNDO -->
+    <footer class="bg-emerald-950 text-emerald-100 pt-12 pb-8 border-t border-emerald-900 mt-12">
         <div class="max-w-7xl mx-auto px-4 space-y-8">
             
             <!-- Fila Superior: Título y Acción Directa -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-8 gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-emerald-900 pb-8 gap-4">
                 <div>
-                    <span class="text-blue-400 text-xs font-bold uppercase tracking-widest">CONECTEMOS TU ZONA</span>
+                    <span class="text-emerald-400 text-xs font-bold uppercase tracking-widest">CONECTEMOS TU ZONA</span>
                     <h3 class="text-xl md:text-2xl font-bold text-white mt-1">Internet local, infraestructura propia y soporte cercano.</h3>
                 </div>
                 <a href="https://wa.me/573024472764?text=Hola%20Conectado2,%20deseo%20más%20información%20sobre%20el%20servicio%20de%20internet" 
@@ -540,7 +540,7 @@
                     <div class="bg-white p-2 rounded-xl inline-block">
                         <img src="https://vebsnjvihcxigmkvcsem.supabase.co/storage/v1/object/public/branding/LOGO.jpeg" alt="Conectado2 Logo" class="h-8 w-auto object-contain">
                     </div>
-                    <p class="text-slate-400 leading-relaxed">
+                    <p class="text-emerald-300/80 leading-relaxed">
                         Conectado2 S.A.S. Red inalámbrica y radioenlace de alta velocidad con respaldo Starlink Empresarial para Toledo, Antioquia y sus zonas rurales.
                     </p>
                 </div>
@@ -548,7 +548,7 @@
                 <!-- Columna 2: Enlaces Rápidos -->
                 <div class="space-y-2">
                     <h4 class="font-bold text-white text-sm">Enlaces rápidos</h4>
-                    <ul class="space-y-1.5 text-slate-400">
+                    <ul class="space-y-1.5 text-emerald-300/80">
                         <li><a href="#" onclick="irInicio(); return false;" class="hover:text-white transition">Inicio</a></li>
                         <li><a href="#" onclick="abrirModalSolicitud(); return false;" class="hover:text-white transition">Solicitar Servicio</a></li>
                         <li><a href="#" onclick="abrirTiendaPublica(); return false;" class="hover:text-white transition">Tienda y Equipos</a></li>
@@ -559,7 +559,7 @@
                 <!-- Columna 3: Legalidad -->
                 <div class="space-y-2">
                     <h4 class="font-bold text-white text-sm">Legalidad</h4>
-                    <ul class="space-y-1.5 text-slate-400">
+                    <ul class="space-y-1.5 text-emerald-300/80">
                         <li><a href="#" class="hover:text-white transition">Normativa del servicio</a></li>
                         <li><a href="#" class="hover:text-white transition">Protección infantil</a></li>
                         <li><a href="#" class="hover:text-white transition">Control parental</a></li>
@@ -567,26 +567,27 @@
                     </ul>
                 </div>
 
-                <!-- Columna 4: Contacto -->
+                <!-- Columna 4: Contacto Directo (CON SEDE ITAGÜÍ) -->
                 <div class="space-y-2">
                     <h4 class="font-bold text-white text-sm">Contacto Directo</h4>
-                    <ul class="space-y-1.5 text-slate-400">
+                    <ul class="space-y-1.5 text-emerald-300/80">
                         <li>📞 +57 302 447 2764</li>
                         <li>✉️ soporte@conectado2.online</li>
                         <li>📍 Toledo, Antioquia, Colombia</li>
+                        <li class="pt-0.5 text-emerald-400 font-semibold">🏢 Sede Itagüí, Antioquia, Colombia</li>
                     </ul>
                 </div>
             </div>
 
             <!-- Fila Inferior: Copyright -->
-            <div class="border-t border-slate-800/60 pt-6 flex flex-col md:flex-row justify-between items-center text-[11px] text-slate-500 gap-2">
+            <div class="border-t border-emerald-900/60 pt-6 flex flex-col md:flex-row justify-between items-center text-[11px] text-emerald-400/70 gap-2">
                 <p>© 2026 Conectado2 S.A.S. - NIT 901.654.321-8</p>
-                <p>Todos los derechos reservados. Toledo, Antioquia</p>
+                <p>Todos los derechos reservados. Toledo & Itagüí, Antioquia</p>
             </div>
         </div>
     </footer>
 
-    <!-- BOTÓN FLOTANTE DE WHATSAPP DIRECCIÓN DIRECTA (3024472764) -->
+    <!-- BOTÓN FLOTANTE DE WHATSAPP -->
     <a href="https://wa.me/573024472764?text=Hola%20Conectado2,%20necesito%20asistencia%20o%20soporte%20técnico" 
        target="_blank" 
        title="Chatear por WhatsApp"
@@ -619,7 +620,6 @@
             }
         }
 
-        // APERTURA DE MODAL INDEPENDIENTE Y EXCLUSIVO SEGÚN LA SELECCIÓN
         function abrirModalAuthExclusivo(tipo) {
             const formUser = document.getElementById('form-user');
             const formSeg = document.getElementById('form-seguimiento');
@@ -705,13 +705,13 @@
             secTienda.classList.add('hidden');
 
             if(seccion === 'activos') {
-                tabActivos.className = "px-6 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600";
+                tabActivos.className = "px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700";
                 secActivos.classList.remove('hidden');
             } else if(seccion === 'solicitudes') {
-                tabSolicitudes.className = "px-6 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600";
+                tabSolicitudes.className = "px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700";
                 secSolicitudes.classList.remove('hidden');
             } else {
-                tabTienda.className = "px-6 py-3 font-bold text-sm border-b-2 border-blue-600 text-blue-600";
+                tabTienda.className = "px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700";
                 secTienda.classList.remove('hidden');
             }
         }
@@ -840,7 +840,7 @@
                 let fechaVisitaTexto = data.fecha_visita ? `📅 <strong>Visita programada para el:</strong> ${new Date(data.fecha_visita).toLocaleString()}` : `⏳ Tu solicitud está en revisión. Un técnico se comunicará contigo pronto.`;
                 contenedor.innerHTML = `
                     <p><strong>Solicitante:</strong> ${data.nombre} ${data.apellido}</p>
-                    <p class="mt-2 bg-blue-50 p-3 rounded-xl border border-blue-200 text-blue-900">${fechaVisitaTexto}</p>
+                    <p class="mt-2 bg-emerald-50 p-3 rounded-xl border border-emerald-200 text-emerald-950">${fechaVisitaTexto}</p>
                 `;
             }
             cerrarModalAuth();
@@ -999,13 +999,13 @@
                     <td class="p-3">${badgeServicio}</td>
                     <td class="p-3">${badgePago}</td>
                     <td class="p-3">
-                        <button onclick='abrirModalCedulaAdmin(${JSON.stringify(user)})' class="bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded text-xs font-bold">🪪 Ver Cédula</button>
+                        <button onclick='abrirModalCedulaAdmin(${JSON.stringify(user)})' class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded text-xs font-bold">🪪 Ver Cédula</button>
                     </td>
                     <td class="p-3 font-medium">${user.nombre} ${user.apellido} <br><span class="text-xs text-slate-400">${user.cedula}</span></td>
-                    <td class="p-3">${user.cantidad_megas || '20 Mbps'} <br><span class="font-bold text-blue-600">$ ${Number(user.valor_servicio || 0).toLocaleString()}</span></td>
+                    <td class="p-3">${user.cantidad_megas || '20 Mbps'} <br><span class="font-bold text-emerald-700">$ ${Number(user.valor_servicio || 0).toLocaleString()}</span></td>
                     <td class="p-3 text-center">${botonEstadoPago}</td>
                     <td class="p-3 text-center space-x-1">
-                        <button onclick='validarYGenerarPDF(${JSON.stringify(user)})' class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">📄 PDF</button>
+                        <button onclick='validarYGenerarPDF(${JSON.stringify(user)})' class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-bold">📄 PDF</button>
                         <button onclick='abrirModalEditar(${JSON.stringify(user)})' class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs">Editar</button>
                         ${botonSuspender}
                         <button onclick='eliminarUsuario("${user.cedula}")' class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded text-xs">Eliminar</button>
@@ -1152,14 +1152,14 @@
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 border-b border-slate-100">
                         <td class="p-3">
-                            <a href="${s.cedula_frontal_url}" target="_blank" class="text-blue-600 underline text-xs">Frontal</a> | 
-                            <a href="${s.cedula_trasera_url}" target="_blank" class="text-blue-600 underline text-xs">Trasera</a>
+                            <a href="${s.cedula_frontal_url}" target="_blank" class="text-emerald-700 underline text-xs">Frontal</a> | 
+                            <a href="${s.cedula_trasera_url}" target="_blank" class="text-emerald-700 underline text-xs">Trasera</a>
                         </td>
                         <td class="p-3 font-medium">${s.nombre} ${s.apellido} (${s.cedula})</td>
                         <td class="p-3">${s.celular}</td>
-                        <td class="p-3 font-semibold text-blue-600">${s.fecha_visita ? new Date(s.fecha_visita).toLocaleString() : '<span class="text-amber-600 font-normal">Sin fecha</span>'}</td>
+                        <td class="p-3 font-semibold text-emerald-700">${s.fecha_visita ? new Date(s.fecha_visita).toLocaleString() : '<span class="text-amber-600 font-normal">Sin fecha</span>'}</td>
                         <td class="p-3 text-center space-x-2">
-                            <button onclick='abrirModalAgendarVisita("${s.cedula}")' class="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-semibold">📅 Visita</button>
+                            <button onclick='abrirModalAgendarVisita("${s.cedula}")' class="bg-emerald-700 text-white px-3 py-1 rounded text-xs font-semibold">📅 Visita</button>
                             <button onclick='aprobarYSonarClienteActivo(${JSON.stringify(s)})' class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-semibold">✅ Aprobar</button>
                             <button onclick='eliminarSolicitudNueva("${s.cedula}")' class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Rechazar</button>
                         </td>
@@ -1326,16 +1326,16 @@
                             <div class="h-44 w-full bg-slate-50 rounded-xl mb-3 overflow-hidden flex items-center justify-center p-2 border">
                                 <img src="${imagen}" alt="${p.nombre}" class="max-h-full max-w-full object-contain">
                             </div>
-                            <span class="text-[10px] font-bold uppercase text-blue-600 tracking-wider">${p.categoria || 'Equipos'}</span>
+                            <span class="text-[10px] font-bold uppercase text-emerald-700 tracking-wider">${p.categoria || 'Equipos'}</span>
                             <h4 class="font-bold text-slate-900 text-sm mt-0.5">${p.nombre}</h4>
                             <p class="text-xs text-slate-500 mt-1 line-clamp-2">${p.descripcion || 'Sin descripción disponible.'}</p>
                         </div>
                         <div class="mt-4 pt-3 border-t flex justify-between items-center">
                             <div>
                                 ${tieneOferta ? `<span class="text-xs text-slate-400 line-through block">$${Number(p.precio).toLocaleString()}</span>` : ''}
-                                <span class="font-extrabold text-blue-600 text-base">$${Number(precioMostrar).toLocaleString()} COP</span>
+                                <span class="font-extrabold text-emerald-700 text-base">$${Number(precioMostrar).toLocaleString()} COP</span>
                             </div>
-                            <button onclick="solicitarProductoDirecto('${p.nombre}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-sm transition">Pedir</button>
+                            <button onclick="solicitarProductoDirecto('${p.nombre}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-sm transition">Pedir</button>
                         </div>
                     </div>`;
             });
@@ -1362,7 +1362,7 @@
                             <div class="h-40 w-full bg-white rounded-xl mb-3 overflow-hidden flex items-center justify-center border p-2">
                                 <img src="${imagen}" alt="${p.nombre}" class="max-h-full max-w-full object-contain">
                             </div>
-                            <span class="text-[10px] font-bold uppercase text-blue-600 tracking-wider">${p.categoria || 'Equipos'}</span>
+                            <span class="text-[10px] font-bold uppercase text-emerald-700 tracking-wider">${p.categoria || 'Equipos'}</span>
                             <h4 class="font-bold text-slate-900 text-sm mt-0.5">${p.nombre}</h4>
                             <p class="text-xs text-slate-500 mt-1 line-clamp-2">${p.descripcion || ''}</p>
                             <div class="mt-2 text-xs">
@@ -1491,8 +1491,8 @@
             const doc = new jsPDF('p', 'mm', 'a4');
             const periodo = obtenerPeriodoFacturacion();
 
-            const azulOscuro = [15, 23, 42]; 
-            const azulCobalto = [30, 64, 175]; 
+            const verdeOscuro = [6, 78, 59]; 
+            const verdeBosque = [16, 185, 129]; 
             const grisFondo = [248, 250, 252]; 
             const grisBorde = [226, 232, 240]; 
 
@@ -1510,7 +1510,7 @@
             const subtotalSinIva = Math.round(valorBrutoPlan / 1.19);
             const valorIva19 = valorBrutoPlan - subtotalSinIva;
 
-            doc.setFillColor(...azulCobalto);
+            doc.setFillColor(...verdeOscuro);
             doc.rect(0, 0, 210, 32, "F");
 
             doc.setTextColor(255, 255, 255);
@@ -1546,7 +1546,7 @@
             doc.setDrawColor(...grisBorde);
             doc.roundedRect(14, 55, 88, 48, 2, 2, "FD");
             
-            doc.setFillColor(...azulCobalto);
+            doc.setFillColor(...verdeOscuro);
             doc.rect(14, 55, 88, 7, "F");
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
@@ -1565,12 +1565,12 @@
             doc.setFont("helvetica", "normal"); doc.text(`${clienteObj.celular || '3024472764'}`, 48, 92);
 
             doc.setFont("helvetica", "bold"); doc.text("Correo Electrónico:", 18, 98);
-            doc.setFont("helvetica", "normal"); doc.text(`${clienteObj.correo || 'soporte@conectados.com'}`, 48, 98);
+            doc.setFont("helvetica", "normal"); doc.text(`${clienteObj.correo || 'soporte@conectado2.online'}`, 48, 98);
 
             doc.setFillColor(...grisFondo);
             doc.roundedRect(108, 55, 88, 48, 2, 2, "FD");
 
-            doc.setFillColor(...azulCobalto);
+            doc.setFillColor(...verdeOscuro);
             doc.rect(108, 55, 88, 7, "F");
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
@@ -1592,7 +1592,7 @@
             doc.setFont("helvetica", "normal"); doc.text(`REF-${clienteObj.cedula}`, 155, 92);
 
             const startY = 110;
-            doc.setFillColor(...azulOscuro);
+            doc.setFillColor(...verdeOscuro);
             doc.rect(14, startY, 182, 8, "F");
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
@@ -1625,7 +1625,7 @@
             doc.roundedRect(14, resumenY, 105, 38, 2, 2, "FD");
             doc.setFont("helvetica", "bold");
             doc.setFontSize(9);
-            doc.setTextColor(...azulCobalto);
+            doc.setTextColor(...verdeOscuro);
             doc.text("MEDIO DE PAGO HABILITADO", 18, resumenY + 7);
 
             doc.setTextColor(50, 50, 50);
@@ -1652,7 +1652,7 @@
             doc.text("Descuentos / Reajustes:", 125, resumenY + 22);
             doc.text(`- $ ${descuentoAplicado.toLocaleString('es-CO')},00`, 190, resumenY + 22, { align: "right" });
 
-            doc.setFillColor(...azulCobalto);
+            doc.setFillColor(...verdeOscuro);
             doc.rect(122, resumenY + 27, 74, 11, "F");
             doc.setTextColor(255, 255, 255);
             doc.setFont("helvetica", "bold");
@@ -1668,7 +1668,7 @@
             doc.setTextColor(100, 100, 100);
             doc.text("CONECTADOS Telecomunicaciones - Facturación Mensual", 14, 280);
             doc.text("Único Medio Oficial", 105, 280, { align: "center" });
-            doc.text("Atención al cliente: 3024472764 | soporte@conectados.com", 196, 280, { align: "right" });
+            doc.text("Atención al cliente: 3024472764 | soporte@conectado2.online", 196, 280, { align: "right" });
 
             doc.save(`Factura_Conectado2_${clienteObj.cedula}_${periodo.mes}.pdf`);
         }
