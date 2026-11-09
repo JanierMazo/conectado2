@@ -122,10 +122,11 @@
             </div>
 
             <!-- Pestañas Principales Admin -->
-            <div class="flex border-b border-slate-200">
+            <div class="flex flex-wrap border-b border-slate-200">
                 <button onclick="cambiarTabAdmin('activos')" id="tab-admin-activos" class="px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700">👥 Clientes</button>
                 <button onclick="cambiarTabAdmin('solicitudes')" id="tab-admin-solicitudes" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">📋 Solicitudes Nuevas</button>
                 <button onclick="cambiarTabAdmin('tienda')" id="tab-admin-tienda" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">🛒 Tienda y Equipos</button>
+                <button onclick="cambiarTabAdmin('ips')" id="tab-admin-ips" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">📡 IPs Sectoriales y Servidor</button>
             </div>
 
             <!-- TABLA DE CLIENTES -->
@@ -136,8 +137,9 @@
                         <button onclick="filtrarEstadoCobro('pendiente')" id="filter-cobro-pendiente" class="px-4 py-2 rounded-md text-amber-700 font-semibold">⏳ Pendientes de Pago (<span id="cnt-pendientes">0</span>)</button>
                         <button onclick="filtrarEstadoCobro('pagado')" id="filter-cobro-pagado" class="px-4 py-2 rounded-md text-emerald-700 font-semibold">✅ Pagados (<span id="cnt-pagados">0</span>)</button>
                         <button onclick="filtrarEstadoCobro('suspendido')" id="filter-cobro-suspendido" class="px-4 py-2 rounded-md text-red-700 font-semibold">🚫 Suspendidos (<span id="cnt-suspendidos">0</span>)</button>
+                        <button onclick="filtrarEstadoCobro('especial')" id="filter-cobro-especial" class="px-4 py-2 rounded-md text-emerald-800 font-semibold">⭐ Especiales (<span id="cnt-especiales">0</span>)</button>
                     </div>
-                    <input type="text" id="search-admin" onkeyup="filtrarTablaAdminText()" placeholder="Buscar por cédula o nombre..." class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full md:w-64">
+                    <input type="text" id="search-admin" onkeyup="filtrarTablaAdminText()" placeholder="Buscar por cédula, nombre o IP..." class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full md:w-64">
                 </div>
 
                 <div class="overflow-x-auto">
@@ -149,6 +151,7 @@
                                 <th class="p-3">Cédula / Docs</th>
                                 <th class="p-3">Cliente</th>
                                 <th class="p-3">Plan / Valor</th>
+                                <th class="p-3">IPs (Antena / Router)</th>
                                 <th class="p-3 text-center">Acciones de Pago</th>
                                 <th class="p-3 text-center">Gestión Cliente</th>
                             </tr>
@@ -161,7 +164,7 @@
             <!-- TABLA DE SOLICITUDES NUEVAS -->
             <div id="seccion-admin-solicitudes" class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hidden">
                 <div class="p-4 border-b border-slate-100">
-                    <h3 class="font-semibold text-slate-800">Solicitudes Nuevas de Instalación ($90.000)</h3>
+                    <h3 class="font-semibold text-slate-800">Solicitudes Nuevas de Instalación ($100.000)</h3>
                     <p class="text-xs text-slate-500">Agendar fecha de visita y aprobar directamente a la base de datos de activos.</p>
                 </div>
                 <div class="overflow-x-auto">
@@ -192,6 +195,22 @@
                     </button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="admin-tienda-grid"></div>
+            </div>
+            <!-- GESTIÓN DE IPS SECTORIALES Y SERVIDOR (ADMIN) -->
+            <div id="seccion-admin-ips" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hidden space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b pb-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg">📡 IPs de Sectoriales y Servidor</h3>
+                        <p class="text-xs text-slate-500">Acceso directo a tus antenas base, enlaces y routers principales.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                        <input type="text" id="search-ips" onkeyup="filtrarEquiposRed()" placeholder="Buscar sectorial o IP..." class="px-3 py-2 border border-slate-300 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 flex-grow md:w-52">
+                        <button onclick="abrirModalEquipoRed()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm">
+                            ➕ Agregar Sectorial / Servidor
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="admin-ips-grid"></div>
             </div>
         </section>
 
@@ -277,17 +296,49 @@
                 </div>
             </form>
 
-            <!-- FORMULARIO ADMIN EXCLUSIVO -->
+<!-- FORMULARIO ADMIN EXCLUSIVO -->
             <form id="form-admin" onsubmit="loginAdmin(event)" class="space-y-4 hidden">
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Usuario Administrador</label>
-                    <input type="text" id="admin-user-input" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Usuario autorizado">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Correo Administrador</label>
+                    <input type="email" id="admin-user-input" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="ejemplo@conectado2.com">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Contraseña</label>
                     <input type="password" id="admin-pass" required class="w-full px-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="••••••••••••">
                 </div>
                 <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2.5 rounded-lg transition shadow-md text-sm">Ingresar al Panel Admin</button>
+            </form>
+        </div> <!-- Cierra el cuadro blanco del login -->
+    </div> <!-- Cierra modal-auth-container -->
+
+    <!-- MODAL CAMBIO OBLIGATORIO DE CONTRASEÑA -->
+    <div id="modal-cambiar-clave" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 space-y-4">
+            <div class="text-center">
+                <h3 class="text-xl font-bold text-slate-900">Actualiza tu Contraseña</h3>
+                <p class="text-xs text-slate-500 mt-1">Por seguridad, debes cambiar la contraseña inicial antes de ingresar al panel.</p>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-3 rounded-xl space-y-1">
+                <p class="font-bold">Requisitos de la nueva clave:</p>
+                <ul class="list-disc pl-4 space-y-0.5">
+                    <li>Mínimo 8 caracteres.</li>
+                    <li>Incluir letras y al menos un número.</li>
+                    <li>Incluir al menos un carácter especial (ej: <strong>* @ # $ - _ !</strong>).</li>
+                </ul>
+            </div>
+            <form id="form-cambiar-clave" onsubmit="guardarNuevaClaveAdmin(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Nueva Contraseña</label>
+                    <input type="password" id="nueva-clave-admin" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Ej: MiClave2026*">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Confirmar Nueva Contraseña</label>
+                    <input type="password" id="confirmar-clave-admin" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none" placeholder="Repite la nueva contraseña">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2 border-t">
+                    <button type="button" onclick="cancelarCambioClave()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Cancelar</button>
+                    <button type="submit" id="btn-guardar-nueva-clave" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm">Guardar y Entrar</button>
+                </div>
             </form>
         </div>
     </div>
@@ -381,9 +432,9 @@
             <div class="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-4 rounded-xl space-y-2">
                 <p><strong>Condiciones del Servicio:</strong></p>
                 <ul class="list-disc pl-4 space-y-1">
-                    <li>Costo de instalación: <strong>$90.000 COP</strong>.</li>
+                    <li>Costo de instalación: <strong>$100.000 COP</strong>.</li>
                     <li>El usuario debe recoger al técnico en carretera.</li>
-                    <li>Antenas Ubiquiti punto a punto con velocidad de hasta <strong>20 Mbps máximo</strong>.</li>
+                    <li>Antenas Ubiquiti punto a punto con velocidad desde <strong>10 Mbps</strong>.</li>
                     <li>Los equipos instalados son responsabilidad del usuario; cualquier daño debe ser cubierto por el mismo cliente.</li>
                 </ul>
             </div>
@@ -447,6 +498,42 @@
         </div>
     </div>
 
+    <!-- MODAL AGREGAR / EDITAR IP DE RED (SECTORIALES Y SERVIDOR) -->
+    <div id="modal-equipo-red" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 space-y-4">
+            <h3 class="text-xl font-bold text-slate-900" id="titulo-modal-red">Agregar Sectorial o Servidor</h3>
+            <form onsubmit="guardarEquipoRed(event)" class="space-y-3">
+                <input type="hidden" id="red-id">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase">Nombre del Equipo</label>
+                    <input type="text" id="red-nombre" required class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Ej: Sectorial 1, Servidor MikroTik">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Tipo</label>
+                        <select id="red-tipo" class="w-full px-3 py-2 border rounded-lg text-sm">
+                            <option value="Sectorial">Sectorial</option>
+                            <option value="Servidor">Servidor</option>
+                            <option value="Enlace PTP">Enlace PTP</option>
+                            <option value="Otro">Otro</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">Dirección IP o URL</label>
+                        <input type="text" id="red-ip" required class="w-full px-3 py-2 border rounded-lg text-sm font-mono" placeholder="192.168.10.2">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase">Notas / Ubicación (Opcional)</label>
+                    <input type="text" id="red-notas" class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Ej: Torre Toledo - LAP-120">
+                </div>
+                <div class="flex justify-end space-x-3 pt-3 border-t">
+                    <button type="button" onclick="cerrarModalEquipoRed()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-semibold">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- MODAL EDITAR USUARIO -->
     <div id="modal-editar" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 space-y-4">
@@ -462,12 +549,29 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div><label class="block text-xs font-semibold text-slate-500 uppercase">Nombre</label><input type="text" id="edit-nombre" required class="w-full px-3 py-2 border rounded-lg text-sm"></div>
                     <div><label class="block text-xs font-semibold text-slate-500 uppercase">Apellido</label><input type="text" id="edit-apellido" required class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                    <div>
+                 <label class="block text-xs font-semibold text-slate-500 uppercase">Celular / WhatsApp</label>
+                 <input type="text" id="edit-celular" class="w-full px-3 py-2 border rounded-lg text-sm" placeholder="Ej: 3024472764">
+             </div>
                 </div>
                 <div class="grid grid-cols-3 gap-3">
                     <div><label class="block text-xs font-semibold text-slate-500 uppercase">Megas</label><input type="text" id="edit-megas" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
                     <div><label class="block text-xs font-semibold text-slate-500 uppercase">Valor ($)</label><input type="number" id="edit-valor" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
                     <div><label class="block text-xs font-semibold text-slate-500 uppercase">Promoción</label>
-                        <select id="edit-promocion" class="w-full px-3 py-2 border rounded-lg text-sm"><option value="No">No</option><option value="Sí">Sí</option></select>
+                        <select id="edit-promocion" onchange="autocompletarValorEspecial()" class="w-full px-3 py-2 border rounded-lg text-sm">
+                         <option value="No">No (Normal)</option>
+                         <option value="Sí">Sí (Especial / Promo)</option>
+                     </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">IP Antena (Cliente)</label>
+                        <input type="text" id="edit-ip-antena" class="w-full px-3 py-2 border rounded-lg text-sm font-mono" placeholder="Ej: 192.168.10.25">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase">IP Router (Cliente)</label>
+                        <input type="text" id="edit-ip-router" class="w-full px-3 py-2 border rounded-lg text-sm font-mono" placeholder="Ej: 192.168.10.26:8080">
                     </div>
                 </div>
                 <div class="flex justify-end space-x-3 pt-3 border-t">
@@ -607,6 +711,7 @@
         let adminActual = null;
         let listaUsuariosGlobal = [];
         let listaProductosTienda = [];
+        let listaEquiposRed = [];
         let filtroCobroActual = 'todos';
         let datosExcelPendientes = [];
 
@@ -688,47 +793,153 @@
         }
 
         function cambiarTabAdmin(seccion) {
-            const tabActivos = document.getElementById('tab-admin-activos');
-            const tabSolicitudes = document.getElementById('tab-admin-solicitudes');
-            const tabTienda = document.getElementById('tab-admin-tienda');
-            
-            const secActivos = document.getElementById('seccion-admin-activos');
-            const secSolicitudes = document.getElementById('seccion-admin-solicitudes');
-            const secTienda = document.getElementById('seccion-admin-tienda');
+         const tabs = {
+             activos: { btn: document.getElementById('tab-admin-activos'), sec: document.getElementById('seccion-admin-activos') },
+             solicitudes: { btn: document.getElementById('tab-admin-solicitudes'), sec: document.getElementById('seccion-admin-solicitudes') },
+             tienda: { btn: document.getElementById('tab-admin-tienda'), sec: document.getElementById('seccion-admin-tienda') },
+             ips: { btn: document.getElementById('tab-admin-ips'), sec: document.getElementById('seccion-admin-ips') }
+         };
 
-            tabActivos.className = "px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700";
-            tabSolicitudes.className = "px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700";
-            tabTienda.className = "px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700";
-            
-            secActivos.classList.add('hidden');
-            secSolicitudes.classList.add('hidden');
-            secTienda.classList.add('hidden');
+         Object.values(tabs).forEach(t => {
+             t.btn.className = "px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700";
+             t.sec.classList.add('hidden');
+         });
 
-            if(seccion === 'activos') {
-                tabActivos.className = "px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700";
-                secActivos.classList.remove('hidden');
-            } else if(seccion === 'solicitudes') {
-                tabSolicitudes.className = "px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700";
-                secSolicitudes.classList.remove('hidden');
-            } else {
-                tabTienda.className = "px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700";
-                secTienda.classList.remove('hidden');
+         if (tabs[seccion]) {
+             tabs[seccion].btn.className = "px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700";
+             tabs[seccion].sec.classList.remove('hidden');
+             if (seccion === 'ips') cargarEquiposRed();
+         }
+     }
+
+        function obtenerRolAdmin(email) {
+            const correo = (email || '').trim().toLowerCase();
+            if (correo === 'jeliasmazo@gmail.com') {
+                return { id: 'janier', titulo: 'Admin Principal: Janier Mazo' };
+            }
+            if (correo === 'esteban.isaza@conectado2.com') {
+                return { id: 'esteban', titulo: 'Admin Secundario: Esteban Isaza Ramirez' };
+            }
+            return null;
+        }
+
+        function activarSesionAdminUI(rol) {
+            adminActual = rol.id;
+            iniciarPanelAdmin(rol.titulo);
+        }
+
+        async function loginAdmin(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('admin-user-input').value.trim().toLowerCase();
+            const pass = document.getElementById('admin-pass').value;
+            const btnSubmit = e.target.querySelector('button[type="submit"]');
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = 'Validando...';
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: emailInput,
+                    password: pass
+                });
+
+                if (error || !data.user) {
+                    alert('Credenciales incorrectas o usuario pendiente de verificación.');
+                    return;
+                }
+
+                const rol = obtenerRolAdmin(data.user.email);
+                if (!rol) {
+                    alert('Este usuario no tiene permisos de administrador.');
+                    await supabaseClient.auth.signOut();
+                    return;
+                }
+
+                if (!data.user.user_metadata?.clave_cambiada) {
+                    cerrarModalAuth();
+                    abrirModalCambioClave();
+                    return;
+                }
+
+                activarSesionAdminUI(rol);
+            } catch (err) {
+                console.error(err);
+                alert('Error de conexión al validar el acceso.');
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = 'Ingresar al Panel Admin';
             }
         }
 
-        function loginAdmin(e) {
-            e.preventDefault();
-            const userInput = document.getElementById('admin-user-input').value.trim();
-            const pass = document.getElementById('admin-pass').value.trim();
+        function abrirModalCambioClave() {
+            const modal = document.getElementById('modal-cambiar-clave');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
 
-            if(userInput === 'jeliasmazo@gmail.com' && pass === '98013262140Ja**') {
-                adminActual = 'janier';
-                iniciarPanelAdmin('Admin Principal: Janier Mazo');
-            } else if(userInput === 'esteban.isaza' && pass === '3st3b4nRamirez**') {
-                adminActual = 'esteban';
-                iniciarPanelAdmin('Admin Secundario: Esteban Isaza Ramirez');
-            } else {
-                alert('Credenciales incorrectas.');
+        async function cancelarCambioClave() {
+            const modal = document.getElementById('modal-cambiar-clave');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('form-cambiar-clave').reset();
+            await cerrarSesion();
+        }
+
+        async function guardarNuevaClaveAdmin(e) {
+            e.preventDefault();
+            const nuevaClave = document.getElementById('nueva-clave-admin').value;
+            const confirmarClave = document.getElementById('confirmar-clave-admin').value;
+            const claveAnterior = document.getElementById('admin-pass').value;
+            const btn = document.getElementById('btn-guardar-nueva-clave');
+
+            if (nuevaClave !== confirmarClave) {
+                alert('Las contraseñas no coinciden.');
+                return;
+            }
+            if (claveAnterior && nuevaClave === claveAnterior) {
+                alert('La nueva contraseña debe ser diferente a la temporal.');
+                return;
+            }
+
+            const tieneLongitud = nuevaClave.length >= 8;
+            const tieneLetra = /[a-zA-Z]/.test(nuevaClave);
+            const tieneNumero = /[0-9]/.test(nuevaClave);
+            const tieneEspecial = /[^a-zA-Z0-9\s]/.test(nuevaClave);
+
+            if (!tieneLongitud || !tieneLetra || !tieneNumero || !tieneEspecial) {
+                alert('La contraseña debe tener mínimo 8 caracteres, incluir letras, al menos un número y al menos un carácter especial (ej: * @ # $ - _).');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = 'Guardando...';
+
+            try {
+                const { data, error } = await supabaseClient.auth.updateUser({
+                    password: nuevaClave,
+                    data: { clave_cambiada: true }
+                });
+
+                if (error) {
+                    alert('No se pudo actualizar la contraseña: ' + error.message);
+                    return;
+                }
+
+                const modal = document.getElementById('modal-cambiar-clave');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.getElementById('form-cambiar-clave').reset();
+                document.getElementById('admin-pass').value = '';
+
+                alert('✅ Contraseña actualizada con éxito.');
+                const rol = obtenerRolAdmin(data.user.email);
+                if (rol) activarSesionAdminUI(rol);
+            } catch (err) {
+                console.error(err);
+                alert('Error al guardar la nueva contraseña.');
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Guardar y Entrar';
             }
         }
 
@@ -752,6 +963,7 @@
             cargarDatosAdmin();
             cargarSolicitudesNuevasAdmin();
             cargarProductosTienda();
+            cargarEquiposRed();
         }
 
         async function loginUser(e) {
@@ -759,17 +971,13 @@
             const cedula = document.getElementById('user-cedula').value.trim();
 
             let { data, error } = await supabaseClient
-                .from('usuarios_conectado2')
-                .select('*')
-                .eq('cedula', cedula)
-                .single();
+             .rpc('buscar_cliente_por_cedula', { p_cedula: cedula })
+             .maybeSingle();;
 
             if (error || !data) {
                 let { data: solData } = await supabaseClient
-                    .from('solicitudes_nuevas')
-                    .select('*')
-                    .eq('cedula', cedula)
-                    .single();
+                 .rpc('consultar_solicitud_por_cedula', { p_cedula: cedula })
+                 .maybeSingle();
 
                 if (solData) {
                     alert('Tu solicitud ya se encuentra registrada y está pendiente de revisión o visita técnica.');
@@ -828,10 +1036,8 @@
             const cedula = document.getElementById('seg-cedula').value.trim();
 
             const { data, error } = await supabaseClient
-                .from('solicitudes_nuevas')
-                .select('*')
-                .eq('cedula', cedula)
-                .single();
+             .rpc('consultar_solicitud_por_cedula', { p_cedula: cedula })
+             .maybeSingle();;
 
             const contenedor = document.getElementById('contenido-estado-solicitud');
             if(error || !data) {
@@ -848,7 +1054,8 @@
             document.getElementById('modal-seguimiento-res').classList.add('flex');
         }
 
-        function cerrarSesion() {
+async function cerrarSesion() {
+            await supabaseClient.auth.signOut();
             usuarioActual = null;
             adminActual = null;
             document.getElementById('admin-dashboard').classList.add('hidden');
@@ -921,36 +1128,34 @@
         }
 
         function actualizarContadoresFiltros() {
-            const activos = listaUsuariosGlobal.filter(u => (u.estado_servicio || 'Activo') === 'Activo');
-            const pendientes = listaUsuariosGlobal.filter(u => (u.estado_servicio || 'Activo') === 'Activo' && (u.estado_pago || 'Pendiente') === 'Pendiente');
-            const pagados = listaUsuariosGlobal.filter(u => (u.estado_servicio || 'Activo') === 'Activo' && u.estado_pago === 'Pagado');
-            const suspendidos = listaUsuariosGlobal.filter(u => u.estado_servicio === 'Suspendido');
+         const activos = listaUsuariosGlobal.filter(u => (u.estado_servicio || 'Activo') === 'Activo');
+         const pendientes = listaUsuariosGlobal.filter(u => (u.estado_servicio || 'Activo') === 'Activo' && (u.estado_pago || 'Pendiente') === 'Pendiente');
+         const pagados = listaUsuariosGlobal.filter(u => (u.estado_servicio || 'Activo') === 'Activo' && u.estado_pago === 'Pagado');
+         const suspendidos = listaUsuariosGlobal.filter(u => u.estado_servicio === 'Suspendido');
+         const especiales = listaUsuariosGlobal.filter(u => (u.estado_servicio || 'Activo') === 'Activo' && u.promocion === 'Sí');
 
-            document.getElementById('cnt-todos').innerText = activos.length;
-            document.getElementById('cnt-pendientes').innerText = pendientes.length;
-            document.getElementById('cnt-pagados').innerText = pagados.length;
-            document.getElementById('cnt-suspendidos').innerText = suspendidos.length;
-        }
+         document.getElementById('cnt-todos').innerText = activos.length;
+         document.getElementById('cnt-pendientes').innerText = pendientes.length;
+         document.getElementById('cnt-pagados').innerText = pagados.length;
+         document.getElementById('cnt-suspendidos').innerText = suspendidos.length;
+         document.getElementById('cnt-especiales').innerText = especiales.length;
+     }
 
         function filtrarEstadoCobro(tipo) {
-            filtroCobroActual = tipo;
-            const bTodos = document.getElementById('filter-cobro-todos');
-            const bPend = document.getElementById('filter-cobro-pendiente');
-            const bPag = document.getElementById('filter-cobro-pagado');
-            const bSusp = document.getElementById('filter-cobro-suspendido');
+         filtroCobroActual = tipo;
+         const botones = {
+             todos: { el: document.getElementById('filter-cobro-todos'), activo: 'bg-white text-slate-800 shadow-sm font-bold' },
+             pendiente: { el: document.getElementById('filter-cobro-pendiente'), activo: 'bg-white text-amber-700 shadow-sm font-bold' },
+             pagado: { el: document.getElementById('filter-cobro-pagado'), activo: 'bg-white text-emerald-700 shadow-sm font-bold' },
+             suspendido: { el: document.getElementById('filter-cobro-suspendido'), activo: 'bg-white text-red-700 shadow-sm font-bold' },
+             especial: { el: document.getElementById('filter-cobro-especial'), activo: 'bg-white text-emerald-800 shadow-sm font-bold' }
+         };
 
-            bTodos.className = "px-4 py-2 rounded-md text-slate-600 font-medium";
-            bPend.className = "px-4 py-2 rounded-md text-slate-600 font-medium";
-            bPag.className = "px-4 py-2 rounded-md text-slate-600 font-medium";
-            bSusp.className = "px-4 py-2 rounded-md text-slate-600 font-medium";
+         Object.values(botones).forEach(b => b.el.className = "px-4 py-2 rounded-md text-slate-600 font-medium");
+         if (botones[tipo]) botones[tipo].el.className = "px-4 py-2 rounded-md " + botones[tipo].activo;
 
-            if(tipo === 'todos') bTodos.className = "px-4 py-2 rounded-md bg-white text-slate-800 shadow-sm font-bold";
-            if(tipo === 'pendiente') bPend.className = "px-4 py-2 rounded-md bg-white text-amber-700 shadow-sm font-bold";
-            if(tipo === 'pagado') bPag.className = "px-4 py-2 rounded-md bg-white text-emerald-700 shadow-sm font-bold";
-            if(tipo === 'suspendido') bSusp.className = "px-4 py-2 rounded-md bg-white text-red-700 shadow-sm font-bold";
-
-            renderTablaAdmin();
-        }
+         renderTablaAdmin();
+     }
 
         function renderTablaAdmin() {
             const tbody = document.getElementById('admin-table-body');
@@ -964,11 +1169,12 @@
                 if (filtroCobroActual === 'pendiente') return estServicio === 'Activo' && estPago === 'Pendiente';
                 if (filtroCobroActual === 'pagado') return estServicio === 'Activo' && estPago === 'Pagado';
                 if (filtroCobroActual === 'suspendido') return estServicio === 'Suspendido';
+                if (filtroCobroActual === 'especial') return estServicio === 'Activo' && u.promocion === 'Sí';
                 return true;
             });
 
             if(!listaFiltrada.length) {
-                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-slate-400">No hay clientes registrados en esta sección.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="p-4 text-center text-slate-400">No hay clientes registrados en esta sección.</td></tr>`;
                 return;
             }
 
@@ -977,7 +1183,12 @@
                 tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
                 
                 const esActivo = (user.estado_servicio || 'Activo') === 'Activo';
-                const esPagado = user.estado_pago === 'Pagado';
+             const esPagado = user.estado_pago === 'Pagado';
+             const esEspecial = user.promocion === 'Sí';
+
+             tr.className = esEspecial
+                 ? "bg-emerald-50 hover:bg-emerald-100/80 transition border-b border-emerald-200"
+                 : "hover:bg-slate-50 transition border-b border-slate-100";
 
                 const badgeServicio = esActivo 
                     ? `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Activo</span>`
@@ -991,25 +1202,40 @@
                     ? `<button onclick='cambiarEstadoPago("${user.cedula}", "Pendiente")' class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded text-xs font-semibold">↩️ Marcar Pendiente</button>`
                     : `<button onclick='cambiarEstadoPago("${user.cedula}", "Pagado")' class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded text-xs font-semibold shadow-sm">💵 Marcar Pagado</button>`;
 
+                    const botonEspecial = esEspecial
+                 ? `<button onclick='cambiarTarifaEspecial("${user.cedula}", false)' class="bg-slate-200 hover:bg-slate-300 text-slate-800 px-2 py-1 rounded text-xs font-semibold">↩️ Normal ($50k)</button>`
+                 : `<button onclick='cambiarTarifaEspecial("${user.cedula}", true)' class="bg-emerald-600 hover:bg-emerald-700 text-white px-2 py-1 rounded text-xs font-semibold">⭐ Especial</button>`;
                 const botonSuspender = esActivo
                     ? `<button onclick='cambiarEstadoServicio("${user.cedula}", "Suspendido")' class="bg-red-100 hover:bg-red-200 text-red-800 px-2 py-1 rounded text-xs">🚫 Suspender</button>`
                     : `<button onclick='cambiarEstadoServicio("${user.cedula}", "Activo")' class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 px-2 py-1 rounded text-xs font-semibold">✅ Reactivar</button>`;
+                const linkAntena = user.ip_antena
+               ? `<a href="${formatearUrlIP(user.ip_antena)}" target="_blank" rel="noopener noreferrer" class="inline-block bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 px-2 py-0.5 rounded font-mono text-[11px]">📡 ${user.ip_antena} ↗</a>`
+               : `<span class="text-slate-400 text-[11px]">📡 Sin IP antena</span>`;
 
+           const linkRouter = user.ip_router
+               ? `<a href="${formatearUrlIP(user.ip_router)}" target="_blank" rel="noopener noreferrer" class="inline-block bg-violet-50 hover:bg-violet-100 text-violet-800 border border-violet-200 px-2 py-0.5 rounded font-mono text-[11px]">📶 ${user.ip_router} ↗</a>`
+               : `<span class="text-slate-400 text-[11px]">📶 Sin IP router</span>`;
                 tr.innerHTML = `
                     <td class="p-3">${badgeServicio}</td>
                     <td class="p-3">${badgePago}</td>
                     <td class="p-3">
                         <button onclick='abrirModalCedulaAdmin(${JSON.stringify(user)})' class="bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded text-xs font-bold">🪪 Ver Cédula</button>
                     </td>
-                    <td class="p-3 font-medium">${user.nombre} ${user.apellido} <br><span class="text-xs text-slate-400">${user.cedula}</span></td>
+                    <td class="p-3 font-medium">${user.nombre} ${user.apellido} <br><span class="text-xs text-slate-400">${user.cedula}</span>${esEspecial ? '<br><span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white">⭐ Especial</span>' : ''}</td>
                     <td class="p-3">${user.cantidad_megas || '20 Mbps'} <br><span class="font-bold text-emerald-700">$ ${Number(user.valor_servicio || 0).toLocaleString()}</span></td>
+                    <td class="p-3"><div class="flex flex-col items-start gap-1">${linkAntena}${linkRouter}</div></td>
+                    
                     <td class="p-3 text-center">${botonEstadoPago}</td>
-                    <td class="p-3 text-center space-x-1">
-                        <button onclick='validarYGenerarPDF(${JSON.stringify(user)})' class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-bold">📄 PDF</button>
-                        <button onclick='abrirModalEditar(${JSON.stringify(user)})' class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs">Editar</button>
-                        ${botonSuspender}
-                        <button onclick='eliminarUsuario("${user.cedula}")' class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded text-xs">Eliminar</button>
-                    </td>
+                    <td class="p-3 text-center">
+                   <div class="flex flex-wrap justify-center gap-1">
+                       <button onclick='enviarFacturaWhatsApp("${user.cedula}")' class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-bold shadow-sm">📲 Factura Wpp</button>
+                       <button onclick='validarYGenerarPDF(${JSON.stringify(user)})' class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-bold">📄 PDF</button>
+                       ${botonEspecial}
+                       <button onclick='abrirModalEditar(${JSON.stringify(user)})' class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs">Editar</button>
+                       ${botonSuspender}
+                       <button onclick='eliminarUsuario("${user.cedula}")' class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded text-xs">Eliminar</button>
+                   </div>
+               </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1233,14 +1459,116 @@
             document.getElementById('edit-cedula').value = user.cedula;
             document.getElementById('edit-nombre').value = user.nombre;
             document.getElementById('edit-apellido').value = user.apellido;
+            document.getElementById('edit-celular').value = user.celular || '';
             document.getElementById('edit-estado').value = user.estado_servicio || 'Activo';
             document.getElementById('edit-megas').value = user.cantidad_megas || '20 Mbps';
             document.getElementById('edit-valor').value = user.valor_servicio || 0;
             document.getElementById('edit-promocion').value = user.promocion || 'No';
             document.getElementById('modal-editar').classList.add('flex');
             document.getElementById('modal-editar').classList.remove('hidden');
+            document.getElementById('edit-ip-antena').value = user.ip_antena || '';
+            document.getElementById('edit-ip-router').value = user.ip_router || '';
         }
         function cerrarModalEditar() { document.getElementById('modal-editar').classList.add('hidden'); }
+        function autocompletarValorEspecial() {
+            const esEspecial = document.getElementById('edit-promocion').value;
+            const inputValor = document.getElementById('edit-valor');
+            if (esEspecial === 'Sí' && (!inputValor.value || Number(inputValor.value) === 50000)) {
+                inputValor.value = 40000;
+            } else if (esEspecial === 'No') {
+                inputValor.value = 50000;
+            }
+        }
+
+        async function cambiarTarifaEspecial(cedula, activar) {
+            if (!verificarPermisoEsteban('editar')) return;
+
+            let datosActualizar = {};
+            if (activar) {
+                const entrada = prompt('Valor mensual especial (ej: 40000 por promo o compensación de energía):', '40000');
+                if (entrada === null) return;
+                const valorNumerico = parseFloat(entrada);
+                if (isNaN(valorNumerico) || valorNumerico < 0) {
+                    alert('Ingresa un valor numérico válido.');
+                    return;
+                }
+                datosActualizar = { promocion: 'Sí', valor_servicio: valorNumerico };
+            } else {
+                if (!confirm('¿Volver este cliente a tarifa normal ($50.000) y quitar la marca de especial?')) return;
+                datosActualizar = { promocion: 'No', valor_servicio: 50000 };
+            }
+
+            const { error } = await supabaseClient
+                .from('usuarios_conectado2')
+                .update(datosActualizar)
+                .eq('cedula', cedula);
+
+            if (error) {
+                alert('⚠️ Error al actualizar tarifa: ' + error.message);
+                return;
+            }
+
+            const user = listaUsuariosGlobal.find(u => u.cedula === cedula);
+            if (user) {
+                user.promocion = datosActualizar.promocion;
+                user.valor_servicio = datosActualizar.valor_servicio;
+            }
+            actualizarContadoresFiltros();
+            renderTablaAdmin();
+        }
+
+        function enviarFacturaWhatsApp(cedula) {
+            const user = listaUsuariosGlobal.find(u => u.cedula === cedula);
+            if (!user) return;
+
+            let telefono = String(user.celular || '').replace(/\D/g, '');
+
+            if (telefono.length < 10) {
+                const ingresado = prompt(`El cliente ${user.nombre} ${user.apellido} no tiene celular registrado. Escribe su WhatsApp (10 dígitos):`);
+                if (!ingresado) return;
+                telefono = ingresado.replace(/\D/g, '');
+                if (telefono.length < 10) {
+                    alert('Número inválido. Debe tener al menos 10 dígitos.');
+                    return;
+                }
+                supabaseClient
+                    .from('usuarios_conectado2')
+                    .update({ celular: telefono })
+                    .eq('cedula', cedula)
+                    .then(({ error }) => { if (!error) user.celular = telefono; });
+            }
+
+            if (telefono.length === 10 && telefono.startsWith('3')) {
+                telefono = '57' + telefono;
+            }
+
+            const periodo = obtenerPeriodoFacturacion();
+            const valor = Number(user.valor_servicio ?? 50000);
+            const esEspecial = user.promocion === 'Sí';
+            const estadoPago = user.estado_pago || 'Pendiente';
+
+            const mensaje =
+`🌿 *CONECTADO2 - INTERNET RURAL*
+📄 *Factura de Servicio: ${periodo.mes} ${periodo.anio}*
+
+Hola *${user.nombre} ${user.apellido}*, te compartimos el resumen de tu factura:
+
+• *Cédula / Ref:* REF-${user.cedula}
+• *Plan:* ${user.cantidad_megas || '20 Mbps'}${esEspecial ? ' (⭐ Tarifa Especial)' : ''}
+• *Estado de pago:* ${estadoPago === 'Pagado' ? '✅ Pagado' : '⏳ Pendiente'}
+• *Valor a pagar:* *$ ${valor.toLocaleString('es-CO')} COP*
+• *Fecha límite:* 24 de ${periodo.mes} de ${periodo.anio}
+
+💳 *Medio de pago:*
+Bancolombia Ahorros: *91295240372* (Janier Mazo)
+
+📥 Descarga tu factura PDF oficial ingresando con tu cédula en:
+https://janiermazo.github.io/conectado2/
+
+Por favor envíanos el comprobante por este medio una vez realices el pago. ¡Gracias por preferirnos!`;
+
+            window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`, '_blank', 'noopener,noreferrer');
+        }
 
         async function guardarEdicionAdmin(e) {
             e.preventDefault();
@@ -1249,15 +1577,19 @@
             const datos = {
                 nombre: document.getElementById('edit-nombre').value,
                 apellido: document.getElementById('edit-apellido').value,
+                celular: document.getElementById('edit-celular').value.trim(),
                 estado_servicio: document.getElementById('edit-estado').value,
                 cantidad_megas: document.getElementById('edit-megas').value,
                 valor_servicio: parseFloat(document.getElementById('edit-valor').value),
-                promocion: document.getElementById('edit-promocion').value
+                promocion: document.getElementById('edit-promocion').value,
+                ip_antena: document.getElementById('edit-ip-antena').value.trim(),
+                ip_router: document.getElementById('edit-ip-router').value.trim()
             };
-            await supabaseClient.from('usuarios_conectado2').update(datos).eq('cedula', cedulaOrig);
-            alert('Usuario actualizado.');
-            cerrarModalEditar();
-            cargarDatosAdmin();
+            const { error } = await supabaseClient.from('usuarios_conectado2').update(datos).eq('cedula', cedulaOrig);
+    if (error) { alert('Error: ' + error.message); return; }
+    alert('Usuario actualizado.');
+    cerrarModalEditar();
+    cargarDatosAdmin();
         }
 
         async function eliminarUsuario(cedula) {
@@ -1672,9 +2004,160 @@
 
             doc.save(`Factura_Conectado2_${clienteObj.cedula}_${periodo.mes}.pdf`);
         }
+        // --- GESTIÓN DE IPS (CLIENTES, SECTORIALES Y SERVIDOR) ---
+        function formatearUrlIP(valor) {
+            if (!valor) return '#';
+            const limpio = String(valor).trim().replace(/[<>"']/g, '');
+            if (limpio.startsWith('http://') || limpio.startsWith('https://')) {
+                return limpio;
+            }
+            return 'http://' + limpio;
+        }
 
-        document.addEventListener("DOMContentLoaded", () => {
+        async function cargarEquiposRed() {
+            const { data, error } = await supabaseClient
+                .from('equipos_red')
+                .select('*')
+                .order('id', { ascending: true });
+
+            if (error) {
+                console.error('Error cargando equipos de red:', error);
+                return;
+            }
+            listaEquiposRed = data || [];
+            renderEquiposRed();
+        }
+
+        function renderEquiposRed(lista = listaEquiposRed) {
+            const grid = document.getElementById('admin-ips-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            if (!lista.length) {
+                grid.innerHTML = `<p class="col-span-3 text-center text-slate-400 py-6">No hay sectoriales ni servidores registrados aún.</p>`;
+                return;
+            }
+
+            lista.forEach(eq => {
+                const urlAcceso = formatearUrlIP(eq.ip);
+                const esServidor = (eq.tipo || '').toLowerCase().includes('servidor');
+                const colorBadge = esServidor ? 'bg-indigo-100 text-indigo-800' : 'bg-emerald-100 text-emerald-800';
+
+                grid.innerHTML += `
+                    <div class="border border-slate-200 rounded-2xl p-4 bg-slate-50 flex flex-col justify-between space-y-3 hover:shadow-md transition">
+                        <div>
+                            <div class="flex justify-between items-start gap-2">
+                                <span class="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${colorBadge}">${eq.tipo || 'Sectorial'}</span>
+                                <div class="space-x-1">
+                                    <button onclick="abrirModalEditarEquipoRed(${eq.id})" class="bg-amber-100 hover:bg-amber-200 text-amber-800 px-2.5 py-1 rounded text-xs font-semibold">Editar</button>
+                                    <button onclick="eliminarEquipoRed(${eq.id})" class="bg-red-100 hover:bg-red-200 text-red-800 px-2.5 py-1 rounded text-xs font-semibold">Eliminar</button>
+                                </div>
+                            </div>
+                            <h4 class="font-bold text-slate-900 text-base mt-2">${eq.nombre}</h4>
+                            <p class="text-xs text-slate-500 mt-1">${eq.notas || 'Sin notas adicionales'}</p>
+                        </div>
+                        <div class="pt-3 border-t border-slate-200 flex items-center justify-between gap-2">
+                            <span class="font-mono text-xs font-semibold text-slate-700 truncate">${eq.ip}</span>
+                            <a href="${urlAcceso}" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow-sm shrink-0">
+                                🌐 Abrir ↗
+                            </a>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function filtrarEquiposRed() {
+            const texto = document.getElementById('search-ips').value.toLowerCase().trim();
+            const filtrados = listaEquiposRed.filter(eq =>
+                (eq.nombre || '').toLowerCase().includes(texto) ||
+                (eq.ip || '').toLowerCase().includes(texto) ||
+                (eq.tipo || '').toLowerCase().includes(texto) ||
+                (eq.notas || '').toLowerCase().includes(texto)
+            );
+            renderEquiposRed(filtrados);
+        }
+
+        function abrirModalEquipoRed() {
+            if (!verificarPermisoEsteban('editar')) return;
+            document.getElementById('titulo-modal-red').innerText = 'Agregar Sectorial o Servidor';
+            document.getElementById('red-id').value = '';
+            document.getElementById('red-nombre').value = '';
+            document.getElementById('red-tipo').value = 'Sectorial';
+            document.getElementById('red-ip').value = '';
+            document.getElementById('red-notas').value = '';
+            const modal = document.getElementById('modal-equipo-red');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function abrirModalEditarEquipoRed(id) {
+            if (!verificarPermisoEsteban('editar')) return;
+            const eq = listaEquiposRed.find(item => item.id === id);
+            if (!eq) return;
+            document.getElementById('titulo-modal-red').innerText = 'Editar Equipo de Red';
+            document.getElementById('red-id').value = eq.id;
+            document.getElementById('red-nombre').value = eq.nombre || '';
+            document.getElementById('red-tipo').value = eq.tipo || 'Sectorial';
+            document.getElementById('red-ip').value = eq.ip || '';
+            document.getElementById('red-notas').value = eq.notas || '';
+            const modal = document.getElementById('modal-equipo-red');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function cerrarModalEquipoRed() {
+            const modal = document.getElementById('modal-equipo-red');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function guardarEquipoRed(e) {
+            e.preventDefault();
+            if (!verificarPermisoEsteban('editar')) return;
+            const id = document.getElementById('red-id').value;
+            const equipo = {
+                nombre: document.getElementById('red-nombre').value.trim(),
+                tipo: document.getElementById('red-tipo').value,
+                ip: document.getElementById('red-ip').value.trim(),
+                notas: document.getElementById('red-notas').value.trim()
+            };
+
+            const res = id
+                ? await supabaseClient.from('equipos_red').update(equipo).eq('id', id)
+                : await supabaseClient.from('equipos_red').insert([equipo]);
+
+            if (res.error) {
+                alert('⚠️ Error al guardar equipo: ' + res.error.message);
+                return;
+            }
+            cerrarModalEquipoRed();
+            cargarEquiposRed();
+        }
+
+        async function eliminarEquipoRed(id) {
+            if (!verificarPermisoEsteban('editar')) return;
+            if (confirm('¿Eliminar este equipo de la lista?')) {
+                const { error } = await supabaseClient.from('equipos_red').delete().eq('id', id);
+                if (error) {
+                    alert('⚠️ Error al eliminar: ' + error.message);
+                    return;
+                }
+                cargarEquiposRed();
+            }
+        }
+    document.addEventListener("DOMContentLoaded", async () => {
             cargarProductosTienda();
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session && session.user) {
+                const rol = obtenerRolAdmin(session.user.email);
+                if (!rol) {
+                    await supabaseClient.auth.signOut();
+                } else if (!session.user.user_metadata?.clave_cambiada) {
+                    abrirModalCambioClave();
+                } else {
+                    activarSesionAdminUI(rol);
+                }
+            }
         });
     </script>
 </body>
