@@ -84,12 +84,26 @@
 
         <!-- TIENDA PÚBLICA -->
         <section id="vista-tienda-publica" class="hidden max-w-5xl mx-auto space-y-6">
-            <div class="flex justify-between items-center border-b pb-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b pb-4 gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900">🛒 Tienda y Equipos Conectado2</h2>
-                    <p class="text-xs text-slate-500">Routers Wi-Fi, antenas Ubiquiti y cámaras de seguridad para tu hogar o finca.</p>
+                    <h2 class="text-2xl font-bold text-slate-900">🛒 Tienda Multicategoría</h2>
+                    <p class="text-xs text-slate-500">Encuentra tecnología, electrodomésticos y equipos de red para tu hogar o finca.</p>
                 </div>
-                <button onclick="irInicio()" class="text-xs text-emerald-600 hover:underline font-semibold">← Volver al Inicio</button>
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <select id="filtro-cat-publica" onchange="cambiarCategoriaTienda(this.value)" class="px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-sm font-bold text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer w-full md:w-auto shadow-sm">
+                        <option value="Todas">🛒 Todas las Categorías</option>
+                        <option value="Ollas multifuncionales">🍲 Ollas multifuncionales</option>
+                        <option value="Microondas">♨️ Microondas</option>
+                        <option value="Televisores">📺 Televisores</option>
+                        <option value="TV Box">🔲 TV Box</option>
+                        <option value="Cámaras">📹 Cámaras</option>
+                        <option value="Antenas Ubiquiti">📡 Antenas Ubiquiti</option>
+                        <option value="Routers">📶 Routers</option>
+                        <option value="Equipos de sonido">🔊 Equipos de sonido</option>
+                        <option value="Celulares">📱 Celulares</option>
+                    </select>
+                    <button onclick="irInicio()" class="text-xs text-emerald-600 hover:underline font-semibold whitespace-nowrap">← Volver</button>
+                </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="catalogo-productos-publico"></div>
         </section>
@@ -249,15 +263,24 @@
             </div>
 
             <!-- TIENDA PARA EL CLIENTE LOGUEADO -->
-            <div class="bg-white p-8 rounded-2xl shadow-xl border border-slate-100 space-y-4">
-                <div class="flex justify-between items-center">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <h3 class="text-xl font-bold text-slate-900">🛒 Catálogo de Equipos y Cámaras</h3>
-                        <p class="text-xs text-slate-500">Adquiere routers adicionales, antenas y cámaras directamente.</p>
+                        <h3 class="text-xl font-bold text-slate-900">🛒 Tienda y Catálogo</h3>
+                        <p class="text-xs text-slate-500">Adquiere tecnología y electrodomésticos con tu cuenta.</p>
                     </div>
+                    <select id="filtro-cat-cliente" onchange="cambiarCategoriaTienda(this.value)" class="px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-sm font-bold text-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer w-full md:w-auto shadow-sm">
+                        <option value="Todas">🛒 Todas las Categorías</option>
+                        <option value="Ollas multifuncionales">🍲 Ollas multifuncionales</option>
+                        <option value="Microondas">♨️ Microondas</option>
+                        <option value="Televisores">📺 Televisores</option>
+                        <option value="TV Box">🔲 TV Box</option>
+                        <option value="Cámaras">📹 Cámaras</option>
+                        <option value="Antenas Ubiquiti">📡 Antenas Ubiquiti</option>
+                        <option value="Routers">📶 Routers</option>
+                        <option value="Equipos de sonido">🔊 Equipos de sonido</option>
+                        <option value="Celulares">📱 Celulares</option>
+                    </select>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="catalogo-productos"></div>
-            </div>
         </section>
 
     </main>
@@ -357,10 +380,16 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 uppercase">Categoría</label>
                         <select id="prod-categoria" class="w-full px-3 py-2 border rounded-lg text-sm">
-                            <option value="Routers">Routers Wi-Fi</option>
-                            <option value="Antenas">Antenas Ubiquiti</option>
-                            <option value="Cámaras">Cámaras de Seguridad</option>
-                            <option value="Accesorios">Accesorios y Cables</option>
+                            <option value="Ollas multifuncionales">Ollas multifuncionales</option>
+                            <option value="Microondas">Microondas</option>
+                            <option value="Televisores">Televisores</option>
+                            <option value="TV Box">TV Box</option>
+                            <option value="Cámaras">Cámaras</option>
+                            <option value="Antenas Ubiquiti">Antenas Ubiquiti</option>
+                            <option value="Routers">Routers</option>
+                            <option value="Equipos de sonido">Equipos de sonido</option>
+                            <option value="Celulares">Celulares</option>
+                            <option value="Accesorios">Accesorios y Otros</option>
                         </select>
                     </div>
                     <div>
@@ -690,6 +719,58 @@
             </div>
         </div>
     </footer>
+
+            <!-- BOTÓN FLOTANTE DEL CARRITO -->
+<button onclick="abrirCarrito()" class="fixed bottom-24 right-6 bg-emerald-600 hover:bg-emerald-700 text-white p-3.5 rounded-full shadow-2xl z-40 transition transform hover:scale-110 flex items-center justify-center">
+    🛒 <span id="contador-carrito" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full shadow-sm">0</span>
+</button>
+
+<!-- MODAL DEL CARRITO Y FORMULARIO -->
+<div id="modal-carrito" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b pb-3">
+            <h3 class="text-xl font-bold text-slate-900">Tu Carrito</h3>
+            <button onclick="cerrarCarrito()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+        </div>
+
+        <div id="lista-carrito" class="space-y-3 py-2 min-h-[50px]">
+            <!-- Aquí se renderizan los productos -->
+        </div>
+
+        <div class="border-t pt-3 font-bold text-lg flex justify-between">
+            <span>Total:</span>
+            <span id="total-carrito" class="text-emerald-700">$0 COP</span>
+        </div>
+
+        <!-- FORMULARIO DE CONTACTO OBLIGATORIO -->
+        <form onsubmit="enviarPedido(event)" class="space-y-3 pt-3 border-t">
+            <h4 class="font-bold text-sm text-slate-800">Datos de Contacto (Obligatorio)</h4>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Nombre</label>
+                    <input type="text" id="pedido-nombre" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Apellido</label>
+                    <input type="text" id="pedido-apellido" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Celular / WhatsApp</label>
+                    <input type="text" id="pedido-celular" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Correo</label>
+                    <input type="email" id="pedido-correo" required class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+            </div>
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl font-bold transition shadow-md mt-2">
+                Confirmar y Enviar Pedido
+            </button>
+        </form>
+    </div>
+</div>
 
     <!-- BOTÓN FLOTANTE DE WHATSAPP -->
     <a href="https://wa.me/573024472764?text=Hola%20Conectado2,%20necesito%20asistencia%20o%20soporte%20técnico" 
@@ -1636,17 +1717,38 @@ Por favor envíanos el comprobante por este medio una vez realices el pago. ¡Gr
             if(adminActual) renderTiendaAdmin();
         }
 
+        let categoriaActualTienda = 'Todas';
+
+        function cambiarCategoriaTienda(categoria) {
+            categoriaActualTienda = categoria;
+            
+            // Sincronizar el valor visual en ambas vistas (pública y cliente)
+            const selectPublico = document.getElementById('filtro-cat-publica');
+            const selectCliente = document.getElementById('filtro-cat-cliente');
+            if(selectPublico) selectPublico.value = categoria;
+            if(selectCliente) selectCliente.value = categoria;
+            
+            // Volver a renderizar las tiendas con el nuevo filtro
+            renderTiendaGeneral('catalogo-productos-publico');
+            renderTiendaGeneral('catalogo-productos');
+        }
+
         function renderTiendaGeneral(contenedorId) {
             const container = document.getElementById(contenedorId);
             if(!container) return;
             container.innerHTML = '';
 
-            if(!listaProductosTienda.length) {
-                container.innerHTML = `<p class="col-span-3 text-center text-slate-400 py-6">No hay productos disponibles por el momento.</p>`;
+            // Filtrar la lista de la base de datos según la opción elegida
+            const listaFiltrada = categoriaActualTienda === 'Todas' 
+                ? listaProductosTienda 
+                : listaProductosTienda.filter(p => p.categoria === categoriaActualTienda);
+
+            if(!listaFiltrada.length) {
+                container.innerHTML = `<p class="col-span-3 text-center text-slate-500 py-6 font-medium">No hay productos disponibles en la categoría "${categoriaActualTienda}".</p>`;
                 return;
             }
 
-            listaProductosTienda.forEach(p => {
+            listaFiltrada.forEach(p => {
                 const tieneOferta = p.precio_oferta && p.precio_oferta < p.precio;
                 const precioMostrar = tieneOferta ? p.precio_oferta : p.precio;
                 const imagen = p.imagen_url || 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?w=300&auto=format&fit=crop';
@@ -1660,14 +1762,14 @@ Por favor envíanos el comprobante por este medio una vez realices el pago. ¡Gr
                             </div>
                             <span class="text-[10px] font-bold uppercase text-emerald-700 tracking-wider">${p.categoria || 'Equipos'}</span>
                             <h4 class="font-bold text-slate-900 text-sm mt-0.5">${p.nombre}</h4>
-                            <p class="text-xs text-slate-500 mt-1 line-clamp-2">${p.descripcion || 'Sin descripción disponible.'}</p>
+                            <p class="text-xs text-slate-500 mt-1">${p.descripcion || 'Sin descripción disponible.'}</p>
                         </div>
                         <div class="mt-4 pt-3 border-t flex justify-between items-center">
                             <div>
                                 ${tieneOferta ? `<span class="text-xs text-slate-400 line-through block">$${Number(p.precio).toLocaleString()}</span>` : ''}
                                 <span class="font-extrabold text-emerald-700 text-base">$${Number(precioMostrar).toLocaleString()} COP</span>
                             </div>
-                            <button onclick="solicitarProductoDirecto('${p.nombre}')" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-sm transition">Pedir</button>
+                            <button onclick="agregarAlCarrito(${p.id})" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-sm transition">Añadir al carrito</button>
                         </div>
                     </div>`;
             });
@@ -1795,12 +1897,95 @@ Por favor envíanos el comprobante por este medio una vez realices el pago. ¡Gr
             }
         }
 
-        function solicitarProductoDirecto(nombreProd) {
-            const clienteNombre = usuarioActual ? `${usuarioActual.nombre} ${usuarioActual.apellido}` : 'Cliente Conectado2';
-            const clienteCedula = usuarioActual ? usuarioActual.cedula : 'N/A';
-            const msg = `Hola Conectado2, soy ${clienteNombre} (Cédula: ${clienteCedula}) y me interesa adquirir el producto: ${nombreProd}.`;
-            window.open(`https://wa.me/573024472764?text=${encodeURIComponent(msg)}`, '_blank');
-        }
+        let carrito = [];
+
+function agregarAlCarrito(idProducto) {
+    const producto = listaProductosTienda.find(prod => prod.id === idProducto);
+    if (!producto) return;
+
+    const precio = (producto.precio_oferta && producto.precio_oferta < producto.precio) ? producto.precio_oferta : producto.precio;
+    carrito.push({ id: producto.id, nombre: producto.nombre, precio: precio });
+
+    document.getElementById('contador-carrito').innerText = carrito.length;
+    alert(`"${producto.nombre}" agregado al carrito.`);
+}
+
+function abrirCarrito() {
+    // Autocompleta los datos si el usuario ya inició sesión en el portal
+    if (usuarioActual) {
+        document.getElementById('pedido-nombre').value = usuarioActual.nombre || '';
+        document.getElementById('pedido-apellido').value = usuarioActual.apellido || '';
+        document.getElementById('pedido-celular').value = usuarioActual.celular || '';
+        document.getElementById('pedido-correo').value = usuarioActual.correo || '';
+    }
+    renderCarrito();
+    document.getElementById('modal-carrito').classList.remove('hidden');
+    document.getElementById('modal-carrito').classList.add('flex');
+}
+
+function cerrarCarrito() {
+    document.getElementById('modal-carrito').classList.add('hidden');
+    document.getElementById('modal-carrito').classList.remove('flex');
+}
+
+function eliminarDelCarrito(index) {
+    carrito.splice(index, 1);
+    document.getElementById('contador-carrito').innerText = carrito.length;
+    renderCarrito();
+}
+
+function renderCarrito() {
+    const lista = document.getElementById('lista-carrito');
+    lista.innerHTML = '';
+    let total = 0;
+
+    if (carrito.length === 0) {
+        lista.innerHTML = '<p class="text-center text-sm text-slate-500 py-4">Tu carrito está vacío.</p>';
+    } else {
+        carrito.forEach((item, index) => {
+            total += item.precio;
+            lista.innerHTML += `
+                <div class="flex justify-between items-center text-sm border-b pb-2">
+                    <span class="font-medium text-slate-700 line-clamp-1">${item.nombre}</span>
+                    <div class="flex items-center gap-3 shrink-0">
+                        <span class="font-bold text-emerald-600">$${item.precio.toLocaleString()}</span>
+                        <button type="button" onclick="eliminarDelCarrito(${index})" class="text-red-500 text-lg font-bold hover:text-red-700">✕</button>
+                    </div>
+                </div>`;
+        });
+    }
+    document.getElementById('total-carrito').innerText = `$${total.toLocaleString()} COP`;
+}
+
+function enviarPedido(e) {
+    e.preventDefault();
+    if (carrito.length === 0) {
+        alert('Agrega al menos un producto al carrito antes de hacer el pedido.');
+        return;
+    }
+
+    const nombre = document.getElementById('pedido-nombre').value.trim();
+    const apellido = document.getElementById('pedido-apellido').value.trim();
+    const celular = document.getElementById('pedido-celular').value.trim();
+    const correo = document.getElementById('pedido-correo').value.trim();
+
+    let total = 0;
+    let resumenProductos = '';
+    carrito.forEach(item => {
+        total += item.precio;
+        resumenProductos += `\n- ${item.nombre} ($${item.precio.toLocaleString()})`;
+    });
+
+    const mensaje = `🛒 *NUEVO PEDIDO - TIENDA CONECTADO2*\n\n👤 *Cliente:* ${nombre} ${apellido}\n📱 *Celular:* ${celular}\n📧 *Correo:* ${correo}\n\n📦 *Productos solicitados:*${resumenProductos}\n\n💰 *TOTAL:* $${total.toLocaleString()} COP\n\nQuedo atento a la confirmación de disponibilidad.`;
+
+    // Te llega directo como Administrador al WhatsApp con todo el formato
+    window.open(`https://wa.me/573024472764?text=${encodeURIComponent(mensaje)}`, '_blank');
+
+    // Vaciar el carrito tras enviar el pedido
+    carrito = [];
+    document.getElementById('contador-carrito').innerText = '0';
+    cerrarCarrito();
+}
 
         function abrirModalCedulaAdmin(user) {
             document.getElementById('admin-modal-title').innerText = `Documentos de ${user.nombre} ${user.apellido}`;
