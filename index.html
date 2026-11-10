@@ -344,7 +344,7 @@
             <div class="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-3 rounded-xl space-y-1">
                 <p class="font-bold">Requisitos de la nueva clave:</p>
                 <ul class="list-disc pl-4 space-y-0.5">
-                    <li>Mínimo 8 caracteres.</li>
+                    <li>Mínimo 12 caracteres.</li>
                     <li>Incluir letras y al menos un número.</li>
                     <li>Incluir al menos un carácter especial (ej: <strong>* @ # $ - _ !</strong>).</li>
                 </ul>
@@ -454,47 +454,27 @@
         </div>
     </div>
 
-    <!-- MODAL LIBRE DE SOLICITUD -->
+    <!-- MODAL SOLICITUD INTERNET -->
     <div id="modal-solicitud" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center p-4 z-50 overflow-y-auto">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 border border-slate-100 space-y-4 my-8">
-            <h3 class="text-xl font-bold text-slate-900">Solicitud de Nuevo Servicio</h3>
-            <div class="bg-amber-50 border border-amber-200 text-amber-900 text-xs p-4 rounded-xl space-y-2">
-                <p><strong>Condiciones del Servicio:</strong></p>
-                <ul class="list-disc pl-4 space-y-1">
-                    <li>Costo de instalación: <strong>$100.000 COP</strong>.</li>
-                    <li>El usuario debe recoger al técnico en carretera.</li>
-                    <li>Antenas Ubiquiti punto a punto con velocidad desde <strong>10 Mbps</strong>.</li>
-                    <li>Los equipos instalados son responsabilidad del usuario; cualquier daño debe ser cubierto por el mismo cliente.</li>
-                </ul>
-            </div>
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 my-8">
+            <h3 class="text-xl font-bold">Solicitud de Nuevo Servicio (Internet)</h3>
             <form onsubmit="enviarNuevaSolicitudLibre(event)" class="space-y-3">
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-xs font-semibold text-slate-500 uppercase">Cédula</label><input type="text" id="sol-cedula" required class="w-full px-3 py-2 border rounded-lg text-sm"></div>
-                    <div><label class="block text-xs font-semibold text-slate-500 uppercase">Celular / WhatsApp</label><input type="text" id="sol-celular" required class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                    <div><label class="block text-xs font-semibold">Cédula</label><input type="text" id="sol-cedula" required class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                    <div><label class="block text-xs font-semibold">Celular</label><input type="text" id="sol-celular" required class="w-full px-3 py-2 border rounded-lg text-sm"></div>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-xs font-semibold text-slate-500 uppercase">Nombres Completos</label><input type="text" id="sol-nombre" required class="w-full px-3 py-2 border rounded-lg text-sm"></div>
-                    <div><label class="block text-xs font-semibold text-slate-500 uppercase">Apellidos Completos</label><input type="text" id="sol-apellido" required class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                    <div><label class="block text-xs font-semibold">Nombres</label><input type="text" id="sol-nombre" required class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                    <div><label class="block text-xs font-semibold">Apellidos</label><input type="text" id="sol-apellido" required class="w-full px-3 py-2 border rounded-lg text-sm"></div>
                 </div>
-                <div><label class="block text-xs font-semibold text-slate-500 uppercase">Correo Electrónico</label><input type="email" id="sol-correo" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                <div><label class="block text-xs font-semibold">Correo</label><input type="email" id="sol-correo" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
                 
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Cédula Frontal</label>
-                        <input type="file" id="sol-file-frontal" accept="image/*" required class="w-full text-xs text-slate-500 file:py-1 file:px-2 file:rounded file:bg-emerald-50 file:text-emerald-700">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Cédula Trasera</label>
-                        <input type="file" id="sol-file-trasera" accept="image/*" required class="w-full text-xs text-slate-500 file:py-1 file:px-2 file:rounded file:bg-emerald-50 file:text-emerald-700">
-                    </div>
-                </div>
-
                 <div class="flex items-center gap-2 pt-2">
-                    <input type="checkbox" id="sol-acepto" required class="w-4 h-4 text-emerald-600 rounded">
-                    <label for="sol-acepto" class="text-xs text-slate-700">Acepto condiciones de instalación y responsabilidad de equipos.</label>
+                    <input type="checkbox" id="sol-acepto" required class="w-4 h-4 text-emerald-600">
+                    <label for="sol-acepto" class="text-xs">Acepto condiciones de instalación y responsabilidad de equipos.</label>
                 </div>
                 <div class="flex justify-end space-x-3 pt-3 border-t">
-                    <button type="button" onclick="cerrarModalSolicitud()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm">Cancelar</button>
+                    <button type="button" onclick="cerrarModalSolicitud()" class="px-4 py-2 bg-slate-100 rounded-lg text-sm">Cancelar</button>
                     <button id="btn-enviar-sol" type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold">Enviar Solicitud</button>
                 </div>
             </form>
@@ -655,13 +635,13 @@
             <!-- Fila Superior: Título y Acción Directa -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-emerald-900 pb-8 gap-4">
                 <div>
-                    <span class="text-emerald-400 text-xs font-bold uppercase tracking-widest">CONECTEMOS TU ZONA</span>
-                    <h3 class="text-xl md:text-2xl font-bold text-white mt-1">Internet local, infraestructura propia y soporte cercano.</h3>
+                    <span class="text-emerald-400 text-xs font-bold uppercase tracking-widest">CONECTEMOS TU FINCA</span>
+                    <h3 class="text-xl md:text-2xl font-bold text-white mt-1">Internet local, infraestructura propia.</h3>
                 </div>
                 <a href="https://wa.me/573024472764?text=Hola%20Conectado2,%20deseo%20más%20información%20sobre%20el%20servicio%20de%20internet" 
                    target="_blank" 
                    class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl text-sm transition shadow-lg flex items-center gap-2">
-                    💬 Hablar con Conectado2 →
+                    💬 Hablar con Conectad2 →
                 </a>
             </div>
 
@@ -1155,49 +1135,31 @@ async function cerrarSesion() {
 
         async function enviarNuevaSolicitudLibre(e) {
             e.preventDefault();
-            const btn = document.getElementById('btn-enviar-sol');
-            const cedula = document.getElementById('sol-cedula').value.trim();
-            const fileFront = document.getElementById('sol-file-frontal').files[0];
-            const fileBack = document.getElementById('sol-file-trasera').files[0];
-
-            if(!fileFront || !fileBack) { alert('Debes adjuntar la cédula por ambos lados.'); return; }
-
-            btn.disabled = true;
+            const btn = document.getElementById('btn-enviar-sol'); 
+            btn.disabled = true; 
             btn.innerText = 'Enviando...';
-
+            
             try {
-                const nameFront = `${cedula}_frontal_${Date.now()}_${fileFront.name}`;
-                const nameBack = `${cedula}_trasera_${Date.now()}_${fileBack.name}`;
-
-                await supabaseClient.storage.from('comprobantes').upload(nameFront, fileFront);
-                await supabaseClient.storage.from('comprobantes').upload(nameBack, fileBack);
-
-                const urlFront = supabaseClient.storage.from('comprobantes').getPublicUrl(nameFront).data.publicUrl;
-                const urlBack = supabaseClient.storage.from('comprobantes').getPublicUrl(nameBack).data.publicUrl;
-
-                const nuevaSolicitud = {
-                    cedula: cedula,
-                    nombre: document.getElementById('sol-nombre').value.trim(),
+                const sol = {
+                    cedula: document.getElementById('sol-cedula').value.trim(), 
+                    nombre: document.getElementById('sol-nombre').value.trim(), 
                     apellido: document.getElementById('sol-apellido').value.trim(),
                     celular: document.getElementById('sol-celular').value.trim(),
                     correo: document.getElementById('sol-correo').value.trim(),
-                    cedula_frontal_url: urlFront,
-                    cedula_trasera_url: urlBack,
                     estado: 'Pendiente'
                 };
 
-                const { error } = await supabaseClient.from('solicitudes_nuevas').upsert([nuevaSolicitud]);
-                if(error) throw error;
+                const { error } = await supabaseClient.from('solicitudes_nuevas').insert([sol]);
+                if (error) throw error;
 
-                alert('¡Solicitud enviada con éxito! Un técnico se comunicará con usted para coordinar la visita.');
+                alert('¡Solicitud enviada con éxito! Nos pondremos en contacto.'); 
                 cerrarModalSolicitud();
-                document.getElementById('form-seguimiento').reset();
-            } catch(err) {
-                alert('Error al enviar la solicitud.');
-                console.error(err);
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Enviar Solicitud';
+                e.target.reset();
+            } catch(err) { 
+                alert('Error al enviar la solicitud: ' + err.message); 
+            } finally { 
+                btn.disabled = false; 
+                btn.innerText = 'Enviar Solicitud'; 
             }
         }
 
