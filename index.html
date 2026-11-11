@@ -333,6 +333,31 @@ input,select,textarea{max-width:100%}
             <!-- Sesión Activa -->
             <div id="user-session-info" class="hidden flex items-center space-x-4 bg-white/80 px-4 py-2 rounded-xl border border-emerald-200">
                 <span id="welcome-msg" class="text-sm font-semibold text-emerald-950"></span>
+                <div id="admin-actions-menu" class="hidden" style="position:relative">
+                    <button type="button" onclick="document.getElementById('admin-actions-list').classList.toggle('hidden')" class="bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-semibold">⚙️ Herramientas ▾</button>
+                    <div id="admin-actions-list" class="hidden" style="position:absolute;right:0;top:calc(100% + 8px);z-index:100;min-width:290px;max-width:90vw;max-height:75vh;overflow-y:auto;background:white;border:1px solid #d1fae5;border-radius:14px;box-shadow:0 16px 36px #0002;padding:12px">
+                        <div style="display:flex;flex-direction:column;gap:8px">
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="reiniciarMesCobros()" class="bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-1" title="Marca a todos los activos en Pendiente de Pago el día 24">
+                        🔄 Reiniciar Mes (Marcar Pendientes)
+                    </button>
+                    <button onclick="abrirModalNuevoProducto()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-1">
+                        📷 ➕ Agregar Producto / Cámara
+                    </button>
+                    <button onclick="exportarExcelAdmin()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm">📤 Exportar Excel</button>
+                    <label class="cursor-pointer bg-slate-700 hover:bg-slate-800 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-2">
+                        📂 Cargar Excel
+                        <input type="file" id="excel-file" accept=".xlsx, .xls" class="hidden" onchange="importarExcel(event)">
+                    </label>
+                    <button onclick="vaciarBaseDatosAdmin()" class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm">
+                        🗑️ Vaciar BD
+                    </button>
+                    <button onclick="abrirModalPermisos()" id="btn-permisos-config" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium px-4 py-2.5 rounded-xl text-sm transition">⚙️ Permisos</button>
+                    <button onclick="cargarDatosAdmin(); cargarSolicitudesNuevasAdmin(); cargarSolicitudesCamaras(); cargarProductosTienda();" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium px-4 py-2.5 rounded-xl text-sm transition border border-emerald-200">🔄 Actualizar</button>
+                </div>
+                        </div>
+                    </div>
+                </div>
                 <button onclick="cerrarSesion()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs transition font-semibold shadow-sm">Cerrar Sesión</button>
             </div>
         </div>
@@ -346,7 +371,7 @@ input,select,textarea{max-width:100%}
             
             <div class="w-full rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-white">
         <video autoplay muted loop playsinline class="w-full h-56 md:h-80 object-cover">
-            <source src="https://vebsnjvihcxigmkvcsem.supabase.co/storage/v1/object/public/branding/banner_principal_3.mp4" type="video/mp4">
+            <source src="https://vebsnjvihcxigmkvcsem.supabase.co/storage/v1/object/public/branding/banner_principal_4.mp4" type="video/mp4">
             Tu navegador no soporta la reproducción de videos.
         </video>
     </div>
@@ -398,24 +423,7 @@ input,select,textarea{max-width:100%}
                     <h2 class="text-2xl font-bold text-slate-900" id="admin-title-panel">Panel de Administración</h2>
                     <p class="text-sm text-slate-500">Gestión de clientes activos, control de cobros mensuales y catálogo de tienda.</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="reiniciarMesCobros()" class="bg-amber-600 hover:bg-amber-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-1" title="Marca a todos los activos en Pendiente de Pago el día 24">
-                        🔄 Reiniciar Mes (Marcar Pendientes)
-                    </button>
-                    <button onclick="abrirModalNuevoProducto()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-1">
-                        📷 ➕ Agregar Producto / Cámara
-                    </button>
-                    <button onclick="exportarExcelAdmin()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm">📤 Exportar Excel</button>
-                    <label class="cursor-pointer bg-slate-700 hover:bg-slate-800 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-2">
-                        📂 Cargar Excel
-                        <input type="file" id="excel-file" accept=".xlsx, .xls" class="hidden" onchange="importarExcel(event)">
-                    </label>
-                    <button onclick="vaciarBaseDatosAdmin()" class="bg-red-600 hover:bg-red-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm">
-                        🗑️ Vaciar BD
-                    </button>
-                    <button onclick="abrirModalPermisos()" id="btn-permisos-config" class="bg-purple-100 hover:bg-purple-200 text-purple-800 font-medium px-4 py-2.5 rounded-xl text-sm transition">⚙️ Permisos</button>
-                    <button onclick="cargarDatosAdmin(); cargarSolicitudesNuevasAdmin(); cargarProductosTienda();" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium px-4 py-2.5 rounded-xl text-sm transition border border-emerald-200">🔄 Actualizar</button>
-                </div>
+
             </div>
 
             <!-- Pestañas Principales Admin -->
@@ -423,6 +431,7 @@ input,select,textarea{max-width:100%}
                 <button onclick="cambiarTabAdmin('activos')" id="tab-admin-activos" class="px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700">👥 Clientes</button>
                 <button onclick="cambiarTabAdmin('solicitudes')" id="tab-admin-solicitudes" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">📋 Solicitudes Nuevas</button>
                 <button onclick="cambiarTabAdmin('tienda')" id="tab-admin-tienda" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">🛒 Tienda</button>
+                <button onclick="cambiarTabAdmin('camaras')" id="tab-admin-camaras" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">📹 Solicitudes Cámaras <span id="contador-solicitudes-camaras"></span></button>
                 <button onclick="cambiarTabAdmin('ips')" id="tab-admin-ips" class="px-6 py-3 font-medium text-sm text-slate-500 hover:text-slate-700">📡 IPs Sectoriales y Servidor</button>
             </div>
 
@@ -436,7 +445,7 @@ input,select,textarea{max-width:100%}
                         <button onclick="filtrarEstadoCobro('suspendido')" id="filter-cobro-suspendido" class="px-4 py-2 rounded-md text-red-700 font-semibold">🚫 Suspendidos (<span id="cnt-suspendidos">0</span>)</button>
                         <button onclick="filtrarEstadoCobro('especial')" id="filter-cobro-especial" class="px-4 py-2 rounded-md text-emerald-800 font-semibold">⭐ Especiales (<span id="cnt-especiales">0</span>)</button>
                     </div>
-                    <input type="text" id="search-admin" onkeyup="filtrarTablaAdminText()" placeholder="Buscar por cédula, nombre o IP..." class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full md:w-64">
+                    <input type="text" id="search-admin" style="width:220px;max-width:100%" onkeyup="filtrarTablaAdminText()" placeholder="Buscar por cédula, nombre o IP..." class="px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full md:w-52">
                 </div>
 
                 <div class="overflow-x-auto">
@@ -449,8 +458,8 @@ input,select,textarea{max-width:100%}
                                 <th class="p-3">Cliente</th>
                                 <th class="p-3">Plan / Valor</th>
                                 <th class="p-3">IPs (Antena / Router)</th>
-                                <th class="p-3 text-center">Acciones de Pago</th>
-                                <th class="p-3 text-center">Gestión Cliente</th>
+                                
+                                <th class="p-3 text-center">Gestión</th>
                             </tr>
                         </thead>
                         <tbody id="admin-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
@@ -493,6 +502,12 @@ input,select,textarea{max-width:100%}
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="admin-tienda-grid"></div>
             </div>
+
+            <div id="seccion-admin-camaras" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hidden space-y-4">
+                <div class="flex flex-wrap justify-between items-center gap-3"><div><h3 class="text-xl font-bold text-emerald-900">📹 Instalaciones de cámaras</h3><p class="text-sm text-slate-500">Solicitudes recibidas, cotizaciones y visitas programadas.</p></div><div class="flex flex-wrap gap-2"><button onclick="alternarArchivadasCamaras()" id="btn-archivadas-camaras" class="bg-white border border-emerald-200 text-emerald-800 px-4 py-2 rounded-xl font-semibold">📁 Ver archivadas</button><button onclick="cargarSolicitudesCamaras()" class="bg-emerald-100 text-emerald-800 px-4 py-2 rounded-xl font-semibold">🔄 Actualizar</button></div></div>
+                <div id="lista-solicitudes-camaras" class="grid grid-cols-1 gap-4"><p>Cargando solicitudes...</p></div>
+            </div>
+
             <!-- GESTIÓN DE IPS SECTORIALES Y SERVIDOR (ADMIN) -->
             <div id="seccion-admin-ips" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hidden space-y-4">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b pb-4">
@@ -543,6 +558,13 @@ input,select,textarea{max-width:100%}
                     <p>• Fecha límite habitual de pago: Del 24 al 30 de cada mes.</p>
                     <p>• WhatsApp Soporte / Comprobantes: <strong>3024472764</strong></p>
                 </div>
+            </div>
+
+
+            <!-- Solicitud de instalación de cámaras -->
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-emerald-200 space-y-4">
+                <div class="flex items-center gap-3"><span class="text-3xl">📹</span><div><h3 class="text-xl font-bold text-emerald-900">Instalación de cámaras de seguridad</h3><p class="text-sm text-slate-600">Protege tu finca. Solicita una cotización y coordinaremos una visita contigo.</p></div></div>
+                <button onclick="abrirSolicitudCamaras()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-semibold shadow-sm">📋 Solicitar instalación de cámaras</button>
             </div>
 
             <!-- TIENDA PARA EL CLIENTE LOGUEADO -->
@@ -616,6 +638,22 @@ input,select,textarea{max-width:100%}
             </form>
         </div> <!-- Cierra el cuadro blanco del login -->
     </div> <!-- Cierra modal-auth-container -->
+
+
+    <div id="modal-solicitud-camaras" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center"><h3 class="text-xl font-bold text-emerald-900">📹 Solicitar instalación de cámaras</h3><button onclick="cerrarSolicitudCamaras()" class="text-slate-500 text-xl">✕</button></div>
+            <p class="text-sm text-slate-600">Usaremos tus datos registrados en Conectado2 para contactarte y cotizar la instalación.</p>
+            <form id="form-solicitud-camaras" onsubmit="enviarSolicitudCamaras(event)" class="space-y-3">
+                <div><label class="block text-sm font-semibold">Nombre</label><input id="cam-cliente" readonly class="w-full px-3 py-2 bg-slate-100 border rounded-lg"></div>
+                <div><label class="block text-sm font-semibold">Teléfono de contacto</label><input id="cam-telefono" type="tel" required class="w-full px-3 py-2 border rounded-lg" placeholder="Número para coordinar la cotización"></div>
+                <div><label class="block text-sm font-semibold">¿Cuántas cámaras necesitas aproximadamente?</label><select id="cam-cantidad" class="w-full px-3 py-2 border rounded-lg"><option value="Por definir">Por definir</option><option value="1">1</option><option value="2">2</option><option value="3-4">3 a 4</option><option value="5 o más">5 o más</option></select></div>
+                <div><label class="block text-sm font-semibold">Ubicación y detalles (opcional)</label><textarea id="cam-detalles" rows="3" class="w-full px-3 py-2 border rounded-lg" placeholder="Vereda, sector, tipo de instalación..."></textarea></div>
+                <div class="flex gap-2 justify-end"><button type="button" onclick="cerrarSolicitudCamaras()" class="px-4 py-2 bg-slate-100 rounded-xl">Cancelar</button><button id="btn-enviar-camaras" type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold">Enviar solicitud</button></div>
+            </form>
+        </div>
+    </div>
+    <div id="modal-agendar-camaras" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50"><div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-4"><h3 class="font-bold text-xl">📅 Agendar visita de cámaras</h3><input type="hidden" id="cam-admin-id"><label class="block">Fecha y hora de visita<input type="datetime-local" id="cam-admin-fecha" class="block w-full border rounded-lg p-2 mt-2" required></label><label class="block">Estado<select id="cam-admin-estado" class="block w-full border rounded-lg p-2 mt-2"><option>Pendiente</option><option>Contactado</option><option>Cotización enviada</option><option>Visita agendada</option><option>Finalizado</option></select></label><div class="flex gap-3 justify-end"><button onclick="document.getElementById('modal-agendar-camaras').classList.add('hidden')" class="bg-slate-100 rounded-lg px-4 py-2">Cancelar</button><button onclick="guardarVisitaCamaras()" class="bg-emerald-600 text-white rounded-lg px-4 py-2">Guardar</button></div></div></div>
 
     <!-- MODAL CAMBIO OBLIGATORIO DE CONTRASEÑA -->
     <div id="modal-cambiar-clave" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
@@ -881,6 +919,10 @@ input,select,textarea{max-width:100%}
                     <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-semibold">Guardar</button>
                 </div>
             </form>
+            <div style="margin-top:18px;border-top:1px solid #e2e8f0;padding-top:14px">
+                <h4 style="font-weight:700;margin:0 0 10px">Acciones del cliente</h4>
+                <div id="edit-management-actions" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+            </div>
         </div>
     </div>
 
@@ -1069,6 +1111,89 @@ input,select,textarea{max-width:100%}
         let filtroCobroActual = 'todos';
         let datosExcelPendientes = [];
 
+
+        // Instalaciones de cámaras. Requiere la tabla SQL suministrada junto con este archivo.
+        function abrirSolicitudCamaras() {
+            if (!usuarioActual) { alert('Primero debes ingresar a tu perfil de cliente.'); return; }
+            document.getElementById('cam-cliente').value = [usuarioActual.nombre, usuarioActual.apellido].filter(Boolean).join(' ');
+            document.getElementById('cam-telefono').value = usuarioActual.celular || '';
+            const m = document.getElementById('modal-solicitud-camaras'); m.classList.remove('hidden'); m.classList.add('flex');
+        }
+        function cerrarSolicitudCamaras() { const m = document.getElementById('modal-solicitud-camaras'); m.classList.add('hidden'); m.classList.remove('flex'); }
+        async function enviarSolicitudCamaras(e) {
+            e.preventDefault();
+            if (!usuarioActual) return;
+            const btn = document.getElementById('btn-enviar-camaras'); btn.disabled=true; btn.textContent='Enviando...';
+            try {
+                const registro = {
+                    cedula: String(usuarioActual.cedula), nombre: String(usuarioActual.nombre || ''),
+                    apellido: String(usuarioActual.apellido || ''),
+                    celular: document.getElementById('cam-telefono').value.trim(),
+                    correo: usuarioActual.correo || null,
+                    cantidad_camaras: document.getElementById('cam-cantidad').value,
+                    detalles: document.getElementById('cam-detalles').value.trim(), estado: 'Pendiente'
+                };
+                if (!registro.celular) throw new Error('Ingresa un teléfono de contacto.');
+                const {error} = await supabaseClient.from('solicitudes_camaras').insert([registro]);
+                if (error) throw error;
+                cerrarSolicitudCamaras(); document.getElementById('form-solicitud-camaras').reset();
+                alert('¡Solicitud recibida! 📹 Pronto nos comunicaremos contigo para cotizar la instalación de tus cámaras. Mientras tanto, puedes visitar nuestra tienda y conocer las cámaras que tenemos disponibles. ¡Gracias por pertenecer a Conectado2, internet para fincas!');
+            } catch(err) { alert('No se pudo registrar la solicitud. Verifica la configuración de Supabase. Detalle: '+err.message); }
+            finally {btn.disabled=false; btn.textContent='Enviar solicitud';}
+        }
+        function escaparTextoCamaras(valor) {
+            return String(valor ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+        let mostrandoArchivadasCamaras = false;
+        function alternarArchivadasCamaras() {
+            mostrandoArchivadasCamaras = !mostrandoArchivadasCamaras;
+            document.getElementById('btn-archivadas-camaras').textContent = mostrandoArchivadasCamaras ? '📋 Ver solicitudes activas' : '📁 Ver archivadas';
+            cargarSolicitudesCamaras();
+        }
+        async function archivarSolicitudCamara(id, restaurar=false) {
+            if (!adminActual || !verificarPermisoEsteban('aprobar')) return;
+            const accion = restaurar ? 'restaurar' : 'archivar';
+            if (!confirm(`¿Deseas ${accion} esta solicitud de cámaras? ${restaurar ? '' : 'Se conservará en el historial.'}`)) return;
+            const {error} = await supabaseClient.from('solicitudes_camaras').update({estado:restaurar?'Pendiente':'Archivada'}).eq('id',id);
+            if (error) { alert('No se pudo actualizar la solicitud: '+error.message); return; }
+            await cargarSolicitudesCamaras();
+        }
+        async function cargarSolicitudesCamaras() {
+            if (!adminActual) return;
+            const cont = document.getElementById('lista-solicitudes-camaras');
+            const {data,error} = await supabaseClient.from('solicitudes_camaras').select('*').order('created_at',{ascending:false});
+            if (error) {cont.textContent='No se pudieron consultar las solicitudes: '+error.message; return;}
+            const pendientes=(data||[]).filter(x=>x.estado==='Pendiente').length;
+            const visibles=(data||[]).filter(x=>mostrandoArchivadasCamaras ? x.estado==='Archivada' : x.estado!=='Archivada');
+            document.getElementById('contador-solicitudes-camaras').textContent=pendientes?'('+pendientes+')':'';
+            if (!visibles.length) {cont.textContent=mostrandoArchivadasCamaras?'No hay solicitudes archivadas.':'Todavía no hay solicitudes de instalación de cámaras.';return;}
+            cont.innerHTML=visibles.map(x=>`<div class="p-4 rounded-xl border border-emerald-200 bg-emerald-50 space-y-2">
+                <div class="flex flex-wrap justify-between gap-2"><strong>${escaparTextoCamaras(x.nombre)} ${escaparTextoCamaras(x.apellido)}</strong><span class="text-sm font-semibold text-emerald-800">${escaparTextoCamaras(x.estado)}</span></div>
+                <p class="text-sm">📞 ${escaparTextoCamaras(x.celular)} | Cédula: ${escaparTextoCamaras(x.cedula)} | Cámaras: ${escaparTextoCamaras(x.cantidad_camaras)}</p>
+                <p class="text-sm">${escaparTextoCamaras(x.detalles)}</p>
+                <p class="text-sm">📅 ${x.fecha_visita ? new Date(x.fecha_visita).toLocaleString('es-CO') : 'Visita por agendar'}</p>
+                ${mostrandoArchivadasCamaras?'':`<button class="bg-emerald-700 text-white px-4 py-2 rounded-xl font-semibold" onclick="abrirAgendarCamaras(${Number(x.id)})">📅 Agendar / actualizar</button>`}
+                <button class="bg-white border border-slate-300 text-slate-700 px-4 py-2 rounded-xl font-semibold" onclick="archivarSolicitudCamara(${Number(x.id)}, ${mostrandoArchivadasCamaras})">${mostrandoArchivadasCamaras?'↩ Restaurar':'📁 Archivar'}</button>
+            </div>`).join('');
+        }
+        function abrirAgendarCamaras(id) {
+            if (!verificarPermisoEsteban('aprobar')) return;
+            document.getElementById('cam-admin-id').value=id;
+            document.getElementById('cam-admin-fecha').value='';
+            const m=document.getElementById('modal-agendar-camaras');m.classList.remove('hidden');m.classList.add('flex');
+        }
+        async function guardarVisitaCamaras() {
+            if (!verificarPermisoEsteban('aprobar')) return;
+            const id=Number(document.getElementById('cam-admin-id').value);
+            const fecha=document.getElementById('cam-admin-fecha').value;
+            const estado=document.getElementById('cam-admin-estado').value;
+            if (!fecha) {alert('Selecciona la fecha y hora.');return;}
+            const {error}=await supabaseClient.from('solicitudes_camaras').update({fecha_visita:new Date(fecha).toISOString(),estado}).eq('id',id);
+            if(error) {alert('No se pudo guardar: '+error.message);return;}
+            document.getElementById('modal-agendar-camaras').classList.add('hidden');
+            alert('Visita de cámaras actualizada correctamente.');cargarSolicitudesCamaras();
+        }
+
         function irInicio() {
             document.getElementById('vista-home-publica').classList.remove('hidden');
             document.getElementById('vista-tienda-publica').classList.add('hidden');
@@ -1151,6 +1276,7 @@ input,select,textarea{max-width:100%}
              activos: { btn: document.getElementById('tab-admin-activos'), sec: document.getElementById('seccion-admin-activos') },
              solicitudes: { btn: document.getElementById('tab-admin-solicitudes'), sec: document.getElementById('seccion-admin-solicitudes') },
              tienda: { btn: document.getElementById('tab-admin-tienda'), sec: document.getElementById('seccion-admin-tienda') },
+             camaras: { btn: document.getElementById('tab-admin-camaras'), sec: document.getElementById('seccion-admin-camaras') },
              ips: { btn: document.getElementById('tab-admin-ips'), sec: document.getElementById('seccion-admin-ips') }
          };
 
@@ -1163,6 +1289,7 @@ input,select,textarea{max-width:100%}
              tabs[seccion].btn.className = "px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700";
              tabs[seccion].sec.classList.remove('hidden');
              if (seccion === 'ips') cargarEquiposRed();
+             if (seccion === 'camaras') cargarSolicitudesCamaras();
          }
      }
 
@@ -1177,8 +1304,30 @@ input,select,textarea{max-width:100%}
             return null;
         }
 
+        // Control de dispositivos: requiere el SQL adjunto y políticas RLS de protección.
+        let heartbeatAdmin = null;
+        async function reservarDispositivoAdmin() {
+            const {data,error}=await supabaseClient.rpc('claim_admin_device_slot');
+            if(error) throw error;
+            return data?.allowed === true;
+        }
+        function iniciarVigilanciaAdmin() {
+            if(heartbeatAdmin) clearInterval(heartbeatAdmin);
+            heartbeatAdmin=setInterval(async()=>{
+                if(!adminActual) return;
+                try {
+                    const autorizado=await reservarDispositivoAdmin();
+                    if(!autorizado){alert('Esta sesión perdió su autorización. Inicia sesión nuevamente.');await cerrarSesion();}
+                }catch(e){console.warn('No se pudo comprobar la sesión:',e.message);}
+            },60000);
+        }
+        async function liberarDispositivoAdmin() {
+            if(heartbeatAdmin){clearInterval(heartbeatAdmin);heartbeatAdmin=null;}
+            if(adminActual){try{await supabaseClient.rpc('release_admin_device_slot');}catch(e){console.warn(e);}}
+        }
         function activarSesionAdminUI(rol) {
             adminActual = rol.id;
+            iniciarVigilanciaAdmin();
             iniciarPanelAdmin(rol.titulo);
         }
 
@@ -1215,10 +1364,16 @@ input,select,textarea{max-width:100%}
                     return;
                 }
 
+                if (!await reservarDispositivoAdmin()) {
+                    alert('Esta cuenta ya tiene dos dispositivos activos. Cierra sesión en uno de ellos o espera 15 minutos sin actividad.');
+                    await supabaseClient.auth.signOut();
+                    return;
+                }
                 activarSesionAdminUI(rol);
             } catch (err) {
                 console.error(err);
-                alert('Error de conexión al validar el acceso.');
+                alert('No se pudo verificar el límite de dispositivos: '+err.message);
+                await supabaseClient.auth.signOut();
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmit.innerText = 'Ingresar al Panel Admin';
@@ -1287,7 +1442,14 @@ input,select,textarea{max-width:100%}
 
                 alert('✅ Contraseña actualizada con éxito.');
                 const rol = obtenerRolAdmin(data.user.email);
-                if (rol) activarSesionAdminUI(rol);
+                if (rol) {
+                    if(!await reservarDispositivoAdmin()){
+                        alert('Ya hay dos dispositivos activos.');
+                        await supabaseClient.auth.signOut();
+                        return;
+                    }
+                    activarSesionAdminUI(rol);
+                }
             } catch (err) {
                 console.error(err);
                 alert('Error al guardar la nueva contraseña.');
@@ -1304,7 +1466,8 @@ input,select,textarea{max-width:100%}
             document.getElementById('nav-publica').classList.add('hidden');
             document.getElementById('admin-dashboard').classList.remove('hidden');
             document.getElementById('user-session-info').classList.remove('hidden');
-            document.getElementById('welcome-msg').innerText = nombreMsg;
+            document.getElementById('welcome-msg').innerText = 'Bienvenido, ' + (adminActual === 'esteban' ? 'Esteban' : 'Janier');
+            document.getElementById('admin-actions-menu').classList.remove('hidden');
             
             if(adminActual === 'esteban') {
                 document.getElementById('btn-permisos-config').classList.add('hidden');
@@ -1316,6 +1479,7 @@ input,select,textarea{max-width:100%}
 
             cargarDatosAdmin();
             cargarSolicitudesNuevasAdmin();
+            cargarSolicitudesCamaras();
             cargarProductosTienda();
             cargarEquiposRed();
         }
@@ -1366,7 +1530,8 @@ input,select,textarea{max-width:100%}
             document.getElementById('nav-publica').classList.add('hidden');
             document.getElementById('user-dashboard').classList.remove('hidden');
             document.getElementById('user-session-info').classList.remove('hidden');
-            document.getElementById('welcome-msg').innerText = `Usuario: ${data.nombre} ${data.apellido}`;
+            document.getElementById('welcome-msg').innerText = `Bienvenido, ${data.nombre} ${data.apellido}`;
+            document.getElementById('admin-actions-menu').classList.add('hidden');
 
             const periodo = obtenerPeriodoFacturacion();
             document.getElementById('badge-periodo-factura').innerText = `Factura ${periodo.mes} ${periodo.anio}`;
@@ -1409,6 +1574,8 @@ input,select,textarea{max-width:100%}
         }
 
 async function cerrarSesion() {
+            document.getElementById('admin-actions-menu').classList.add('hidden');
+            await liberarDispositivoAdmin();
             await supabaseClient.auth.signOut();
             usuarioActual = null;
             adminActual = null;
@@ -1561,17 +1728,9 @@ async function cerrarSesion() {
                     <td class="p-3">${user.cantidad_megas || '20 Mbps'} <br><span class="font-bold text-emerald-700">$ ${Number(user.valor_servicio || 0).toLocaleString()}</span></td>
                     <td class="p-3"><div class="flex flex-col items-start gap-1">${linkAntena}${linkRouter}</div></td>
                     
-                    <td class="p-3 text-center">${botonEstadoPago}</td>
                     <td class="p-3 text-center">
-                   <div class="flex flex-wrap justify-center gap-1">
-                       <button onclick='enviarFacturaWhatsApp("${user.cedula}")' class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs font-bold shadow-sm">📲 Factura Wpp</button>
-                       <button onclick='validarYGenerarPDF(${JSON.stringify(user)})' class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-xs font-bold">📄 PDF</button>
-                       ${botonEspecial}
-                       <button onclick='abrirModalEditar(${JSON.stringify(user)})' class="bg-amber-100 text-amber-800 px-2 py-1 rounded text-xs">Editar</button>
-                       ${botonSuspender}
-                       <button onclick='eliminarUsuario("${user.cedula}")' class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded text-xs">Eliminar</button>
-                   </div>
-               </td>
+                      <button onclick='abrirModalEditar(${JSON.stringify(user)})' class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 rounded-xl text-xs font-bold">✏️ Editar / Gestionar</button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1804,6 +1963,22 @@ async function cerrarSesion() {
             document.getElementById('modal-editar').classList.remove('hidden');
             document.getElementById('edit-ip-antena').value = user.ip_antena || '';
             document.getElementById('edit-ip-router').value = user.ip_router || '';
+            const cedula = String(user.cedula);
+            const actions = document.getElementById('edit-management-actions');
+            actions.replaceChildren();
+            const addAction = (label, callback, danger=false) => {
+                const btn=document.createElement('button');
+                btn.type='button'; btn.textContent=label;
+                btn.style.cssText=`padding:9px 12px;border-radius:9px;border:1px solid ${danger?'#fecaca':'#a7f3d0'};background:${danger?'#fef2f2':'#ecfdf5'};color:${danger?'#991b1b':'#065f46'};font-weight:600;font-size:12px`;
+                btn.addEventListener('click',callback);actions.appendChild(btn);
+            };
+            addAction(user.estado_pago === 'Pagado'?'↩ Marcar pendiente':'💵 Marcar pagado',()=>cambiarEstadoPago(cedula,user.estado_pago==='Pagado'?'Pendiente':'Pagado'));
+            addAction('📄 Descargar PDF',()=>validarYGenerarPDF(user));
+            addAction('📲 Factura WhatsApp',()=>enviarFacturaWhatsApp(cedula));
+            addAction('⭐ Tarifa especial / normal',()=>cambiarTarifaEspecial(cedula,!(user.promocion==='Sí')));
+            addAction(user.estado_servicio==='Suspendido'?'✅ Reactivar':'🚫 Suspender',()=>cambiarEstadoServicio(cedula,user.estado_servicio==='Suspendido'?'Activo':'Suspendido'));
+            addAction('🪪 Ver cédula',()=>abrirModalCedulaAdmin(user));
+            addAction('🗑 Eliminar cliente',()=>eliminarUsuario(cedula),true);
         }
         function cerrarModalEditar() { document.getElementById('modal-editar').classList.add('hidden'); }
         function autocompletarValorEspecial() {
@@ -2442,7 +2617,14 @@ function enviarPedido(e) {
             doc.text("Único Medio Oficial", 105, 280, { align: "center" });
             doc.text("Atención al cliente: 3024472764 | soporte@conectado2.online", 196, 280, { align: "right" });
 
-            doc.save(`Factura_Conectado2_${clienteObj.cedula}_${periodo.mes}.pdf`);
+            const nombreCompletoArchivo = `${clienteObj.nombre || ''} ${clienteObj.apellido || ''}`
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim()
+                .replace(/[^a-zA-Z0-9]+/g, '_')
+                .replace(/^_+|_+$/g, '')
+                .toUpperCase() || String(clienteObj.cedula || 'CLIENTE');
+            doc.save(`Factura_Conectado2_${nombreCompletoArchivo}_${periodo.mes}.pdf`);
         }
         // --- GESTIÓN DE IPS (CLIENTES, SECTORIALES Y SERVIDOR) ---
         function formatearUrlIP(valor) {
@@ -2595,7 +2777,10 @@ function enviarPedido(e) {
                 } else if (!session.user.user_metadata?.clave_cambiada) {
                     abrirModalCambioClave();
                 } else {
-                    activarSesionAdminUI(rol);
+                    try {
+                        if(await reservarDispositivoAdmin()) activarSesionAdminUI(rol);
+                        else {alert('Límite de dos dispositivos alcanzado.');await supabaseClient.auth.signOut();}
+                    }catch(e){console.error(e);alert('No se pudo validar el límite de dispositivos: '+e.message);await supabaseClient.auth.signOut();}
                 }
             }
         });
