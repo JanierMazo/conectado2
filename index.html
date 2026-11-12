@@ -590,6 +590,7 @@ input,select,textarea{max-width:100%}
                     <option value="Celulares">📱 Celulares</option>
                 </select>
             </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="catalogo-productos"></div>
     </section>
 
 </main>
@@ -2491,10 +2492,10 @@ let total = 0;
 let resumenProductos = '';
 carrito.forEach(item => {
     total += item.precio;
-    resumenProductos += `\n- ${item.nombre} ($${item.precio.toLocaleString()})`;
+    resumenProductos += `\r\n- ${item.nombre} ($${item.precio.toLocaleString()})`;
 });
 
-const mensaje = `🛒 *NUEVO PEDIDO - TIENDA CONECTADO2*\n\n👤 *Cliente:* ${nombre} ${apellido}\n📱 *Celular:* ${celular}\n📧 *Correo:* ${correo}\n\n📦 *Productos solicitados:*${resumenProductos}\n\n💰 *TOTAL:* $${total.toLocaleString()} COP\n\nQuedo atento a la confirmación de disponibilidad.`;
+const mensaje = `🛒 *NUEVO PEDIDO - TIENDA CONECTADO2*\r\n\r\n👤 *Cliente:* ${nombre} ${apellido}\r\n📱 *Celular:* ${celular}\r\n📧 *Correo:* ${correo}\r\n\r\n📦 *Productos solicitados:*${resumenProductos}\r\n\r\n💰 *TOTAL:* $${total.toLocaleString()} COP\r\n\r\nQuedo atento a la confirmación de disponibilidad.`;
 
 // Te llega directo como Administrador al WhatsApp con todo el formato
 window.open(`https://wa.me/573024472764?text=${encodeURIComponent(mensaje)}`, '_blank');
@@ -2708,7 +2709,7 @@ Versión del contrato: 1.0
 Estado: Aceptación electrónica sin registrar
 ** CONECTADO2 | Internet para Fincas
 Conectamos el campo con nuevas oportunidades.
-`.trim().split('\n');
+`.trim().split('\r\n');
 
     function generarPDFContrato(cliente) {
         const { jsPDF } = window.jspdf;
