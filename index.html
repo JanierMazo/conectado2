@@ -322,9 +322,6 @@ input,select,textarea{max-width:100%}
                 <button onclick="abrirModalAuthExclusivo('seguimiento')" class="bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-semibold px-4 py-2 rounded-xl transition">
                     📋 Estado Solicitud
                 </button>
-                <button onclick="abrirModalAuthExclusivo('admin')" class="bg-white hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-semibold px-4 py-2 rounded-xl transition">
-                    🔐 Admin
-                </button>
                 <button onclick="abrirTiendaPublica()" class="bg-green-700 hover:bg-green-800 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
                     🛒 Tienda
                 </button>
@@ -478,7 +475,9 @@ input,select,textarea{max-width:100%}
                         <thead>
                             <tr class="bg-slate-50 text-slate-600 uppercase text-xs tracking-wider border-b border-slate-200">
                                 <th class="p-3">Cédula (Docs)</th>
-                                <th class="p-3">Solicitante</th>
+                                <th class="p-3 whitespace-nowrap" scope="col">
+                                    Solicitante <span id="contador-solicitantes" aria-live="polite" class="ml-1 inline-block rounded-full bg-emerald-100 px-2 py-0.5 text-emerald-800">—</span>
+                                </th>
                                 <th class="p-3">Celular / Wpp</th>
                                 <th class="p-3">Fecha de Visita Asignada</th>
                                 <th class="p-3 text-center">Acciones (Agendar / Pasar a Activo)</th>
@@ -548,6 +547,9 @@ input,select,textarea{max-width:100%}
                     <div class="pt-4 border-t flex flex-wrap gap-3">
                         <button onclick="generarPDFFactura(usuarioActual)" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-semibold text-sm transition shadow-sm flex items-center gap-2">
                             📄 Descargar Factura PDF (Oficial)
+                        </button>
+                        <button type="button" onclick="verContratoCliente()" class="rounded-xl border border-emerald-200 bg-white px-5 py-2.5 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50">
+                            Ver contrato
                         </button>
                     </div>
                 </div>
@@ -895,6 +897,8 @@ input,select,textarea{max-width:100%}
              </div>
                 </div>
                 <div class="grid grid-cols-3 gap-3">
+                    <div><label for="edit-fecha-inicio-contrato" class="block text-xs font-semibold text-slate-500 uppercase">Fecha de inicio del servicio</label><input type="date" id="edit-fecha-inicio-contrato" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
+                    <div><label for="edit-direccion-instalacion" class="block text-xs font-semibold text-slate-500 uppercase">Dirección de instalación</label><input type="text" id="edit-direccion-instalacion" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
                     <div><label class="block text-xs font-semibold text-slate-500 uppercase">Megas</label><input type="text" id="edit-megas" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
                     <div><label class="block text-xs font-semibold text-slate-500 uppercase">Valor ($)</label><input type="number" id="edit-valor" class="w-full px-3 py-2 border rounded-lg text-sm"></div>
                     <div><label class="block text-xs font-semibold text-slate-500 uppercase">Promoción</label>
@@ -1204,6 +1208,25 @@ input,select,textarea{max-width:100%}
             }
         }
 
+        function esRutaAdministrativa() {
+            return window.location.hash === '#admin';
+        }
+
+        function actualizarRutaAdministrativa() {
+            if (usuarioActual || adminActual) return;
+            if (esRutaAdministrativa()) {
+                document.getElementById('vista-home-publica').classList.add('hidden');
+                document.getElementById('vista-tienda-publica').classList.add('hidden');
+                document.getElementById('nav-publica').classList.add('hidden');
+                abrirModalAuthExclusivo('admin');
+            } else {
+                cerrarModalAuth();
+                document.getElementById('vista-home-publica').classList.remove('hidden');
+                document.getElementById('vista-tienda-publica').classList.add('hidden');
+                document.getElementById('nav-publica').classList.remove('hidden');
+            }
+        }
+
         function abrirModalAuthExclusivo(tipo) {
             const formUser = document.getElementById('form-user');
             const formSeg = document.getElementById('form-seguimiento');
@@ -1288,6 +1311,7 @@ input,select,textarea{max-width:100%}
          if (tabs[seccion]) {
              tabs[seccion].btn.className = "px-6 py-3 font-bold text-sm border-b-2 border-emerald-600 text-emerald-700";
              tabs[seccion].sec.classList.remove('hidden');
+             if (seccion === 'solicitudes') cargarSolicitudesNuevasAdmin();
              if (seccion === 'ips') cargarEquiposRed();
              if (seccion === 'camaras') cargarSolicitudesCamaras();
          }
@@ -1306,6 +1330,7 @@ input,select,textarea{max-width:100%}
 
         // Control de dispositivos: requiere el SQL adjunto y políticas RLS de protección.
         let heartbeatAdmin = null;
+        let actualizacionSolicitudesAdmin = null;
         async function reservarDispositivoAdmin() {
             const {data,error}=await supabaseClient.rpc('claim_admin_device_slot');
             if(error) throw error;
@@ -1328,6 +1353,12 @@ input,select,textarea{max-width:100%}
         function activarSesionAdminUI(rol) {
             adminActual = rol.id;
             iniciarVigilanciaAdmin();
+            clearInterval(actualizacionSolicitudesAdmin);
+            actualizacionSolicitudesAdmin = setInterval(() => {
+                if (!document.hidden && !document.getElementById('seccion-admin-solicitudes').classList.contains('hidden')) {
+                    cargarSolicitudesNuevasAdmin();
+                }
+            }, 10000);
             iniciarPanelAdmin(rol.titulo);
         }
 
@@ -1574,7 +1605,15 @@ input,select,textarea{max-width:100%}
         }
 
 async function cerrarSesion() {
+            cerrarVistaContrato();
+            limpiarVistaContrato();
             document.getElementById('admin-actions-menu').classList.add('hidden');
+            clearInterval(actualizacionSolicitudesAdmin);
+            actualizacionSolicitudesAdmin = null;
+            ultimaConsultaSolicitudes++;
+            document.getElementById('contador-solicitantes').textContent = '—';
+            document.getElementById('admin-solicitudes-body').innerHTML = '';
+            filasSolicitudesRenderizadas = undefined;
             await liberarDispositivoAdmin();
             await supabaseClient.auth.signOut();
             usuarioActual = null;
@@ -1584,10 +1623,16 @@ async function cerrarSesion() {
             document.getElementById('user-session-info').classList.add('hidden');
             document.getElementById('nav-publica').classList.remove('hidden');
             irInicio();
+            if (esRutaAdministrativa()) {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
             document.getElementById('admin-pass').value = '';
             document.getElementById('admin-user-input').value = '';
             document.getElementById('user-cedula').value = '';
             document.getElementById('seg-cedula').value = '';
+            if (esRutaAdministrativa()) {
+                history.replaceState(null, '', window.location.pathname + window.location.search);
+            }
         }
 
         function abrirModalSolicitud() { document.getElementById('modal-solicitud').classList.add('flex'); document.getElementById('modal-solicitud').classList.remove('hidden'); }
@@ -1859,18 +1904,24 @@ async function cerrarSesion() {
             }
         }
 
+        let ultimaConsultaSolicitudes = 0;
+        let filasSolicitudesRenderizadas;
         async function cargarSolicitudesNuevasAdmin() {
-            const { data } = await supabaseClient.from('solicitudes_nuevas').select('*');
-            const tbody = document.getElementById('admin-solicitudes-body');
-            tbody.innerHTML = '';
+            if (!adminActual) return;
+            const consulta = ++ultimaConsultaSolicitudes;
+            const { data, count, error } = await supabaseClient.from('solicitudes_nuevas').select('*', { count: 'exact' });
+            if (!adminActual || consulta !== ultimaConsultaSolicitudes) return;
 
-            if(!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No hay solicitudes nuevas pendientes.</td></tr>`;
+            const contador = document.getElementById('contador-solicitantes');
+            if (error) {
+                contador.textContent = '—';
                 return;
             }
+            contador.textContent = (count ?? data.length).toLocaleString('es-CO');
 
-            data.forEach(s => {
-                tbody.innerHTML += `
+            const filas = data.length === 0
+                ? '<tr><td colspan="5" class="p-4 text-center text-slate-400">No hay solicitudes nuevas pendientes.</td></tr>'
+                : data.map(s => `
                     <tr class="hover:bg-slate-50 border-b border-slate-100">
                         <td class="p-3">
                             <a href="${s.cedula_frontal_url}" target="_blank" class="text-emerald-700 underline text-xs">Frontal</a> | 
@@ -1884,8 +1935,11 @@ async function cerrarSesion() {
                             <button onclick='aprobarYSonarClienteActivo(${JSON.stringify(s)})' class="bg-emerald-600 text-white px-3 py-1 rounded text-xs font-semibold">✅ Aprobar</button>
                             <button onclick='eliminarSolicitudNueva("${s.cedula}")' class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Rechazar</button>
                         </td>
-                    </tr>`;
-            });
+                    </tr>`).join('');
+            if (filas !== filasSolicitudesRenderizadas) {
+                document.getElementById('admin-solicitudes-body').innerHTML = filas;
+                filasSolicitudesRenderizadas = filas;
+            }
         }
 
         function abrirModalAgendarVisita(cedula) {
@@ -1957,6 +2011,8 @@ async function cerrarSesion() {
             document.getElementById('edit-celular').value = user.celular || '';
             document.getElementById('edit-estado').value = user.estado_servicio || 'Activo';
             document.getElementById('edit-megas').value = user.cantidad_megas || '20 Mbps';
+            document.getElementById('edit-fecha-inicio-contrato').value = user.fecha_inicio_contrato || '';
+            document.getElementById('edit-direccion-instalacion').value = user.direccion_instalacion || '';
             document.getElementById('edit-valor').value = user.valor_servicio || 0;
             document.getElementById('edit-promocion').value = user.promocion || 'No';
             document.getElementById('modal-editar').classList.add('flex');
@@ -2091,6 +2147,8 @@ Por favor envíanos el comprobante por este medio una vez realices el pago. ¡Gr
                 celular: document.getElementById('edit-celular').value.trim(),
                 estado_servicio: document.getElementById('edit-estado').value,
                 cantidad_megas: document.getElementById('edit-megas').value,
+                fecha_inicio_contrato: document.getElementById('edit-fecha-inicio-contrato').value || null,
+                direccion_instalacion: document.getElementById('edit-direccion-instalacion').value.trim() || null,
                 valor_servicio: parseFloat(document.getElementById('edit-valor').value),
                 promocion: document.getElementById('edit-promocion').value,
                 ip_antena: document.getElementById('edit-ip-antena').value.trim(),
@@ -2433,6 +2491,218 @@ function enviarPedido(e) {
         }
 
         // --- FACTURA PDF ---
+        let urlContratoCliente = null;
+
+        function cerrarVistaContrato() {
+            const vista = document.getElementById('vista-contrato-cliente');
+            if (vista.open) vista.close();
+        }
+
+        function limpiarVistaContrato() {
+            const vista = document.getElementById('vista-contrato-cliente');
+            if (vista.open || !urlContratoCliente) return;
+            document.getElementById('pdf-contrato-cliente').removeAttribute('src');
+            document.getElementById('descargar-contrato-cliente').removeAttribute('href');
+            URL.revokeObjectURL(urlContratoCliente);
+            urlContratoCliente = null;
+        }
+
+        function verContratoCliente() {
+            if (!usuarioActual) return;
+            const vista = document.getElementById('vista-contrato-cliente');
+            if (vista.open) return;
+            limpiarVistaContrato();
+            try {
+                const doc = generarPDFContrato(usuarioActual);
+                urlContratoCliente = URL.createObjectURL(doc.output('blob'));
+                const descarga = document.getElementById('descargar-contrato-cliente');
+                descarga.href = urlContratoCliente;
+                const identificacion = String(usuarioActual.cedula ?? '').replace(/\D/g, '');
+                descarga.download = ['Contrato_Conectado2', identificacion].filter(Boolean).join('_') + '.pdf';
+                document.getElementById('pdf-contrato-cliente').src = urlContratoCliente;
+                vista.showModal();
+            } catch (error) {
+                limpiarVistaContrato();
+                console.error('Error al generar el contrato:', error);
+                alert('No se pudo abrir el contrato. Intenta nuevamente.');
+            }
+        }
+
+        const textoContratoRural = `
+### 1. IDENTIFICACIÓN DE LAS PARTES
+PRESTADOR DEL SERVICIO: CONECTADO2, Internet para Fincas, identificado con NIT 901.654.321-8, representado por Esteban Isaza, con domicilio en Itagüí - Antioquia.
+** SUSCRIPTOR O CLIENTE
+- Nombre completo: {{nombre}}
+- Documento de identidad: {{documento}}
+- Teléfono: {{telefono}}
+- Dirección de instalación: {{direccion}}
+- Correo electrónico: {{correo}}
+Las partes acuerdan celebrar el presente contrato de prestación del servicio de acceso a internet rural, sujeto a las siguientes condiciones.
+### 2. OBJETO DEL CONTRATO
+CONECTADO2 se compromete a suministrar al CLIENTE el servicio de acceso a internet mediante tecnología inalámbrica, radioenlaces u otras tecnologías disponibles en la zona de cobertura.
+El servicio estará sujeto a las condiciones técnicas, la disponibilidad de cobertura y las características del plan contratado.
+### 3. PLAN CONTRATADO Y TARIFAS
+- Velocidad contratada: {{plan}}
+- Valor mensual: {{tarifa}}, impuestos incluidos cuando corresponda.
+- Costo de instalación: $100.000 COP, según las condiciones comerciales informadas y aceptadas.
+- Periodo de facturación: Mensual.
+- Fecha habitual de pago: Entre los días 24 y 30 de cada mes.
+Las promociones, descuentos y condiciones especiales deberán informarse al CLIENTE antes de la contratación.
+Cualquier modificación tarifaria deberá comunicarse conforme a la normativa vigente.
+### 4. EQUIPOS ENTREGADOS POR CONECTADO2
+Para la prestación del servicio, CONECTADO2 podrá suministrar en calidad de préstamo de uso o comodato los equipos necesarios para establecer la conexión, tales como:
+- Antena receptora de internet.
+- Fuente de alimentación PoE.
+- Cableado y accesorios suministrados.
+- Router, cuando sea proporcionado por CONECTADO2.
+- Otros elementos detallados en el acta de instalación.
+** Los equipos entregados en comodato son propiedad exclusiva de CONECTADO2 y no se consideran vendidos al CLIENTE.
+La entrega deberá quedar registrada mediante un inventario o acta con la identificación y el estado de los equipos.
+### 5. RESPONSABILIDADES DEL CLIENTE SOBRE LOS EQUIPOS
+El CLIENTE se compromete a:
+1. Cuidar los equipos entregados y utilizarlos exclusivamente para el servicio contratado.
+2. No vender, prestar, trasladar, modificar ni manipular los equipos sin autorización de CONECTADO2.
+3. No alterar la orientación de las antenas, conexiones, cableado o configuraciones técnicas.
+4. Informar oportunamente sobre fallas, daños, pérdidas o anomalías.
+5. Permitir el acceso previamente coordinado al personal autorizado para mantenimiento, revisión o retiro.
+6. Adoptar medidas razonables para proteger los equipos de daños evitables.
+** Responsabilidad económica por daños:
+Cuando se compruebe que un equipo sufrió daños por uso indebido, manipulación no autorizada, negligencia o actuación atribuible al CLIENTE, este deberá asumir el costo razonable y debidamente sustentado de su reparación o reposición.
+Antes de efectuar cualquier cobro, CONECTADO2 deberá informar al CLIENTE el diagnóstico, la causa del daño y el valor correspondiente.
+** El CLIENTE no será responsable automáticamente por fallas de fabricación, desgaste normal, defectos de instalación, daños imputables a CONECTADO2 o acontecimientos de fuerza mayor que no le sean atribuibles.
+### 6. OBLIGACIONES DE CONECTADO2
+CONECTADO2 se compromete a:
+1. Prestar el servicio de acuerdo con las condiciones técnicas y comerciales contratadas.
+2. Brindar atención y soporte técnico mediante los canales informados.
+3. Atender y diagnosticar las fallas reportadas.
+4. Realizar las reparaciones o sustituciones de equipos que correspondan a su responsabilidad.
+5. Informar sobre mantenimientos programados y afectaciones relevantes del servicio.
+6. Entregar información clara sobre facturación, pagos, tarifas y condiciones contractuales.
+7. Respetar los derechos del usuario establecidos en la regulación colombiana aplicable.
+### 7. DISPONIBILIDAD Y CALIDAD DEL SERVICIO
+El CLIENTE reconoce que el servicio se presta en una zona rural mediante infraestructura inalámbrica y que pueden presentarse afectaciones técnicas relacionadas con interferencias, condiciones climáticas, fallas eléctricas o daños de infraestructura.
+Sin embargo, estas circunstancias no eximen automáticamente a CONECTADO2 de sus obligaciones de calidad, atención, continuidad y compensaciones cuando legalmente correspondan.
+Las velocidades, condiciones de calidad y limitaciones técnicas deberán ser informadas claramente al CLIENTE.
+### 8. FACTURACIÓN Y PAGOS
+El CLIENTE deberá pagar oportunamente los valores correspondientes al plan contratado.
+En caso de incumplimiento de pago, CONECTADO2 podrá aplicar las medidas de suspensión permitidas por la normativa vigente, respetando las condiciones de información previa y los derechos del usuario.
+La reconexión, cuando corresponda, se realizará conforme a las reglas aplicables y las condiciones comerciales válidamente informadas.
+No se podrán imponer cargos que no hayan sido previamente informados y que no estén legalmente permitidos.
+### 9. INSTALACIÓN Y VISITAS TÉCNICAS
+La instalación estará sujeta a una evaluación de cobertura y viabilidad técnica.
+Cuando las condiciones de acceso rural lo requieran, el CLIENTE y CONECTADO2 podrán acordar previamente un punto de encuentro o medio de transporte para facilitar la visita técnica.
+Cualquier costo adicional deberá informarse y aceptarse antes de realizarse.
+Las visitas técnicas que correspondan a fallas atribuibles al prestador no generarán cobros indebidos al CLIENTE.
+### 10. TERMINACIÓN DEL CONTRATO Y DEVOLUCIÓN DE EQUIPOS
+El CLIENTE podrá solicitar la terminación del contrato conforme a los procedimientos y plazos establecidos por la normativa aplicable.
+Al finalizar la relación contractual, deberá coordinarse la devolución o retiro de los equipos entregados en comodato.
+CONECTADO2 podrá verificar su estado y documentar la entrega mediante un acta.
+Cuando existan equipos faltantes o daños atribuibles al CLIENTE, cualquier cobro deberá estar debidamente justificado y sustentado.
+La terminación del servicio no implica que el CLIENTE adquiera la propiedad de los equipos.
+### 11. PETICIONES, QUEJAS Y RECLAMOS
+El CLIENTE podrá presentar solicitudes, quejas, reclamos y recursos mediante los canales de atención dispuestos por CONECTADO2.
+El prestador deberá atenderlos dentro de los términos y procedimientos establecidos por la regulación colombiana, informando al usuario sobre sus derechos y los mecanismos de reclamación disponibles.
+### 12. PROTECCIÓN DE DATOS PERSONALES
+CONECTADO2 tratará los datos personales del CLIENTE para gestionar la contratación, instalación, facturación, soporte técnico y demás finalidades legítimas relacionadas con la prestación del servicio.
+El tratamiento deberá cumplir la Ley 1581 de 2012 y las demás disposiciones aplicables.
+El CLIENTE podrá ejercer sus derechos de consulta, actualización, rectificación y supresión cuando corresponda, mediante los canales de atención establecidos.
+La autorización para finalidades adicionales, como publicidad, se solicitará por separado cuando sea necesaria.
+### 13. ACEPTACIÓN ELECTRÓNICA
+El CLIENTE declara que ha tenido la oportunidad de leer y consultar las condiciones del presente contrato antes de aceptarlo.
+La aceptación electrónica deberá registrarse de manera verificable, incluyendo la versión del contrato, la fecha, la hora y la identificación de la aceptación.
+Una copia del contrato aceptado deberá quedar disponible para el CLIENTE.
+La aceptación de este documento no implica renuncia a los derechos reconocidos por la legislación colombiana.
+### CONSTANCIA DE ACEPTACIÓN
+Cliente: {{nombre}}
+Documento: {{documento}}
+Plan contratado: {{plan}}
+Fecha de inicio del servicio: {{fecha}}
+Fecha y hora de aceptación: Sin registro
+Versión del contrato: 1.0
+Estado: Aceptación electrónica sin registrar
+** CONECTADO2 | Internet para Fincas
+Conectamos el campo con nuevas oportunidades.
+        `.trim().split('\n');
+
+        function generarPDFContrato(cliente) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const azul = '#2465a8';
+            const tinta = '#25354d';
+            const margen = 15;
+            const ancho = 180;
+            const inicio = /^(\d{4})-(\d{2})-(\d{2})$/.exec(cliente.fecha_inicio_contrato ?? '');
+            const fecha = inicio ? `${inicio[3]}/${inicio[2]}/${inicio[1]}` : 'Sin registrar';
+            const valor = Number(cliente.valor_servicio);
+            const mostrar = (dato, alternativo = 'Sin registrar') => String(dato ?? '').trim() || alternativo;
+            const campos = {
+                nombre: mostrar([cliente.nombre, cliente.apellido].filter(Boolean).join(' ')),
+                documento: mostrar(cliente.cedula),
+                telefono: mostrar(cliente.celular),
+                direccion: mostrar(cliente.direccion_instalacion),
+                correo: mostrar(cliente.correo, 'No informado'),
+                plan: mostrar(cliente.cantidad_megas),
+                tarifa: mostrar(cliente.valor_servicio, '') && Number.isFinite(valor)
+                    ? '$' + valor.toLocaleString('es-CO') + ' COP' : 'Sin registrar',
+                fecha
+            };
+            let y = 15;
+
+            doc.setProperties({ title: 'Contrato de internet rural y comodato - CONECTADO2' });
+
+            function texto(contenido, { tamano = 10, negrita = false, color = tinta, sangria = 0, espacio = 2, conSiguiente = false } = {}) {
+                doc.setFont('helvetica', negrita ? 'bold' : 'normal');
+                doc.setFontSize(tamano);
+                doc.setTextColor(color);
+                const lineas = doc.splitTextToSize(contenido, ancho - sangria);
+                const interlineado = tamano * 0.43;
+                if (conSiguiente && y + lineas.length * interlineado + espacio + 8 > 274) {
+                    doc.addPage();
+                    y = 15;
+                }
+                for (const linea of lineas) {
+                    if (y + interlineado > 274) {
+                        doc.addPage();
+                        y = 15;
+                    }
+                    doc.text(linea, margen + sangria, y, { baseline: 'top' });
+                    y += interlineado;
+                }
+                y += espacio;
+            }
+
+            texto('CONECTADO2', { tamano: 22, negrita: true, color: azul });
+            texto('INTERNET PARA FINCAS', { tamano: 10, negrita: true, espacio: 6 });
+            texto('CONTRATO DE PRESTACIÓN DEL SERVICIO DE INTERNET RURAL Y ENTREGA DE EQUIPOS EN COMODATO', { tamano: 15, negrita: true, espacio: 5 });
+            texto(`Contrato N.º: ${mostrar(cliente.numero_contrato, 'Pendiente de asignación')}`, { negrita: true });
+            texto(`Fecha de inicio: ${fecha}`, { negrita: true, espacio: 5 });
+
+            for (const linea of textoContratoRural) {
+                const contenido = linea.replace(/\{\{(\w+)\}\}/g, (_, campo) => campos[campo]);
+                if (linea.startsWith('### ')) {
+                    y += 2;
+                    texto(contenido.slice(4), { tamano: 11, negrita: true, color: azul, conSiguiente: true });
+                } else if (linea.startsWith('** ')) {
+                    texto(contenido.slice(3), { negrita: true, conSiguiente: true });
+                } else if (/^(?:- |\d+\. )/.test(linea)) {
+                    texto(contenido.replace(/^- /, '• '), { sangria: 3, espacio: 1 });
+                } else {
+                    texto(contenido);
+                }
+            }
+
+            const paginas = doc.getNumberOfPages();
+            for (let pagina = 1; pagina <= paginas; pagina++) {
+                doc.setPage(pagina);
+                doc.setFont('helvetica', 'normal');
+                doc.setFontSize(8);
+                doc.setTextColor('#526782');
+                doc.text('CONECTADO2 | Internet para Fincas', margen, 284);
+                doc.text(`Página ${pagina} de ${paginas}`, 195, 284, { align: 'right' });
+            }
+            return doc;
+        }
+
         function generarPDFFactura(clienteObj) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
@@ -2767,7 +3037,10 @@ function enviarPedido(e) {
                 cargarEquiposRed();
             }
         }
+    window.addEventListener('hashchange', actualizarRutaAdministrativa);
+
     document.addEventListener("DOMContentLoaded", async () => {
+            actualizarRutaAdministrativa();
             cargarProductosTienda();
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session && session.user) {
@@ -2785,5 +3058,15 @@ function enviarPedido(e) {
             }
         });
     </script>
+    <dialog id="vista-contrato-cliente" onclose="limpiarVistaContrato()" aria-labelledby="titulo-vista-contrato" class="m-auto w-[min(94vw,900px)] max-w-none overflow-hidden rounded-2xl bg-white p-0 shadow-xl backdrop:bg-slate-900/60">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4">
+            <h2 id="titulo-vista-contrato" class="font-bold text-slate-900">Mi contrato de internet</h2>
+            <div class="flex flex-wrap items-center gap-2">
+                <a id="descargar-contrato-cliente" class="rounded-lg bg-emerald-700 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-800" download>Descargar PDF</a>
+                <button type="button" onclick="cerrarVistaContrato()" class="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100">Cerrar</button>
+            </div>
+        </div>
+        <iframe id="pdf-contrato-cliente" title="Vista previa del contrato en PDF" class="block h-[65vh] w-full bg-slate-50"></iframe>
+    </dialog>
 </body>
 </html>
