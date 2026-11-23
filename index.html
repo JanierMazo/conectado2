@@ -2067,7 +2067,9 @@ history.replaceState(null, '', window.location.pathname + window.location.search
             btn.addEventListener('click',callback);actions.appendChild(btn);
         };
         addAction(user.estado_pago === 'Pagado'?'↩ Marcar pendiente':'💵 Marcar pagado',()=>cambiarEstadoPago(cedula,user.estado_pago==='Pagado'?'Pendiente':'Pagado'));
-        addAction('📄 Descargar PDF',()=>validarYGenerarPDF(user));
+        addAction('Agregar PDF a Drive', () => window.abrirDriveCliente(user, 'factura'));
+        addAction('Crear o abrir carpeta en Drive', () => window.abrirDriveCliente(user, 'carpeta'));
+        addAction('Subir comprobante', () => window.abrirDriveCliente(user, 'comprobante'));
         addAction('📲 Factura WhatsApp',()=>enviarFacturaWhatsApp(cedula));
         addAction('⭐ Tarifa especial / normal',()=>cambiarTarifaEspecial(cedula,!(user.promocion==='Sí')));
         addAction(user.estado_servicio==='Suspendido'?'✅ Reactivar':'🚫 Suspender',()=>cambiarEstadoServicio(cedula,user.estado_servicio==='Suspendido'?'Activo':'Suspendido'));
@@ -2821,11 +2823,9 @@ Conectamos el campo con nuevas oportunidades.
         return doc;
     }
 
-    function generarPDFFactura(clienteObj) {
+    function generarPDFFactura(clienteObj, periodo = obtenerPeriodoFacturacion(), guardar = true) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('p', 'mm', 'a4');
-        const periodo = obtenerPeriodoFacturacion();
-
         const verdeOscuro = [6, 78, 59]; 
         const verdeBosque = [16, 185, 129]; 
         const grisFondo = [248, 250, 252]; 
@@ -3012,7 +3012,8 @@ Conectamos el campo con nuevas oportunidades.
             .replace(/[^a-zA-Z0-9]+/g, '_')
             .replace(/^_+|_+$/g, '')
             .toUpperCase() || String(clienteObj.cedula || 'CLIENTE');
-        doc.save(`Factura_Conectado2_${nombreCompletoArchivo}_${periodo.mes}.pdf`);
+        if (guardar) doc.save(`Factura_Conectado2_${nombreCompletoArchivo}_${periodo.mes}.pdf`);
+        return doc;
     }
     // --- GESTIÓN DE IPS (CLIENTES, SECTORIALES Y SERVIDOR) ---
     function formatearUrlIP(valor) {
@@ -3239,11 +3240,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     <p style="margin:12px 0;">Elige una carpeta privada en Google Drive y selecciona el documento que deseas subir.</p>
     <button id="elegir-carpeta-drive" type="button" class="bg-emerald-700 text-white px-3 py-2 rounded-lg">Elegir carpeta en Drive</button>
     <p id="carpeta-drive" style="margin:8px 0;">Ninguna carpeta seleccionada.</p>
+    <fieldset style="margin:12px 0;padding:12px;border:1px solid #cbd5e1;border-radius:8px;">
+        <legend>Facturas y comprobantes por cliente</legend>
+        <p id="cliente-drive-actual"></p>
+        <label>Carpeta de facturación <button type="button" id="raiz-facturas">Elegir en Drive</button></label>
+        <p id="nombre-raiz-facturas">Sin carpeta de facturación</p>
+        <label>Mes <input type="month" id="mes-facturas"></label>
+        <label id="selector-cliente-drive">Cliente <select id="cliente-facturas"></select></label>
+        <button type="button" id="abrir-carpeta-cliente-drive">Crear o abrir carpeta del cliente</button>
+        <div class="flex flex-wrap gap-2">
+            <button type="button" id="guardar-factura-drive">Guardar factura</button>
+            <button type="button" id="guardar-lote-drive">Guardar facturas del mes</button>
+        </div>
+        <label>Comprobante <input type="file" id="comprobante-drive" accept="application/pdf,image/*"></label>
+        <button type="button" id="guardar-comprobante-drive">Subir comprobante</button>
+        <p id="estado-facturas-drive" role="status"></p>
+        <a id="enlace-facturas-drive" class="hidden" target="_blank" rel="noopener noreferrer">Abrir documento en Drive</a>
+    </fieldset>
+    <div id="archivos-generales-drive">
     <label for="archivo-drive">Archivo (máximo 5 MB)</label>
     <input id="archivo-drive" type="file" style="display:block;margin-bottom:12px;">
     <button id="subir-archivo-drive" type="button" class="bg-emerald-700 text-white px-3 py-2 rounded-lg">Subir archivo</button>
     <p id="estado-drive" role="status" style="margin-top:12px;"></p>
     <a id="abrir-archivo-drive" class="hidden text-emerald-700" target="_blank" rel="noopener noreferrer">Abrir en Google Drive</a>
+    </div>
 </dialog>
 <script>
 (() => {
@@ -3338,7 +3358,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    selectFolder.addEventListener('click', async () => {
+    selectFolder.addEventListener('click', () => elegirCarpeta(false));
+    async function elegirCarpeta(paraFacturas) {
         selectFolder.disabled = true;
         upload.disabled = true;
         status.textContent = '';
@@ -3361,8 +3382,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                 .setTitle('Elige la carpeta de destino')
                 .setCallback((data) => {
                     if (data.action === pickerApi.Action.PICKED) {
-                        folder = data.docs[0];
-                        folderLabel.textContent = 'Carpeta: ' + folder.name;
+                        if (paraFacturas) {
+                            raizFacturas = data.docs[0];
+                            buscar('nombre-raiz-facturas').textContent = raizFacturas.name;
+                            ultimoLote = '';
+                            void revisarLote();
+                        } else {
+                            folder = data.docs[0];
+                            folderLabel.textContent = 'Carpeta: ' + folder.name;
+                        }
                     }
                     if (data.action === pickerApi.Action.PICKED || data.action === pickerApi.Action.CANCEL) {
                         dialog.showModal();
@@ -3377,7 +3405,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             selectFolder.disabled = false;
             upload.disabled = false;
         }
-    });
+    }
 
     upload.addEventListener('click', async () => {
         upload.disabled = true;
@@ -3428,11 +3456,278 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
+    const buscar = (id) => document.getElementById(id);
+    const mesInput = buscar('mes-facturas');
+    const clientes = buscar('cliente-facturas');
+    const estado = buscar('estado-facturas-drive');
+    const enlace = buscar('enlace-facturas-drive');
+    let raizFacturas = null;
+    let clienteEnFicha = null;
+    let ocupado = false;
+    let ultimoLote = '';
+
+    function fechaBogota() {
+        const partes = new Intl.DateTimeFormat('en-CA', {
+            timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+        }).formatToParts(new Date());
+        return Object.fromEntries(partes.map(({type, value}) => [type, value]));
+    }
+
+    function mesActual() {
+        const { year, month } = fechaBogota();
+        return year + '-' + month;
+    }
+
+    function actualizarSelectorClientes() {
+        const anterior = clientes.value;
+        clientes.replaceChildren(new Option('Selecciona un cliente', ''));
+        for (const u of listaUsuariosGlobal) {
+            if (u.cedula) clientes.add(new Option([u.nombre, u.apellido].filter(Boolean).join(' '), u.cedula));
+        }
+        clientes.value = anterior;
+        if (!mesInput.value) mesInput.value = mesActual();
+    }
+
+    function mostrarModoCliente(usuario) {
+        clienteEnFicha = usuario;
+        buscar('cliente-drive-actual').textContent = usuario
+            ? [usuario.nombre, usuario.apellido].filter(Boolean).join(' ') : '';
+        buscar('selector-cliente-drive').hidden = Boolean(usuario);
+        buscar('guardar-lote-drive').hidden = Boolean(usuario);
+        buscar('archivos-generales-drive').hidden = Boolean(usuario);
+        estado.textContent = '';
+        enlace.classList.add('hidden');
+    }
+
+    open.addEventListener('click', () => {
+        mostrarModoCliente(null);
+        actualizarSelectorClientes();
+    });
+
+    window.abrirDriveCliente = (usuario, accion) => {
+        if (ocupado || !verificarPermisoEsteban('factura')) return;
+        mostrarModoCliente(usuario);
+        mesInput.value = mesActual();
+        buscar('comprobante-drive').value = '';
+        dialog.showModal();
+        const controles = {
+            factura: 'guardar-factura-drive', carpeta: 'abrir-carpeta-cliente-drive',
+            comprobante: 'comprobante-drive'
+        };
+        buscar(raizFacturas ? controles[accion] : 'raiz-facturas').focus();
+    };
+
+    buscar('abrir-carpeta-cliente-drive').addEventListener('click', () => ejecutarArchivo(async (raiz) => {
+        const carpeta = await carpetaDelCliente(raiz, usuarioSeleccionado());
+        enlace.href = 'https://drive.google.com/drive/folders/' + encodeURIComponent(carpeta.id);
+        enlace.textContent = 'Abrir carpeta del cliente en Google Drive';
+        enlace.classList.remove('hidden');
+        estado.textContent = 'La carpeta del cliente está lista.';
+    }));
+    buscar('raiz-facturas').addEventListener('click', () => {
+        if (!ocupado) void elegirCarpeta(true);
+    });
+    const mimeCarpeta = 'application/vnd.google-apps.folder';
+    const camposDrive = 'id,name,webViewLink,createdTime';
+
+    async function peticionDrive(url, opciones = {}) {
+        if (!accessToken || Date.now() >= expiresAt - 10000) {
+            throw new Error('Vuelve a elegir la carpeta de facturación para autorizar Drive.');
+        }
+        const respuesta = await fetch('https://www.googleapis.com/' + url, {
+            ...opciones, headers: { ...opciones.headers, Authorization: 'Bearer ' + accessToken }
+        });
+        if (respuesta.status === 401) {
+            accessToken = '';
+            throw new Error('La autorización venció. Vuelve a elegir la carpeta de facturación.');
+        }
+        if (!respuesta.ok) throw new Error('Google Drive rechazó la operación (' + respuesta.status + ').');
+        return respuesta.json();
+    }
+
+    const literalDrive = (x) => "'" + String(x).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
+    async function buscarDocumento(padre, clave) {
+        const q = literalDrive(padre) + " in parents and trashed = false and appProperties has { key='conectado2' and value=" + literalDrive(clave) + " }";
+        const params = new URLSearchParams({ q, fields: 'files(' + camposDrive + ')', pageSize: '1', orderBy: 'createdTime' });
+        return (await peticionDrive('drive/v3/files?' + params)).files[0];
+    }
+
+    async function asegurarCarpeta(padre, nombre, clave) {
+        const existente = await buscarDocumento(padre, clave);
+        if (existente) return existente;
+        return peticionDrive('drive/v3/files?fields=' + camposDrive, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: nombre, parents: [padre], mimeType: mimeCarpeta, appProperties: { conectado2: clave } })
+        });
+    }
+
+    async function cargarDocumento(padre, nombre, blob, clave) {
+        const limite = 'conectado2-' + crypto.randomUUID();
+        const datos = { name: nombre, parents: [padre], mimeType: blob.type || 'application/octet-stream' };
+        if (clave) datos.appProperties = { conectado2: clave };
+        return peticionDrive('upload/drive/v3/files?uploadType=multipart&fields=' + camposDrive, {
+            method: 'POST',
+            headers: { 'Content-Type': 'multipart/related; boundary=' + limite },
+            body: new Blob([
+                '--' + limite + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(datos),
+                '\r\n--' + limite + '\r\nContent-Type: ' + datos.mimeType + '\r\n\r\n',
+                blob, '\r\n--' + limite + '--\r\n'
+            ])
+        });
+    }
+
+    function periodoDrive(mes) {
+        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(mes)) throw new Error('Selecciona un mes válido.');
+        const [anio, numero] = mes.split('-');
+        const texto = new Intl.DateTimeFormat('es-CO', { month: 'long', timeZone: 'UTC' })
+            .format(new Date(mes + '-01T00:00:00Z'));
+        return { mes: texto.charAt(0).toUpperCase() + texto.slice(1), anio, numero };
+    }
+
+    async function carpetaDelCliente(raiz, usuario) {
+        const nombre = [usuario.nombre, usuario.apellido].filter(Boolean).join(' ') || 'Cliente';
+        const clave = 'cliente-' + String(usuario.cedula);
+        return asegurarCarpeta(raiz.id, nombre, clave);
+    }
+
+    async function carpetaDelMes(raiz, usuario, mes) {
+        const cliente = await carpetaDelCliente(raiz, usuario);
+        return asegurarCarpeta(cliente.id, mes, 'periodo-' + mes);
+    }
+
+    async function archivarFactura(raiz, usuario, mes) {
+        const periodo = periodoDrive(mes);
+        const carpeta = await carpetaDelMes(raiz, usuario, mes);
+        const existente = await buscarDocumento(carpeta.id, 'factura');
+        if (existente) return { doc: existente, existente: true };
+        const pdf = generarPDFFactura(usuario, periodo, false).output('blob');
+        const doc = await cargarDocumento(carpeta.id, 'Factura ' + periodo.mes + ' ' + periodo.anio + '.pdf', pdf, 'factura');
+        return { doc, existente: false };
+    }
+
+    function mostrarDocumento(doc) {
+        enlace.textContent = 'Abrir documento en Google Drive';
+        enlace.href = doc.webViewLink || 'https://drive.google.com/open?id=' + encodeURIComponent(doc.id);
+        enlace.classList.remove('hidden');
+    }
+
+    async function ejecutarArchivo(operacion, silencioso = false) {
+        if (ocupado) return;
+        if (typeof verificarPermisoEsteban === 'function' && !verificarPermisoEsteban('factura')) return;
+        ocupado = true;
+        enlace.classList.add('hidden');
+        try {
+            await verifyAdmin();
+            if (!raizFacturas) throw new Error('Elige la carpeta de facturación en Drive.');
+            if (!accessToken || Date.now() >= expiresAt - 10000) {
+                throw new Error('Vuelve a elegir la carpeta de facturación para autorizar Drive.');
+            }
+            const raiz = raizFacturas;
+            if (navigator.locks) {
+                await navigator.locks.request('conectado2-facturacion-' + raiz.id, () => operacion(raiz));
+            } else {
+                await operacion(raiz);
+            }
+        } catch (error) {
+            estado.textContent = error.message;
+            if (silencioso) ultimoLote = '';
+        } finally {
+            ocupado = false;
+        }
+    }
+
+    function usuarioSeleccionado() {
+        const usuario = clienteEnFicha || listaUsuariosGlobal.find((u) => String(u.cedula) === clientes.value);
+        if (!usuario) throw new Error('Selecciona un cliente.');
+        return { ...usuario, cedula: String(usuario.cedula) };
+    }
+
+    function validarMesFactura(mes) {
+        periodoDrive(mes);
+        if (mes > mesActual() || (mes === mesActual() && Number(fechaBogota().day) < 20)) {
+            throw new Error('La factura del mes queda disponible a partir del día 20.');
+        }
+    }
+
+    buscar('guardar-factura-drive').addEventListener('click', () => ejecutarArchivo(async (raiz) => {
+        const mes = mesInput.value;
+        validarMesFactura(mes);
+        const { doc, existente } = await archivarFactura(raiz, usuarioSeleccionado(), mes);
+        estado.textContent = existente ? 'La factura ya estaba guardada.' : 'Factura guardada en Drive.';
+        mostrarDocumento(doc);
+    }));
+
+    buscar('guardar-comprobante-drive').addEventListener('click', () => ejecutarArchivo(async (raiz) => {
+        const entrada = buscar('comprobante-drive');
+        const archivo = entrada.files[0];
+        if (!archivo || archivo.size > 5000000 || !/^(application\/pdf|image\/[^;]+)$/.test(archivo.type)) {
+            throw new Error('Selecciona un PDF o una imagen de hasta 5 MB.');
+        }
+        const mes = mesInput.value;
+        const periodo = periodoDrive(mes);
+        const destino = await carpetaDelMes(raiz, usuarioSeleccionado(), mes);
+        const { year, month, day, hour, minute, second } = fechaBogota();
+        const marca = [year, month, day].join('-') + ' ' + [hour, minute, second].join('-');
+        const extension = (archivo.name.match(/\.[a-z0-9]{1,8}$/i) || [''])[0];
+        const nombre = 'Comprobante ' + periodo.mes + ' ' + periodo.anio + ' - subido ' + marca + extension;
+        const doc = await cargarDocumento(destino.id, nombre, archivo);
+        const fecha = doc.createdTime ? new Date(doc.createdTime).toLocaleString('es-CO', {timeZone:'America/Bogota'}) : marca;
+        estado.textContent = 'Comprobante guardado. Fecha de carga: ' + fecha + ' (Colombia).';
+        entrada.value = '';
+        mostrarDocumento(doc);
+    }));
+
+    async function guardarLote(raiz, mes) {
+        validarMesFactura(mes);
+        const { data, error } = await supabaseClient.from('usuarios_conectado2').select('*');
+        if (error) throw new Error('No se pudo consultar la lista de clientes.');
+        const activos = (data || []).filter((u) => (u.estado_servicio || 'Activo') === 'Activo' && u.cedula);
+        let nuevas = 0;
+        let existentes = 0;
+        let fallidas = 0;
+        for (const u of activos) {
+            if (!raizFacturas || raiz.id !== raizFacturas.id) throw new Error('La operación se interrumpió al cerrar la sesión.');
+            estado.textContent = 'Procesando ' + (nuevas + existentes + fallidas + 1) + ' de ' + activos.length + '…';
+            try {
+                const resultado = await archivarFactura(raiz, { ...u, cedula: String(u.cedula) }, mes);
+                if (resultado.existente) existentes++;
+                else nuevas++;
+            } catch (error) {
+                fallidas++;
+                if (!accessToken || Date.now() >= expiresAt - 10000) break;
+            }
+        }
+        const pendientes = activos.length - nuevas - existentes;
+        estado.textContent = 'Facturas nuevas: ' + nuevas + '. Ya guardadas: ' + existentes + '. Pendientes: ' + pendientes + '.';
+        if (!pendientes) ultimoLote = raiz.id + ':' + mes;
+    }
+
+    buscar('guardar-lote-drive').addEventListener('click', () =>
+        ejecutarArchivo((raiz) => guardarLote(raiz, mesInput.value))
+    );
+
+    function revisarLote() {
+        const mes = mesActual();
+        if (clienteEnFicha || ocupado || !raizFacturas || !accessToken || Date.now() >= expiresAt - 10000
+            || Number(fechaBogota().day) < 20 || ultimoLote === raizFacturas.id + ':' + mes) return;
+        return ejecutarArchivo((raiz) => guardarLote(raiz, mes), true);
+    }
+
+    setInterval(revisarLote, 60000);
+
     supabaseClient.auth.onAuthStateChange((event) => {
         if (event === 'SIGNED_OUT') {
             accessToken = '';
             expiresAt = 0;
             folder = null;
+            raizFacturas = null;
+            clienteEnFicha = null;
+            ultimoLote = '';
+            buscar('nombre-raiz-facturas').textContent = 'Sin carpeta de facturación';
+            buscar('comprobante-drive').value = '';
+            estado.textContent = '';
+            enlace.classList.add('hidden');
             fileInput.value = '';
             folderLabel.textContent = 'Ninguna carpeta seleccionada.';
             status.textContent = '';
