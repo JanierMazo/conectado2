@@ -3224,13 +3224,223 @@ document.addEventListener("DOMContentLoaded", async () => {
         <section>
             <h3 style="font-size:1rem;font-weight:700;margin:1.25rem 0 .4rem;">4. Facturación, Pagos y Reconexión</h3>
             <ul style="list-style:disc;padding-left:1.4rem;">
-                <li style="margin-bottom:.5rem;">El valor mensual del servicio (plan base de <strong>$60.000 para el 2027</strong>, salvo acuerdos especiales por hospedaje de antenas sectoriales que se dara un descuento de 10.000) se factura con fecha límite de pago los días <strong>24 de cada mes</strong>, contando con un plazo de gracia hasta el día <strong>30</strong>.</li>
-                <li style="margin-bottom:.5rem;">De no registrarse el pago al finalizar el día 30, el sistema suspenderá el servicio automáticamente. Para restablecer la conexión, el Cliente deberá cancelar el saldo pendiente más el cargo por reconexión y desplazamiento técnico (<strong>$100.000</strong> en caso de requerir visita en sitio).</li>
+                <li style="margin-bottom:.5rem;">El valor mensual del servicio (plan base de <strong>$50.000 COP</strong>, salvo acuerdos especiales por hospedaje de nodos/sectoriales) se factura con fecha límite de pago los días <strong>24 de cada mes</strong>, contando con un plazo de gracia hasta el día <strong>30</strong>.</li>
+                <li style="margin-bottom:.5rem;">De no registrarse el pago al finalizar el día 30, el sistema suspenderá el servicio automáticamente. Para restablecer la conexión, el Cliente deberá cancelar el saldo pendiente más el cargo por reconexión y desplazamiento técnico (<strong>$80.000 COP</strong> en caso de requerir visita en sitio).</li>
                 <li style="margin-bottom:.5rem;">El servicio no cuenta con cláusula de permanencia mínima; el Cliente puede solicitar su cancelación en cualquier momento notificándolo con antelación y haciendo entrega formal de los equipos.</li>
             </ul>
         </section>
     </div>
 </dialog>
 
+<dialog id="documentos-drive" aria-labelledby="titulo-documentos-drive"
+    style="margin:auto;width:min(92vw,520px);padding:24px;border:0;border-radius:12px;background:white;color:#334155;">
+    <form method="dialog" style="float:right;"><button>Cerrar</button></form>
+    <h2 id="titulo-documentos-drive" style="font-size:1.25rem;font-weight:700;">Documentos</h2>
+    <p style="margin:12px 0;">Elige una carpeta privada en Google Drive y selecciona el documento que deseas subir.</p>
+    <button id="elegir-carpeta-drive" type="button" class="bg-emerald-700 text-white px-3 py-2 rounded-lg">Elegir carpeta en Drive</button>
+    <p id="carpeta-drive" style="margin:8px 0;">Ninguna carpeta seleccionada.</p>
+    <label for="archivo-drive">Archivo (máximo 5 MB)</label>
+    <input id="archivo-drive" type="file" style="display:block;margin-bottom:12px;">
+    <button id="subir-archivo-drive" type="button" class="bg-emerald-700 text-white px-3 py-2 rounded-lg">Subir archivo</button>
+    <p id="estado-drive" role="status" style="margin-top:12px;"></p>
+    <a id="abrir-archivo-drive" class="hidden text-emerald-700" target="_blank" rel="noopener noreferrer">Abrir en Google Drive</a>
+</dialog>
+<script>
+(() => {
+    const googleDrive = {
+        clientId: '612379181399-tceof0th0hh4a2qaj6d8okju9g18r4tq.apps.googleusercontent.com',  // ID de cliente OAuth de aplicación web
+        projectNumber: '612379181399',  // Número del proyecto de Google Cloud
+        apiKey: 'AIzaSyDUshG03aVLklRSYwe-W8VyDUn273ard_Q'  // Clave de API restringida al sitio y a Google Picker
+    };
+    const scope = 'https://www.googleapis.com/auth/drive.file';
+    const menu = document.getElementById('admin-actions-list');
+    const toolbar = menu.querySelector('.flex.flex-wrap');
+    const dialog = document.getElementById('documentos-drive');
+    const selectFolder = document.getElementById('elegir-carpeta-drive');
+    const upload = document.getElementById('subir-archivo-drive');
+    const fileInput = document.getElementById('archivo-drive');
+    const folderLabel = document.getElementById('carpeta-drive');
+    const status = document.getElementById('estado-drive');
+    const fileLink = document.getElementById('abrir-archivo-drive');
+    let folder = null;
+    let accessToken = '';
+    let expiresAt = 0;
+    let libraries;
+
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.textContent = 'Documentos';
+    open.className = 'px-3 py-2 text-sm text-emerald-700';
+    toolbar.append(open);
+    open.addEventListener('click', () => {
+        menu.classList.add('hidden');
+        dialog.showModal();
+    });
+    document.addEventListener('click', (event) => {
+        if (!document.getElementById('admin-actions-menu').contains(event.target)) {
+            menu.classList.add('hidden');
+        }
+    });
+
+    async function verifyAdmin() {
+        const { data, error } = await supabaseClient.auth.getUser();
+        if (error || !data.user || !obtenerRolAdmin(data.user.email)) {
+            throw new Error('Inicia sesión como administrador para usar Documentos.');
+        }
+    }
+
+    function loadScript(url) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = url;
+            script.onload = resolve;
+            script.onerror = () => reject(new Error('No se pudo cargar la conexión con Google.'));
+            document.head.append(script);
+        });
+    }
+
+    function loadGoogle() {
+        libraries ??= Promise.all([
+            loadScript('https://accounts.google.com/gsi/client'),
+            loadScript('https://apis.google.com/js/api.js').then(() =>
+                new Promise((resolve, reject) => gapi.load('picker', {
+                    callback: resolve,
+                    onerror: () => reject(new Error('No se pudo cargar el selector de carpetas.')),
+                    timeout: 10000,
+                    ontimeout: () => reject(new Error('El selector de carpetas tardó demasiado.'))
+                }))
+            )
+        ]).catch((error) => {
+            libraries = undefined;
+            throw error;
+        });
+        return libraries;
+    }
+
+    function authorize() {
+        return new Promise((resolve, reject) => {
+            const client = google.accounts.oauth2.initTokenClient({
+                client_id: googleDrive.clientId,
+                scope,
+                include_granted_scopes: false,
+                callback: (response) => {
+                    if (response.error || !google.accounts.oauth2.hasGrantedAllScopes(response, scope)) {
+                        reject(new Error('Google no concedió acceso a Drive.'));
+                        return;
+                    }
+                    accessToken = response.access_token;
+                    expiresAt = Date.now() + Number(response.expires_in) * 1000;
+                    resolve();
+                },
+                error_callback: () => reject(new Error('No se completó la autorización de Google.'))
+            });
+            client.requestAccessToken();
+        });
+    }
+
+    selectFolder.addEventListener('click', async () => {
+        selectFolder.disabled = true;
+        upload.disabled = true;
+        status.textContent = '';
+        try {
+            if (!googleDrive.clientId || !googleDrive.projectNumber || !googleDrive.apiKey) {
+                throw new Error('Falta configurar Google Cloud en el archivo index.html.');
+            }
+            await verifyAdmin();
+            await loadGoogle();
+            if (!accessToken || Date.now() >= expiresAt - 10000) await authorize();
+            const pickerApi = google.picker;
+            const view = new pickerApi.DocsView(pickerApi.ViewId.FOLDERS)
+                .setIncludeFolders(true).setSelectFolderEnabled(true);
+            const picker = new pickerApi.PickerBuilder()
+                .addView(view)
+                .setAppId(googleDrive.projectNumber)
+                .setDeveloperKey(googleDrive.apiKey)
+                .setOAuthToken(accessToken)
+                .setOrigin(window.location.origin)
+                .setTitle('Elige la carpeta de destino')
+                .setCallback((data) => {
+                    if (data.action === pickerApi.Action.PICKED) {
+                        folder = data.docs[0];
+                        folderLabel.textContent = 'Carpeta: ' + folder.name;
+                    }
+                    if (data.action === pickerApi.Action.PICKED || data.action === pickerApi.Action.CANCEL) {
+                        dialog.showModal();
+                    }
+                }).build();
+            dialog.close();
+            picker.setVisible(true);
+        } catch (error) {
+            if (!dialog.open) dialog.showModal();
+            status.textContent = error.message;
+        } finally {
+            selectFolder.disabled = false;
+            upload.disabled = false;
+        }
+    });
+
+    upload.addEventListener('click', async () => {
+        upload.disabled = true;
+        selectFolder.disabled = true;
+        status.textContent = '';
+        fileLink.classList.add('hidden');
+        try {
+            await verifyAdmin();
+            const file = fileInput.files[0];
+            if (!folder || !file) throw new Error('Selecciona una carpeta y un archivo.');
+            if (file.size > 5000000) throw new Error('Selecciona un archivo de hasta 5 MB.');
+            if (!accessToken || Date.now() >= expiresAt - 10000) {
+                throw new Error('La autorización venció. Vuelve a elegir la carpeta en Drive.');
+            }
+            const boundary = 'conectado2-' + crypto.randomUUID();
+            const metadata = JSON.stringify({ name: file.name, parents: [folder.id] });
+            const body = new Blob([
+                '--' + boundary + '\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n' + metadata,
+                '\r\n--' + boundary + '\r\nContent-Type: application/octet-stream\r\n\r\n',
+                file, '\r\n--' + boundary + '--\r\n'
+            ]);
+            status.textContent = 'Subiendo ' + file.name + '…';
+            const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=name,webViewLink', {
+                method: 'POST',
+                headers: {
+                    Authorization: 'Bearer ' + accessToken,
+                    'Content-Type': 'multipart/related; boundary=' + boundary
+                },
+                body
+            });
+            if (response.status === 401) {
+                accessToken = '';
+                throw new Error('La autorización venció. Vuelve a elegir la carpeta en Drive.');
+            }
+            if (!response.ok) throw new Error('Google Drive no aceptó la carga. Revisa que tengas permiso de edición en la carpeta.');
+            const result = await response.json();
+            status.textContent = 'Guardado en ' + folder.name + ': ' + result.name;
+            fileInput.value = '';
+            if (result.webViewLink) {
+                fileLink.href = result.webViewLink;
+                fileLink.classList.remove('hidden');
+            }
+        } catch (error) {
+            status.textContent = error.message;
+        } finally {
+            upload.disabled = false;
+            selectFolder.disabled = false;
+        }
+    });
+
+    supabaseClient.auth.onAuthStateChange((event) => {
+        if (event === 'SIGNED_OUT') {
+            accessToken = '';
+            expiresAt = 0;
+            folder = null;
+            fileInput.value = '';
+            folderLabel.textContent = 'Ninguna carpeta seleccionada.';
+            status.textContent = '';
+            fileLink.classList.add('hidden');
+            if (dialog.open) dialog.close();
+        }
+    });
+})();
+</script>
 </body>
 </html>
