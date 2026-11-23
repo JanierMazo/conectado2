@@ -290,6 +290,40 @@ input,select,textarea{max-width:100%}
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
+        /* Menú de herramientas del administrador */
+#admin-actions-list {
+    min-width: 220px !important;
+    padding: 6px !important;
+    border-radius: 8px !important;
+}
+
+#admin-actions-list .flex.flex-wrap {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+}
+
+#admin-actions-list button,
+#admin-actions-list label {
+    display: block !important;
+    width: 100%;
+    background: transparent !important;
+    color: #334155 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 4px !important;
+    padding: 7px 10px !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 1.4;
+    text-align: left;
+    cursor: pointer;
+}
+
+#admin-actions-list button:hover,
+#admin-actions-list label:hover {
+    background: #f1f5f9 !important;
+}
     </style>
 </head>
 <body class="bg-transparent text-slate-800 min-h-screen flex flex-col justify-between">
@@ -341,7 +375,7 @@ input,select,textarea{max-width:100%}
                     🔄 Reiniciar Mes (Marcar Pendientes)
                 </button>
                 <button onclick="abrirModalNuevoProducto()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-1">
-                    📷 ➕ Agregar Producto / Cámara
+                    ➕ Agregar Producto
                 </button>
                 <button onclick="exportarExcelAdmin()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm">📤 Exportar Excel</button>
                 <label class="cursor-pointer bg-slate-700 hover:bg-slate-800 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition shadow-sm flex items-center gap-2">
@@ -997,7 +1031,7 @@ input,select,textarea{max-width:100%}
                     <img src="https://vebsnjvihcxigmkvcsem.supabase.co/storage/v1/object/public/branding/LOGO.jpeg" alt="Conectado2 Logo" class="h-8 w-auto object-contain">
                 </div>
                 <p class="text-emerald-300/80 leading-relaxed">
-                    Conectado2 S.A.S. Red inalámbrica y radioenlace de alta velocidad con respaldo Starlink Empresarial para Toledo, Antioquia y sus zonas rurales.
+                    Conectado2 Red inalámbrica y radioenlace para Toledo, Antioquia y sus zonas rurales.
                 </p>
             </div>
 
@@ -1016,10 +1050,7 @@ input,select,textarea{max-width:100%}
             <div class="space-y-2">
                 <h4 class="font-bold text-white text-sm">Legalidad</h4>
                 <ul class="space-y-1.5 text-emerald-300/80">
-                    <li><a href="#" class="hover:text-white transition">Normativa del servicio</a></li>
-                    <li><a href="#" class="hover:text-white transition">Protección infantil</a></li>
-                    <li><a href="#" class="hover:text-white transition">Control parental</a></li>
-                    <li><a href="#" class="hover:text-white transition">Términos y condiciones</a></li>
+                    <li><button type="button" class="hover:text-white transition" onclick="document.getElementById('terminos-publicos').showModal()">Términos y condiciones</button></li>
                 </ul>
             </div>
 
@@ -1027,8 +1058,8 @@ input,select,textarea{max-width:100%}
             <div class="space-y-2">
                 <h4 class="font-bold text-white text-sm">Contacto Directo</h4>
                 <ul class="space-y-1.5 text-emerald-300/80">
-                    <li>📞 +57 302 447 2764</li>
-                    <li>✉️ soporte@conectado2.online</li>
+                    <li>📞 +57 3024472764</li>
+                    <li>✉️ jeliasmazo@gmail.com</li>
                     <li>📍 Toledo, Antioquia, Colombia</li>
                     <li class="pt-0.5 text-emerald-400 font-semibold">🏢 Sede Itagüí, Antioquia, Colombia</li>
                 </ul>
@@ -1037,8 +1068,8 @@ input,select,textarea{max-width:100%}
 
         <!-- Fila Inferior: Copyright -->
         <div class="border-t border-emerald-900/60 pt-6 flex flex-col md:flex-row justify-between items-center text-[11px] text-emerald-400/70 gap-2">
-            <p>© 2026 Conectado2 S.A.S. - NIT 901.654.321-8</p>
-            <p>Todos los derechos reservados. Toledo & Itagüí, Antioquia</p>
+            <p>© 2026 Conectado2 </p>
+            <p>Todos los derechos reservados. Itagüí, Antioquia</p>
         </div>
     </div>
 </footer>
@@ -3154,6 +3185,51 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
     </div>
     <iframe id="pdf-contrato-cliente" title="Vista previa del contrato en PDF" class="block h-[65vh] w-full bg-slate-50"></iframe>
+</dialog>
+
+<dialog id="terminos-publicos" aria-labelledby="titulo-terminos-publicos"
+    style="width:min(92vw,720px);max-height:85vh;overflow:auto;margin:auto;padding:24px;border:0;border-radius:12px;background:#fff;color:#334155;box-shadow:0 12px 40px #0005;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;">
+        <h2 id="titulo-terminos-publicos" style="font-size:1.25rem;font-weight:700;">Términos y condiciones de Conectado2</h2>
+        <form method="dialog">
+            <button type="submit" autofocus style="padding:6px 12px;border-radius:6px;background:#ecfdf5;color:#065f46;">Cerrar</button>
+        </form>
+    </div>
+    <div style="font-size:14px;line-height:1.65;">
+        <section>
+            <h3 style="font-size:1rem;font-weight:700;margin:1.25rem 0 .4rem;">1. Uso Responsable y Política de Uso Justo (FUP)</h3>
+            <ul style="list-style:disc;padding-left:1.4rem;">
+                <li style="margin-bottom:.5rem;">El servicio de internet ofrecido por <strong>Conectado2</strong> es de navegación <strong>ilimitada</strong> en cuanto a tiempo de conexión y acceso general; sin embargo, está sujeto a nuestra <strong>Política de Uso Justo y Responsable</strong> para garantizar la estabilidad de toda la red rural.</li>
+                <li style="margin-bottom:.5rem;">El servicio está diseñado para uso doméstico, académico y laboral estándar. No está permitido utilizar la conexión para reventa de señal, nodos de descarga masiva continua (torrents 24/7, servidores de alto tráfico) ni actividades ilícitas.</li>
+                <li style="margin-bottom:.5rem;"><strong>Gestión de tráfico y reducción temporal de velocidad:</strong> Dado que nuestra infraestructura opera mediante enlaces inalámbricos y satelitales compartidos (Starlink / Tigo), si un usuario registra un consumo excesivo y sostenido de datos que afecte el rendimiento de los demás vecinos conectados al mismo nodo, <strong>Conectado2</strong> aplicará una reducción temporal en la velocidad de navegación (hasta de 20 Mbps base según el plan) para equilibrar la red, restableciéndose una vez disminuya la congestión o inicie el nuevo ciclo. Asimismo, en horas pico nocturnas la velocidad puede presentar variaciones normales propias del tráfico en la red.</li>
+            </ul>
+        </section>
+        <section>
+            <h3 style="font-size:1rem;font-weight:700;margin:1.25rem 0 .4rem;">2. Alcance del Soporte Técnico y Aplicaciones de Terceros</h3>
+            <ul style="list-style:disc;padding-left:1.4rem;">
+                <li style="margin-bottom:.5rem;">El soporte técnico de <strong>Conectado2</strong> cubre exclusivamente la conectividad de internet hasta el router principal instalado en el predio del Cliente.</li>
+                <li style="margin-bottom:.5rem;"><strong>Exclusión de televisores y aplicaciones no oficiales:</strong> <strong>Conectado2 NO brinda soporte técnico, configuración, instalación ni garantía de funcionamiento</strong> sobre televisores (Smart TV), TV Box, consolas, ni aplicaciones de streaming de terceros o plataformas no oficiales/piratas (tales como <strong>Magis TV</strong>, listas IPTV, entre otras).</li>
+                <li style="margin-bottom:.5rem;">Si el servicio de internet funciona correctamente en celulares o computadores y la falla se presenta únicamente en una aplicación de televisión o streaming externo, el inconveniente es ajeno a <strong>Conectado2</strong> y no dará lugar a visitas técnicas gratuitas ni descuentos en la facturación.</li>
+            </ul>
+        </section>
+        <section>
+            <h3 style="font-size:1rem;font-weight:700;margin:1.25rem 0 .4rem;">3. Propiedad de los Equipos (Comodato) y Responsabilidad por Daños</h3>
+            <ul style="list-style:disc;padding-left:1.4rem;">
+                <li style="margin-bottom:.5rem;">Todos los equipos instalados para la prestación del servicio —incluyendo <strong>antenas receptoras Ubiquiti</strong> (LiteBeam, NanoStation u otras referencias), fuentes PoE, mástiles, cableado exterior y <strong>routers Wi-Fi</strong> (TP-Link u otras marcas)— son y seguirán siendo <strong>propiedad exclusiva de Conectado2</strong>, entregados al Cliente únicamente en calidad de <strong>comodato (préstamo de uso)</strong> mientras el servicio se encuentre activo.</li>
+                <li style="margin-bottom:.5rem;">Queda estrictamente prohibido vender, empeñar, trasladar de vivienda sin autorización, abrir o manipular internamente los equipos. Al finalizar el contrato, el Cliente deberá devolver la totalidad de los equipos en buen estado.</li>
+                <li style="margin-bottom:.5rem;"><strong>Cobertura de daños físicos y eléctricos:</strong> El Cliente es responsable del cuidado y custodia de los equipos dentro de su propiedad. Cualquier daño físico, golpe, caída, humedad por mala ubicación interior, manipulación indebida o daño eléctrico (incluyendo quemaduras por tormentas eléctricas al no desconectar los equipos de la corriente durante tempestades) <strong>deberá ser cubierto en su totalidad (100%) por el Cliente</strong>.</li>
+                <li style="margin-bottom:.5rem;"><strong>Valores de reposición:</strong> En caso de daño total, pérdida o robo de cualquiera de los dispositivos, el Cliente deberá asumir el valor comercial de reposición del equipo afectado, el cual puede ser consultado y verificado en cualquier momento directamente en nuestra página web oficial en la sección de tarifas y equipos.</li>
+            </ul>
+        </section>
+        <section>
+            <h3 style="font-size:1rem;font-weight:700;margin:1.25rem 0 .4rem;">4. Facturación, Pagos y Reconexión</h3>
+            <ul style="list-style:disc;padding-left:1.4rem;">
+                <li style="margin-bottom:.5rem;">El valor mensual del servicio (plan base de <strong>$60.000 para el 2027</strong>, salvo acuerdos especiales por hospedaje de antenas sectoriales que se dara un descuento de 10.000) se factura con fecha límite de pago los días <strong>24 de cada mes</strong>, contando con un plazo de gracia hasta el día <strong>30</strong>.</li>
+                <li style="margin-bottom:.5rem;">De no registrarse el pago al finalizar el día 30, el sistema suspenderá el servicio automáticamente. Para restablecer la conexión, el Cliente deberá cancelar el saldo pendiente más el cargo por reconexión y desplazamiento técnico (<strong>$100.000</strong> en caso de requerir visita en sitio).</li>
+                <li style="margin-bottom:.5rem;">El servicio no cuenta con cláusula de permanencia mínima; el Cliente puede solicitar su cancelación en cualquier momento notificándolo con antelación y haciendo entrega formal de los equipos.</li>
+            </ul>
+        </section>
+    </div>
 </dialog>
 
 </body>
